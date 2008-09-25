@@ -37,7 +37,7 @@ textdomain="online-migration"
 		<module>
 		    <label>Renew Update Stack</label>
 		    <name>update_online_mechanism</name>
-		    <execute>update_online_mechanism</execute>
+		    <execute>wagon_selfupdate</execute>
 		</module>
 
 		<!-- Register to get a new migration URL -->
@@ -51,7 +51,7 @@ textdomain="online-migration"
 		<module>
 		    <label>Update</label>
 		    <name>online_update</name>
-		    <execute>inst_you</execute>
+		    <execute>wagon_you</execute>
 		</module>
 
 		<!-- Register the new product -->

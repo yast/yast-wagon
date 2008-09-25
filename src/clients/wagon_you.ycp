@@ -1,0 +1,25 @@
+/**
+ * File:
+ *	clients/wagon_you.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
+{
+    import "Internet";
+
+    Internet::do_you = true;
+    any ret = WFM::call ("inst_you");
+
+    return ret;
+}

@@ -1,0 +1,61 @@
+/**
+ * File:
+ *	clients/wagon_selfupdate.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
+{
+    import "Wizard";
+    import "GetInstArgs";
+    import "Popup";
+    import "Internet";
+
+    textdomain "wagon";
+
+    map argmap = GetInstArgs::argmap();
+
+    // heading text
+    string heading_text = _("Wagon Self-Update");
+
+    term contents = `VBox (
+	`Label (_("Wagon has just updated itself"))
+    );
+
+    // help text
+    string help_text = _("<p>FIXME: some help is needed</p>");
+
+    Wizard::SetContents (heading_text, contents, help_text,
+	argmap["enable_back"]:true , argmap["enable_next"]:true);
+    Wizard::EnableAbortButton ();
+
+    any ret = nil;
+
+    while (true) {
+	ret = UI::UserInput();
+
+	if (ret == `back) {
+	    break;
+	} else if ((ret == `abort || ret == `cancel) && Popup::ConfirmAbort (`painless)) {
+	    Wizard::RestoreNextButton();
+	    ret = `abort;
+	    break;
+	} else if (ret == `next) {
+	    break;
+	} else {
+	    y2error ("Unknown ret: %1", ret);
+	}
+    }
+
+    return ret;
+}
