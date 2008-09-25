@@ -1,0 +1,25 @@
+{
+    import "ProductControl";
+    import "Mode";
+    import "Stage";
+    import "Wizard";
+
+    void Init () {
+	ProductControl::custom_control_file = "online_migration.xml";
+	// FIXME: evaluate return
+	ProductControl::Init();
+
+	Mode::SetMode ("update");
+	Stage::Set ("normal");
+
+	ProductControl::AddWizardSteps ([$["stage":Stage::stage(), "mode":Mode::mode()]]);
+    }
+
+    Wizard::OpenNextBackStepsDialog();
+    Wizard::SetTitleIcon ("yast-update");
+    Init();
+    symbol ret = ProductControl::Run();
+    Wizard::CloseDialog();
+
+    return `auto;
+}

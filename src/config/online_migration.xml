@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<productDefines  xmlns="http://www.suse.com/1.0/yast2ns"
+    xmlns:config="http://www.suse.com/1.0/configns">
+
+<!-- 
+Work around for the text domain 
+textdomain="online-migration"
+-->
+    <textdomain>online-migration</textdomain>
+
+    <workflows config:type="list">
+
+	<workflow>
+	    <defaults>
+		<archs>all</archs>
+		<enable_back>yes</enable_back>
+		<enable_next>yes</enable_next>
+	    </defaults>
+
+	    <label>Online Migration</label>
+	    <!-- Mode: update, Stage: normal -->
+	    <mode>update</mode>
+	    <stage>normal</stage>
+
+	    <modules config:type="list">
+		<!-- Some welcome screen to inform user what is it all about -->
+		<module>
+		    <label>Welcome</label>
+		    <name>complex_welcome</name>
+		    <execute>inst_complex_welcome</execute>
+		    <enable_back>no</enable_back>
+		</module>
+
+		<!-- Update itself, Update to new product -->
+		<module>
+		    <label>Renew Update Stack</label>
+		    <name>update_online_mechanism</name>
+		    <execute>update_online_mechanism</execute>
+		</module>
+
+		<!-- Register to get a new migration URL -->
+		<module>
+		    <label>Get New Update URL</label>
+		    <name>suse_register_before</name>
+		    <execute>inst_suse_register</execute>
+		</module>
+
+		<!-- Proceed with the Update/Upgrade -->
+		<module>
+		    <label>Update</label>
+		    <name>online_update</name>
+		    <execute>inst_you</execute>
+		</module>
+
+		<!-- Register the new product -->
+		<module>
+		    <label>Registration</label>
+		    <name>suse_register_after</name>
+		    <execute>inst_suse_register</execute>
+		</module>
+
+		<module>
+		    <label>Finished</label>
+		    <name>finished</name>
+		    <execute>inst_congratulate</execute>
+		</module>
+	    </modules>
+	</workflow>
+
+    </workflows>
+
+</productDefines>

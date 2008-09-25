@@ -1,0 +1,13 @@
+{
+
+// testedfiles: Wagon.ycp
+
+include "testsuite.ycp";
+TESTSUITE_INIT([], nil);
+
+import "Wagon";
+
+DUMP("Wagon::Modified");
+TEST(``(Wagon::Modified()), [], nil);
+
+}
