@@ -1,3 +1,20 @@
+/**
+ * File:
+ *	clients/welcome_in_wagon.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
 {
     import "Wizard";
     import "GetInstArgs";

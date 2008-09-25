@@ -1,3 +1,20 @@
+/**
+ * File:
+ *	clients/wagon.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *	Alois Nebel <e-mail address is unknown>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
 {
     import "ProductControl";
     import "Mode";
