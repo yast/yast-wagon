@@ -4,8 +4,7 @@
 
 controldir = $(yast2dir)/control
 
-control_DATA = \
-        online_migration.xml
+control_DATA = $(wildcard *.xml)
 
 desktop_DATA =
 

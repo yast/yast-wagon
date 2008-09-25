@@ -1,0 +1,46 @@
+{
+    import "Wizard";
+    import "GetInstArgs";
+    import "Popup";
+
+    textdomain "wagon";
+
+    map argmap = GetInstArgs::argmap();
+
+    // heading text
+    string heading_text = _("Welcome");
+
+    term contents = `VBox (
+	`Label (_("Dear user,
+Welcome to the World of Online Migration.
+
+Good luck!"))
+    );
+
+    // help text
+    string help_text = _("<p>FIXME: some help is needed</p>");
+
+    Wizard::SetContents (heading_text, contents, help_text,
+	argmap["enable_back"]:true , argmap["enable_next"]:true);
+    Wizard::EnableAbortButton ();
+
+    any ret = nil;
+
+    while (true) {
+	ret = UI::UserInput();
+
+	if (ret == `back) {
+	    break;
+	} else if ((ret == `abort || ret == `cancel) && Popup::ConfirmAbort (`painless)) {
+	    Wizard::RestoreNextButton();
+	    ret = `abort;
+	    break;
+	} else if (ret == `next) {
+	    break;
+	} else {
+	    y2error ("Unknown ret: %1", ret);
+	}
+    }
+
+    return ret;
+}

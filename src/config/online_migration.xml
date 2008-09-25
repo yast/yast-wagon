@@ -26,8 +26,8 @@ textdomain="online-migration"
 		<!-- Some welcome screen to inform user what is it all about -->
 		<module>
 		    <label>Welcome</label>
-		    <name>complex_welcome</name>
-		    <execute>inst_complex_welcome</execute>
+		    <name>welcome</name>
+		    <execute>welcome_in_wagon</execute>
 		    <enable_back>no</enable_back>
 		</module>
 

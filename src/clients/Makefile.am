@@ -2,8 +2,7 @@
 # Makefile.am for wagon/src/clients
 #
 
-client_DATA =				\
-	wagon.ycp
+client_DATA = $(wildcard *.ycp)
 
 EXTRA_DIST = $(client_DATA)
 

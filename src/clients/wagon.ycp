@@ -4,9 +4,12 @@
     import "Stage";
     import "Wizard";
 
+    textdomain "wagon";
+
     void Init () {
-	ProductControl::custom_control_file = "online_migration.xml";
-	// FIXME: evaluate return
+	// FIXME: what about using some function, hmm?
+	ProductControl::custom_control_file = "/usr/share/YaST2/control/online_migration.xml";
+	// FIXME: evaluate function return
 	ProductControl::Init();
 
 	Mode::SetMode ("update");
