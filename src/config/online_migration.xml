@@ -59,6 +59,7 @@ textdomain="online-migration"
 		    <execute>inst_suse_register</execute>
 		</module>
 
+		<!-- Congratulate, Inform user ... -->
 		<module>
 		    <label>Finished</label>
 		    <name>finished</name>
