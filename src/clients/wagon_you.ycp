@@ -17,6 +17,10 @@
 
 {
     import "Internet";
+    import "Installation";
+
+    Pkg::TargetInitialize (Installation::destdir);
+    Pkg::SourceStartManager (true);
 
     Internet::do_you = true;
     any ret = WFM::call ("inst_you");

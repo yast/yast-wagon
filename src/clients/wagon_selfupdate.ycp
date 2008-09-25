@@ -20,10 +20,15 @@
     import "GetInstArgs";
     import "Popup";
     import "Internet";
+    import "Installation";
+    import "PackageCallbacks";
 
     textdomain "wagon";
 
     map argmap = GetInstArgs::argmap();
+
+    Pkg::TargetInitialize (Installation::destdir);
+    Pkg::SourceStartManager (true);
 
     // heading text
     string heading_text = _("Wagon Self-Update");
@@ -38,6 +43,11 @@
     Wizard::SetContents (heading_text, contents, help_text,
 	argmap["enable_back"]:true , argmap["enable_next"]:true);
     Wizard::EnableAbortButton ();
+
+
+
+    list <map <string, any> > products = Pkg::ResolvableProperties ("", `product, "");
+    y2milestone ("All known products: %1", products);
 
     any ret = nil;
 
