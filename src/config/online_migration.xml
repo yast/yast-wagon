@@ -33,35 +33,38 @@ textdomain="online-migration"
 		    <enable_back>no</enable_back>
 		</module>
 
-		<!-- Update itself, Update to new product -->
+		<!-- Update itself, Add new 'migration-product' -->
 		<module>
 		    <label>Renew Update Stack</label>
 		    <name>update_online_mechanism</name>
 		    <execute>wagon_selfupdate</execute>
 		</module>
 
-		<!-- Register to get a new migration URL -->
+		<!-- Register 'migration-product' to get a new migration URL -->
 		<module>
 		    <label>Get New Update URL</label>
 		    <name>suse_register_before</name>
 		    <execute>inst_suse_register</execute>
 		</module>
 
-		<!-- Proceed with the Update/Upgrade -->
+		<!--
+		    Use migration URL to Update/Upgrade the running system
+		    This will replace the 'migration-product' with 'new-product'
+		-->
 		<module>
 		    <label>Update</label>
 		    <name>online_update</name>
 		    <execute>wagon_you</execute>
 		</module>
 
-		<!-- Register the new product -->
+		<!-- Register the 'new-product' -->
 		<module>
 		    <label>Registration</label>
 		    <name>suse_register_after</name>
 		    <execute>inst_suse_register</execute>
 		</module>
 
-		<!-- Congratulate, Inform user ... -->
+		<!-- Congratulate, Inform user to reboot etc. -->
 		<module>
 		    <label>Finished</label>
 		    <name>finished</name>
