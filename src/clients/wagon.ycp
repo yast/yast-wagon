@@ -20,26 +20,75 @@
     import "Mode";
     import "Stage";
     import "Wizard";
+    import "Directory";
+    import "FileUtils";
+    import "Wagon";
 
     textdomain "wagon";
 
+    string do_restart = Directory::vardir + "/restart_yast";
+
+    string current_step_file = Directory::vardir + "/current_workflow_step";
+    integer current_step = 0;
+
+    // Initialize the control file
+    // Initialize stage, mode, wizard steps
     void Init () {
-	// FIXME: what about using some function, hmm?
 	ProductControl::custom_control_file = "/usr/share/YaST2/control/online_migration.xml";
-	// FIXME: evaluate function return
 	ProductControl::Init();
 
-	Mode::SetMode ("update");
-	Stage::Set ("normal");
+	Mode::SetMode	("update");
+	Stage::Set	("normal");
 
 	ProductControl::AddWizardSteps ([$["stage":Stage::stage(), "mode":Mode::mode()]]);
     }
 
+    // In case of restarting YaST, adjust the environment
+    // Prepare YaST for restart
+    void HandleRet (symbol ret) {
+	if (ret == `restart_same_step || ret == `restart_yast || ret == `reboot) {
+	    y2milestone ("YaST will be restarted, returned: %1", ret);
+	    SCR::Write (.target.ycp, do_restart, "restart_yast");
+
+	    if (ret == `restart_same_step) {
+		current_step = ProductControl::CurrentStep();
+		y2milestone ("The same step will be restarted: %1", current_step);
+		SCR::Write (.target.ycp, current_step_file, current_step);
+	    }
+	}
+    }
+
+    // Checks whether YaST has been restarted
+    // Adjust step to start with
+    void HandleInit () {
+	if (FileUtils::Exists (do_restart)) {
+	    y2milestone ("YaST has been restarted");
+	    SCR::Execute (.target.remove, do_restart);
+
+	    if (FileUtils::Exists (current_step_file)) {
+		current_step = (integer) SCR::Read (.target.ycp, current_step_file);
+		SCR::Execute (.target.remove, current_step_file);
+
+		if (current_step == nil || current_step < 0) {
+		    y2error ("Current step is %1, running from the beginning", current_step);
+		    current_step = 0;
+		} else {
+		    y2milestone ("Adjusting starting step: %1", current_step);
+		}
+	    }
+	}
+    }
+
+    // main()
+    HandleInit();
+
     Wizard::OpenNextBackStepsDialog();
     Wizard::SetTitleIcon ("yast-update");
     Init();
-    symbol ret = ProductControl::Run();
+    symbol ret = ProductControl::RunFrom (current_step, false);
     Wizard::CloseDialog();
 
-    return `auto;
+    HandleRet (ret);
+
+    return ret;
 }

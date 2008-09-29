@@ -18,12 +18,25 @@
 {
     import "Internet";
     import "Installation";
+    import "GetInstArgs";
+    import "Wagon";
 
-    Pkg::TargetInitialize (Installation::destdir);
-    Pkg::SourceStartManager (true);
+    if (GetInstArgs::going_back()) {
+	y2milestone ("Going back...");
+	return `back;
+    }
+
+    Wagon::InitPkg();
 
     Internet::do_you = true;
-    any ret = WFM::call ("inst_you");
+    integer you_retval = (integer) WFM::call ("online_update");
+    y2milestone ("Online update returned: %1", you_retval);
 
-    return ret;
+    if (you_retval == 0) {
+	return `next;
+    } else if (you_retval == 1) {
+	return `next;
+    } else {
+	return `restart_same_step;
+    }
 }

@@ -19,6 +19,7 @@
     import "Wizard";
     import "GetInstArgs";
     import "Popup";
+    import "Wagon";
 
     textdomain "wagon";
 
@@ -53,6 +54,7 @@ Good luck!"))
 	    ret = `abort;
 	    break;
 	} else if (ret == `next) {
+	    Wagon::InitPkg();
 	    break;
 	} else {
 	    y2error ("Unknown ret: %1", ret);

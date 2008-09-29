@@ -22,13 +22,18 @@
     import "Internet";
     import "Installation";
     import "PackageCallbacks";
+    import "ProductControl";
+    import "Stage";
+    import "Mode";
+    import "Report";
+    import "FileUtils";
+    import "Wagon";
 
     textdomain "wagon";
 
     map argmap = GetInstArgs::argmap();
 
-    Pkg::TargetInitialize (Installation::destdir);
-    Pkg::SourceStartManager (true);
+    Wagon::InitPkg();
 
     // heading text
     string heading_text = _("Wagon Self-Update");
@@ -44,10 +49,27 @@
 	argmap["enable_back"]:true , argmap["enable_next"]:true);
     Wizard::EnableAbortButton ();
 
-
-
     list <map <string, any> > products = Pkg::ResolvableProperties ("", `product, "");
     y2milestone ("All known products: %1", products);
+
+
+// --->
+    string old_md5sum = FileUtils::MD5sum (ProductControl::custom_control_file);
+
+    // Here the update stack updates itself
+
+    // FIXME: replace with calling the update
+    Report::Message ("If you change the workflow definition file now,
+YaST will be restarted.");
+
+    string new_md5sum = FileUtils::MD5sum (ProductControl::custom_control_file);
+
+    if (old_md5sum != new_md5sum) {
+	y2milestone ("Workflow might have changed, rereading...");
+	return `restart_same_step;
+    }
+// <---
+
 
     any ret = nil;
 
@@ -67,5 +89,5 @@
 	}
     }
 
-    return ret;
+    return (symbol) ret;
 }

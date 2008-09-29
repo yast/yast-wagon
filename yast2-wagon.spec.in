@@ -1,7 +1,8 @@
 @HEADER-COMMENT@
 
 @HEADER@
-Requires:	yast2
+# Possibility to restart YaST
+Requires:	yast2 >= 2.17.33
 BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite
 
 BuildArchitectures:	noarch
@@ -21,7 +22,8 @@ Summary:	YaST - Product Migration Workflow
 
 %files
 %defattr(-,root,root)
-@clientdir@/wagon.ycp
+@clientdir@/*.ycp
+@moduledir@/*.ycp
 %dir /usr/share/YaST2/control
 /usr/share/YaST2/control/online_migration.xml
 %doc @docdir@
