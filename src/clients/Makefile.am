@@ -4,8 +4,8 @@
 
 client_DATA = $(wildcard *.ycp)
 
-module_DATA = $(wildcard [A-Z]*.ycp)
+YCPCFLAGS = -M ../modules
 
-EXTRA_DIST = $(client_DATA) $(module_DATA)
+EXTRA_DIST = $(client_DATA)
 
 include $(top_srcdir)/Makefile.am.common

@@ -50,7 +50,6 @@ Good luck!"))
 	if (ret == `back) {
 	    break;
 	} else if ((ret == `abort || ret == `cancel) && Popup::ConfirmAbort (`painless)) {
-	    Wizard::RestoreNextButton();
 	    ret = `abort;
 	    break;
 	} else if (ret == `next) {
@@ -60,6 +59,9 @@ Good luck!"))
 	    y2error ("Unknown ret: %1", ret);
 	}
     }
+
+    // Clear the dialog
+    Wizard::SetContents ("", `Empty(), "", true, true);
 
     return ret;
 }

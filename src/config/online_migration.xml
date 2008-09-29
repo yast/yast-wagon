@@ -10,6 +10,23 @@ textdomain="online-migration"
 -->
     <textdomain>online-migration</textdomain>
 
+    <proposals config:type="list">
+	<proposal>
+	    <label>Distribution Upgrade Settings</label>
+	    <mode>update</mode>
+	    <stage>normal</stage>
+	    <name>wagon_proposal</name>
+	    <enable_skip>no</enable_skip>
+
+	    <proposal_modules config:type="list">
+		<proposal_module>add-on</proposal_module>
+		<proposal_module>update</proposal_module>
+		<proposal_module>packages</proposal_module>
+		<proposal_module>backup</proposal_module>
+	    </proposal_modules>
+	</proposal>
+    </proposals>
+
     <workflows config:type="list">
 
 	<workflow>
@@ -40,6 +57,12 @@ textdomain="online-migration"
 		    <execute>wagon_selfupdate</execute>
 		</module>
 
+		<module>
+		    <label>Renew Update Stack</label>
+		    <name>suseconfig_after_update</name>
+		    <execute>inst_suseconfig</execute>
+		</module>
+
 		<!-- Register 'migration-product' to get a new migration URL -->
 		<module>
 		    <label>Get New Update URL</label>
@@ -53,9 +76,12 @@ textdomain="online-migration"
 		-->
 		<module>
 		    <label>Update</label>
-		    <name>online_update</name>
-		    <execute>wagon_you</execute>
+		    <name>wagon_proposal</name>
+		    <execute>inst_proposal</execute>
+		    <proposal>wagon_proposal</proposal>
 		</module>
+
+		<!-- FIXME: inst_kickoff, inst_rpmcopy? -->
 
 		<module>
 		    <label>Update</label>

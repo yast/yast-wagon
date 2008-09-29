@@ -2,5 +2,5 @@
 # Makefile.am for wagon/src
 #
 
-SUBDIRS = clients config
+SUBDIRS = modules clients config
 

@@ -16,78 +16,45 @@
  */
 
 {
-    import "Wizard";
-    import "GetInstArgs";
-    import "Popup";
-    import "Internet";
-    import "Installation";
-    import "PackageCallbacks";
-    import "ProductControl";
-    import "Stage";
-    import "Mode";
-    import "Report";
-    import "FileUtils";
-    import "Wagon";
-
     textdomain "wagon";
 
-    map argmap = GetInstArgs::argmap();
+    import "GetInstArgs";
+    import "Wagon";
+    import "FileUtils";
+    import "ProductControl";
+    import "Internet";
+
+    if (GetInstArgs::going_back()) {
+	y2milestone ("Going back...");
+	return `back;
+    }
 
     Wagon::InitPkg();
-
-    // heading text
-    string heading_text = _("Wagon Self-Update");
-
-    term contents = `VBox (
-	`Label (_("Wagon has just updated itself"))
-    );
-
-    // help text
-    string help_text = _("<p>FIXME: some help is needed</p>");
-
-    Wizard::SetContents (heading_text, contents, help_text,
-	argmap["enable_back"]:true , argmap["enable_next"]:true);
-    Wizard::EnableAbortButton ();
 
     list <map <string, any> > products = Pkg::ResolvableProperties ("", `product, "");
     y2milestone ("All known products: %1", products);
 
+    symbol ret = `auto;
 
-// --->
     string old_md5sum = FileUtils::MD5sum (ProductControl::custom_control_file);
 
     // Here the update stack updates itself
+    Internet::do_you = true;
+    integer you_retval = (integer) WFM::call ("online_update");
+    y2milestone ("Online update returned: %1", you_retval);
 
-    // FIXME: replace with calling the update
-    Report::Message ("If you change the workflow definition file now,
-YaST will be restarted.");
+    if (you_retval == 0 || you_retval == 1) {
+	ret = `next;
+    } else {
+	ret = `restart_same_step;
+    }
 
     string new_md5sum = FileUtils::MD5sum (ProductControl::custom_control_file);
 
     if (old_md5sum != new_md5sum) {
-	y2milestone ("Workflow might have changed, rereading...");
-	return `restart_same_step;
-    }
-// <---
-
-
-    any ret = nil;
-
-    while (true) {
-	ret = UI::UserInput();
-
-	if (ret == `back) {
-	    break;
-	} else if ((ret == `abort || ret == `cancel) && Popup::ConfirmAbort (`painless)) {
-	    Wizard::RestoreNextButton();
-	    ret = `abort;
-	    break;
-	} else if (ret == `next) {
-	    break;
-	} else {
-	    y2error ("Unknown ret: %1", ret);
-	}
+	y2milestone ("Workflow have changed, rereading...");
+	ret = `restart_same_step;
     }
 
-    return (symbol) ret;
+    return ret;
 }
