@@ -57,6 +57,12 @@ textdomain="online-migration"
 		    <execute>wagon_you</execute>
 		</module>
 
+		<module>
+		    <label>Update</label>
+		    <name>suseconfig_after_update</name>
+		    <execute>inst_suseconfig</execute>
+		</module>
+
 		<!-- Register the 'new-product' -->
 		<module>
 		    <label>Registration</label>
