@@ -1,0 +1,40 @@
+/**
+ * File:	modules/Wagon.ycp
+ * Package:	WAGON
+ * Summary:	Functions and handlers for WAGON
+ * Authors:	Lukas Ocilka <locilka@suse.cz>
+ * Internal
+ *
+ * $Id$
+ *
+ * Module for handling WAGON.
+ *
+ */
+
+{
+    module "Wagon";
+
+    textdomain "wagon";
+
+    import "Installation";
+    import "PackageCallbacks";
+
+    /**
+     * Initializes the package manager
+     */
+    global boolean InitPkg () {
+	if (Pkg::TargetInitialize (Installation::destdir) != true) {
+	    y2error ("Cannot initialize target");
+	    return false;
+	}
+
+	if (Pkg::SourceStartManager (true) != true) {
+	    y2error ("Cannot initialize sources");
+	    return false;
+	}
+
+	return true;
+    }
+
+/* EOF */
+}
