@@ -7,7 +7,7 @@ BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-t
 
 BuildArchitectures:	noarch
 
-Summary:	YaST - Product Migration Workflow
+Summary: YaST2 - Product Migration Workflow
 
 %description
 -
@@ -24,6 +24,7 @@ Summary:	YaST - Product Migration Workflow
 %defattr(-,root,root)
 @clientdir@/*.ycp
 @moduledir@/*.ycp
+@moduledir@/*.ybc
 %dir /usr/share/YaST2/control
 /usr/share/YaST2/control/online_migration.xml
 %doc @docdir@
