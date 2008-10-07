@@ -23,6 +23,13 @@
 
     textdomain "wagon";
 
+    /*
+     * FIXME: Offer adding own repo URL (PatchCD, URL, Use default)
+     * - Use ComboBox in Welcome Dialog?
+     *
+     * 
+     */
+
     map argmap = GetInstArgs::argmap();
 
     // heading text

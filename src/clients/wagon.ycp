@@ -26,6 +26,15 @@
 
     textdomain "wagon";
 
+    /*
+     * FIXME: cmdline support
+     *
+     * yast2 wagon called_from_applet - don't ask for repo
+     * yast2 wagon $anything_else - print: use zypper (please) :)
+     *                              for commandline interface
+     *
+     */
+
     string do_restart = Directory::vardir + "/restart_yast";
 
     string current_step_file = Directory::vardir + "/current_workflow_step";

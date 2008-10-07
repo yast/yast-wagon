@@ -57,6 +57,8 @@ textdomain="online-migration"
 		    <execute>wagon_selfupdate</execute>
 		</module>
 
+		<!-- Check whether update to SPx is available -->
+
 		<module>
 		    <label>Renew Update Stack</label>
 		    <name>suseconfig_after_update</name>
@@ -74,6 +76,7 @@ textdomain="online-migration"
 		    Use migration URL to Update/Upgrade the running system
 		    This will replace the 'migration-product' with 'new-product'
 		-->
+		<!-- FIXME: reinit sources? We've got some new ... -->
 		<module>
 		    <label>Update</label>
 		    <name>wagon_proposal</name>
