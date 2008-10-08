@@ -36,14 +36,14 @@
     string heading_text = _("Welcome");
 
     term contents = `VBox (
-	`Label (_("Dear user,
-Welcome to the World of Online Migration.
+	`Label (_("This tool will help to update the
+running system to a service pack.
 
-Good luck!"))
+Click 'Next' to start the update."))
     );
 
     // help text
-    string help_text = _("<p>FIXME: some help is needed</p>");
+    string help_text = _("<p>This tools updates the running system to a service pack.</p>");
 
     Wizard::SetContents (heading_text, contents, help_text,
 	argmap["enable_back"]:true , argmap["enable_next"]:true);
