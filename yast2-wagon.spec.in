@@ -7,7 +7,7 @@ BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-t
 
 BuildArchitectures:	noarch
 
-Summary: YaST2 - Product Migration Workflow
+Summary: YaST2 - Migration Tool for Service Packs
 
 %description
 -
@@ -22,6 +22,7 @@ Summary: YaST2 - Product Migration Workflow
 
 %files
 %defattr(-,root,root)
+%{_prefix}/sbin/wagon
 @clientdir@/*.ycp
 @moduledir@/*.ycp
 @moduledir@/*.ybc

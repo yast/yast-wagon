@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 11 13:21:46 CEST 2008 - mvidner@suse.cz
+
+- Merged /usr/sbin/wagon from wagon.rpm (bnc#430595).
+- 2.17.1
+
+-------------------------------------------------------------------
 Mon Sep 29 12:44:37 CEST 2008 - locilka@suse.cz
 
 - Added possibility to restart YaST on request.

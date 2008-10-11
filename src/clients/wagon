@@ -1,0 +1,2 @@
+#! /bin/sh
+/sbin/yast2 wagon
