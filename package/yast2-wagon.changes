@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 13 17:15:34 CEST 2008 - locilka@suse.cz
+
+- Added command-line support.
+- Added running_by_applet support - shortens the workflow.
+
+-------------------------------------------------------------------
 Sat Oct 11 13:21:46 CEST 2008 - mvidner@suse.cz
 
 - Merged /usr/sbin/wagon from wagon.rpm (bnc#430595).

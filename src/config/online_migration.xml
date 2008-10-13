@@ -42,7 +42,7 @@ textdomain="online-migration"
 	    <stage>normal</stage>
 
 	    <modules config:type="list">
-		<!-- Some welcome screen to inform user what is it all about -->
+		<!-- A welcome screen that informs user what is it all about. -->
 		<module>
 		    <label>Welcome</label>
 		    <name>welcome</name>
@@ -57,19 +57,42 @@ textdomain="online-migration"
 		    <execute>wagon_selfupdate</execute>
 		</module>
 
-		<!-- Check whether update to SPx is available -->
-
+		<!-- Offer several possibilities how to set update repository URL -->
 		<module>
 		    <label>Renew Update Stack</label>
-		    <name>suseconfig_after_update</name>
-		    <execute>inst_suseconfig</execute>
+		    <name>update_url_dialog</name>
+		    <execute>wagon_update_url</execute>
 		</module>
 
-		<!-- Register 'migration-product' to get a new migration URL -->
+		<!--
+		    Option A:
+		    (*) Automatically selected when running via applet
+		    (*) Offered in wagon_update_url if not running via applet
+		-->
 		<module>
-		    <label>Get New Update URL</label>
-		    <name>suse_register_before</name>
+		    <label>Renew Update Stack</label>
+		    <name>suse_register_after_update</name>
 		    <execute>inst_suse_register</execute>
+		</module>
+
+		<!--
+		    Option B:
+		    (*) Offered in wagon_update_url if not running via applet
+		-->
+		<module>
+		    <label>Renew Update Stack</label>
+		    <name>wagon_ownurl</name>
+		    <execute>wagon_ownurl</execute>
+		</module>
+
+		<!--
+		    Option B:
+		    Follows the wagon_ownurl
+		-->
+		<module>
+		    <label>Renew Update Stack</label>
+		    <name>wagon_selfupdate_from_url</name>
+		    <execute>wagon_selfupdate</execute>
 		</module>
 
 		<!--

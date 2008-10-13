@@ -23,15 +23,6 @@
 
     textdomain "wagon";
 
-    /*
-     * FIXME: Offer adding own repo URL (PatchCD, URL, Use default)
-     * - Use ComboBox in Welcome Dialog?
-     *
-     * 
-     */
-
-    map argmap = GetInstArgs::argmap();
-
     // heading text
     string heading_text = _("Welcome");
 
@@ -46,7 +37,7 @@ Click 'Next' to start the update."))
     string help_text = _("<p>This tools updates the running system to a service pack.</p>");
 
     Wizard::SetContents (heading_text, contents, help_text,
-	argmap["enable_back"]:true , argmap["enable_next"]:true);
+	GetInstArgs::enable_back(), GetInstArgs::enable_next());
     Wizard::EnableAbortButton ();
 
     any ret = nil;

@@ -23,17 +23,26 @@
     import "Directory";
     import "FileUtils";
     import "Wagon";
+    import "CommandLine";
 
     textdomain "wagon";
 
-    /*
-     * FIXME: cmdline support
-     *
-     * yast2 wagon called_from_applet - don't ask for repo
-     * yast2 wagon $anything_else - print: use zypper (please) :)
-     *                              for commandline interface
-     *
-     */
+    // --> CommandLine support 
+
+    list wfm_args = WFM::Args();
+    y2milestone ("ARGS: %1", wfm_args);
+
+    map <string, any> commands = CommandLine::Parse (wfm_args);
+    y2milestone ("Commands: %1", commands);
+
+    if (commands["command"]:"" == "help" || commands["command"]:"" == "longhelp" || commands["command"]:"" == "xmlhelp") {
+	Wagon::ProcessCommandLine (commands);
+	return `auto;
+    }
+
+    // <-- CommandLine support 
+
+    Wagon::Init (commands);
 
     string do_restart = Directory::vardir + "/restart_yast";
 
