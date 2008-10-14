@@ -71,7 +71,7 @@ textdomain="online-migration"
 		-->
 		<module>
 		    <label>Renew Update Stack</label>
-		    <name>suse_register_after_update</name>
+		    <name>suse_register_workflow</name>
 		    <execute>inst_suse_register</execute>
 		</module>
 
@@ -81,8 +81,8 @@ textdomain="online-migration"
 		-->
 		<module>
 		    <label>Renew Update Stack</label>
-		    <name>wagon_ownurl</name>
-		    <execute>wagon_ownurl</execute>
+		    <name>wagon_custom_url</name>
+		    <execute>wagon_custom_url</execute>
 		</module>
 
 		<!--
@@ -118,7 +118,7 @@ textdomain="online-migration"
 		<!-- Register the 'new-product' -->
 		<module>
 		    <label>Registration</label>
-		    <name>suse_register_after</name>
+		    <name>suse_register_after_update</name>
 		    <execute>inst_suse_register</execute>
 		</module>
 

@@ -20,11 +20,14 @@
     import "GetInstArgs";
     import "Popup";
     import "Icon";
+    import "Wagon";
 
     textdomain "wagon";
 
     string frame_label = _("Select from where to get the update URL");
     integer frame_width = (UI::TextMode() ? 2 * size (frame_label) : size (frame_label));
+
+    string current_workflow = Wagon::GetUpdateWorkflow();
 
     term contents = `HSquash (`MinWidth (frame_width, `Frame (
 	frame_label,
@@ -34,13 +37,13 @@
 		`VBox (
 		    `HBox (
 			`HBox (`Image (Icon::IconPath ("yast-update"), ""), `HSpacing (2)),
-			`RadioButton (`id (`suse_register), _("&Customer Center")),
+			`RadioButton (`id (`suse_register), _("&Customer Center"), (current_workflow == "suse_register")),
 			`HStretch()
 		    ),
 		    `VSpacing (1),
 		    `HBox (
 			`HBox (`Image (Icon::IconPath ("yast-cd_update"), ""), `HSpacing (2)),
-			`RadioButton (`id (`custom_url), _("Custom &URL")),
+			`RadioButton (`id (`custom_url), _("Custom &URL"), (current_workflow == "custom_url")),
 			`HStretch()
 		    )
 		)
@@ -67,9 +70,20 @@
 	    ret = `back;
 	    break;
 	} else if (ui_ret == `next) {
-	    // FIXME: adjust steps
-	    ret = `next;
-	    break;
+	    any selected = UI::QueryWidget (`id (`update_url), `CurrentButton);
+	    y2milestone ("Selected workflow: %1", selected);
+
+	    if (selected == `suse_register) {
+		Wagon::SetUpdateWorkflow ("suse_register");
+	    } else if (selected == `custom_url) {
+		Wagon::SetUpdateWorkflow ("custom_url");
+	    }
+
+	    // Check whether we have a useful workflow
+	    if (Wagon::AdjustWizardSteps()) {
+		ret = `next;
+		break;
+	    }
 	} else if (ui_ret == `abort) {
 	    if (Popup::ConfirmAbort (`painless)) {
 		ret = `abort;

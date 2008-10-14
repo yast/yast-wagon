@@ -26,34 +26,63 @@
     import "ProductControl";
     import "Popup";
     import "Label";
+    import "Report";
 
     boolean running_by_applet = false;
 
-    /**
-     * Returns whether the application is called from applet
-     *
-     * @return boolean is_running_by_applet
-     */
-    global boolean GetRunningByApplet () {
-	return running_by_applet;
+    string update_workflow_type = "manual";
+
+    global void SetUpdateWorkflow (string new_update_workflow_type) {
+	// FIXME: check
+
+	y2milestone ("New workflow type: %1", new_update_workflow_type);
+	update_workflow_type = new_update_workflow_type;
     }
 
-    global void AdjustWizardSteps () {
-	if (GetRunningByApplet()) {
+    global string GetUpdateWorkflow () {
+	return update_workflow_type;
+    }
+
+    global boolean AdjustWizardSteps () {
+	// The simplest one-click workflow
+	if (update_workflow_type == "simple") {
 	    // Shortening the workflow
 	    ProductControl::DisableModule ("update_url_dialog");
-	    ProductControl::DisableModule ("wagon_ownurl");
+	    ProductControl::DisableModule ("wagon_custom_url");
 	    ProductControl::DisableModule ("wagon_selfupdate_from_url");
 
 	    // All modules but this one are disabled
 	    ProductControl::EnableModule ("suse_register_after_update");
 
-	// FIXME: PatchCD
+	// Manual / Server workflow
+	} else if (update_workflow_type == "manual") {
+	    ProductControl::EnableModule ("update_url_dialog");
+	    ProductControl::EnableModule ("wagon_custom_url");
+	    ProductControl::EnableModule ("wagon_selfupdate_from_url");
+
+	// Custom URL
+	} else if (update_workflow_type == "custom_url") {
+	    ProductControl::DisableModule ("suse_register_workflow");
+
+	    ProductControl::EnableModule ("wagon_custom_url");
+	    ProductControl::EnableModule ("wagon_selfupdate_from_url");
+
+	// URL got from suse_register
+	} else if (update_workflow_type == "suse_register") {
+	    ProductControl::DisableModule ("wagon_custom_url");
+	    ProductControl::DisableModule ("wagon_selfupdate_from_url");
+
+	    ProductControl::EnableModule ("suse_register_workflow");
+
+	// FIXME: ...
+	} else if (update_workflow_type == "PatchCD") {
+	    // PatchCD?
 
 	} else {
-	    ProductControl::EnableModule ("update_url_dialog");
-	    ProductControl::EnableModule ("wagon_ownurl");
-	    ProductControl::EnableModule ("wagon_selfupdate_from_url");
+	    y2error ("Unknown workflow: %1", update_workflow_type);
+	    // TRANSLATORS: error message
+	    Report::Error (_("No workflow defined."));
+	    return false;
 	}
 
 	list<map> stage_mode = [
@@ -66,20 +95,8 @@
 	y2milestone ("Updating wizard steps: %1, Disabled modules: %2",
 	    stage_mode, ProductControl::GetDisabledModules());
 	ProductControl::UpdateWizardSteps (stage_mode);
-    }
 
-    /**
-     * Sets whether the application is called from applet
-     *
-     * @param boolean running_by_applet
-     */
-    global void SetRunningByApplet (boolean new_value) {
-	if (new_value == nil) {
-	    y2error ("Erroneous value: %1", new_value);
-	    return;
-	}
-
-	running_by_applet = new_value;
+	return true;
     }
 
     /**
@@ -91,9 +108,9 @@
     global void Init (map <string, any> commands) {
 	if (commands["command"]:"" == "running_by_applet") {
 	    y2milestone ("Running by applet, switching to automatic mode");
-	    SetRunningByApplet (true);
+	    SetUpdateWorkflow ("simple");
 	} else {
-	    SetRunningByApplet (false);
+	    SetUpdateWorkflow ("manual");
 	}
 
 	AdjustWizardSteps();
