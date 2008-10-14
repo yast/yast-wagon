@@ -1,0 +1,82 @@
+/**
+ * File:
+ *	clients/wagon_update_url
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
+{
+    import "Wizard";
+    import "GetInstArgs";
+    import "Popup";
+    import "Icon";
+
+    textdomain "wagon";
+
+    string frame_label = _("Select from where to get the update URL");
+    integer frame_width = (UI::TextMode() ? 2 * size (frame_label) : size (frame_label));
+
+    term contents = `HSquash (`MinWidth (frame_width, `Frame (
+	frame_label,
+	`MarginBox (1, 1,
+	    `RadioButtonGroup (
+		`id (`update_url),
+		`VBox (
+		    `HBox (
+			`HBox (`Image (Icon::IconPath ("yast-update"), ""), `HSpacing (2)),
+			`RadioButton (`id (`suse_register), _("&Customer Center")),
+			`HStretch()
+		    ),
+		    `VSpacing (1),
+		    `HBox (
+			`HBox (`Image (Icon::IconPath ("yast-cd_update"), ""), `HSpacing (2)),
+			`RadioButton (`id (`custom_url), _("Custom &URL")),
+			`HStretch()
+		    )
+		)
+	    )
+	)
+    )));
+
+    string heading_text = _("Update URL");
+
+    // FIXME: ...
+    string help_text = _("FIXME: some help text");
+
+    Wizard::SetContents (heading_text, contents, help_text,
+	GetInstArgs::enable_back(), GetInstArgs::enable_next());
+    Wizard::EnableAbortButton ();
+
+    any ui_ret = nil;
+    symbol ret = nil;
+
+    while (true) {
+	ui_ret = UI::UserInput();
+
+	if (ui_ret == `back) {
+	    ret = `back;
+	    break;
+	} else if (ui_ret == `next) {
+	    // FIXME: adjust steps
+	    ret = `next;
+	    break;
+	} else if (ui_ret == `abort) {
+	    if (Popup::ConfirmAbort (`painless)) {
+		ret = `abort;
+		break;
+	    }
+	}
+    }
+
+    return ret;
+}
