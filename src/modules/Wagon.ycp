@@ -24,6 +24,8 @@
     import "Directory";
     import "XML";
     import "ProductControl";
+    import "Popup";
+    import "Label";
 
     boolean running_by_applet = false;
 
@@ -45,6 +47,9 @@
 
 	    // All modules but this one are disabled
 	    ProductControl::EnableModule ("suse_register_after_update");
+
+	// FIXME: PatchCD
+
 	} else {
 	    ProductControl::EnableModule ("update_url_dialog");
 	    ProductControl::EnableModule ("wagon_ownurl");
@@ -151,6 +156,45 @@ To do so, please, use zypper instead.
 		y2milestone("exported XML map: %1", exportmap);
 	    }
 	}
+    }
+
+    /**
+     * Goes through all selected packages one by one a check licenses to confirm.
+     * These licenses are requested to be accepted by user. If user declines any
+     * of them, a respective package is set to 'Taboo' and new solver run is
+     * required.
+     *
+     * @return boolean whether all licenses have been accepted
+     */
+    global boolean AcceptLicenses () {
+	boolean accepted = true;
+
+	foreach (string p, Pkg::GetPackages (`selected, true), {
+	    string license = Pkg::PkgGetLicenseToConfirm (p);
+
+	    if (license != nil && license != "") {
+		if (license != nil && license != "") {
+		    string rt_license = sformat ("<p><b>%1</b></p>\n%2", p, license);
+
+		    if (! Popup::AnyQuestionRichText (
+			// popup heading, with rich text widget and Yes/No buttons
+			_("Do you accept this license agreement?"),
+			rt_license,
+			70, 20,
+			Label::YesButton (), Label::NoButton (),
+			`focus_none
+		    )) {
+			y2milestone("License not accepted: %1", p);
+			Pkg::PkgTaboo (p);
+			accepted = false;
+		    } else {
+			Pkg::PkgMarkLicenseConfirmed (p);
+		    }
+		}
+	    }
+	});
+
+	return accepted;
     }
 
 /* EOF */

@@ -23,6 +23,9 @@
     import "FileUtils";
     import "ProductControl";
     import "Internet";
+    import "OnlineUpdateCallbacks";
+    import "Popup";
+    import "Label";
 
     if (GetInstArgs::going_back()) {
 	y2milestone ("Going back...");
@@ -36,25 +39,66 @@
 
     symbol ret = `auto;
 
-    string old_md5sum = FileUtils::MD5sum (ProductControl::custom_control_file);
-
     // Here the update stack updates itself
-    Internet::do_you = true;
-    integer you_retval = (integer) WFM::call ("online_update");
-    y2milestone ("Online update returned: %1", you_retval);
+    integer selected = Pkg::ResolvablePreselectPatches (`affects_pkg_manager);
 
-    if (you_retval == 0 || you_retval == 1) {
-	ret = `next;
-    } else {
-	ret = `restart_same_step;
+    if (selected < 1) {
+	y2milestone ("There are no patches that would affect the package manager");
+	return ret;
     }
 
-    string new_md5sum = FileUtils::MD5sum (ProductControl::custom_control_file);
+    boolean solved = nil;
 
-    if (old_md5sum != new_md5sum) {
-	y2milestone ("Workflow have changed, rereading...");
-	ret = `restart_same_step;
+    while (solved != true) {
+	// Trying to solve automatically
+	solved = Pkg::PkgSolve (false);
+	symbol ret_sel = nil;
+
+	// PkgSolve didn't report any problem
+	if (solved) {
+	    // FIXME: inform user?
+	    ret = `restart_same_step;
+	// There are some issues in selecting the patches
+	} else {
+	    repeat {
+		// Try to solve them manually
+		UI::OpenDialog(`opt(`defaultsize), `PackageSelector (`id(`selector), `opt(`youMode)));
+		ret_sel = (symbol) UI::RunPkgSelection (`id(`selector));
+		UI::CloseDialog();
+
+		// Cannot or don't want to accept the proposal
+		if (ret_sel == `cancel) {
+		    // Confirmed
+		    if (Popup::AnyQuestion (
+			// TRANSLATORS: headline
+			_("Aborting the Upgrade"),
+			// TRANSLATORS: pop-up question
+			_("Cannot continue without installing the required patches.
+Are sure you want to abort the upgrade process?"),
+			_("Abort Upgrade"),
+			Label::NoButton(),
+			`yes_button
+		    )) {
+			ret = `abort;
+		    // Try again
+		    } else {
+			continue;
+		    }
+		// Solved manually
+		} else if (ret_sel == `accept) {
+		    ret = `restart_same_step;
+		}
+	    } until (ret_sel == `cancel || ret_sel == `accept);
+	}
+
+	if (! Wagon::AcceptLicenses()) {
+	    y2warning ("Some license(s) have been rejected, running solver again");
+	    solved = nil;
+	}
     }
+
+    OnlineUpdateCallbacks::RegisterOnlineUpdateCallbacks();
+    WFM::call ("online_update_install");
 
     return ret;
 }
