@@ -20,6 +20,7 @@
     import "GetInstArgs";
     import "Popup";
     import "Wagon";
+    import "Report";
 
     textdomain "wagon";
 
@@ -51,7 +52,11 @@ Click 'Next' to start the update."))
 	    ret = `abort;
 	    break;
 	} else if (ret == `next) {
-	    Wagon::InitPkg();
+	    if (Wagon::InitPkg() != true) {
+		// Report error but let user go further
+		// Might help us in the future
+		Report::Error (_("Cannot initialize package manager."));
+	    }
 	    break;
 	} else {
 	    y2error ("Unknown ret: %1", ret);

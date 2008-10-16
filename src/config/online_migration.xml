@@ -10,6 +10,126 @@ textdomain="online-migration"
 -->
     <textdomain>online-migration</textdomain>
 
+    <globals>
+	<!-- Change to 'false' in production -->
+	<debug_workflow config:type="boolean">true</debug_workflow>
+
+	<default_subworkflow>manual</default_subworkflow>
+
+	<subworkflows config:type="list">
+	    <!--
+		Simple workflow: Used when WAGON is called from applet
+	    -->
+	    <subworkflow>
+		<name>running_by_applet</name>
+		<modules config:type="list">
+		    <module>welcome</module>
+		    <module>update_online_mechanism</module>
+		    <module>suse_register_workflow</module>
+		    <!-- FIXME: replace with kickoff, rpmcopy ... -->
+		    <module>fixme</module>
+		    <module>suseconfig_after_update</module>
+		    <module>suse_register_after_update</module>
+		    <module>finished</module>
+		</modules>
+		<proposals config:type="list">
+		    <proposal>wagon_proposal</proposal>
+		</proposals>
+	    </subworkflow>
+
+	    <!--
+		Manual workflow: Used when calling WAGON manually (Control center, ...)
+		without params. It's later switched to one of 'custom_url' or 'suse_register'
+		workflows, so it actually contains both.
+	    -->
+	    <subworkflow>
+		<name>manual</name>
+		<modules config:type="list">
+		    <module>welcome</module>
+		    <module>update_online_mechanism</module>
+		    <!-- Workflow is switched after this module -->
+		    <module>update_url_dialog</module>
+		    <module>suse_register_workflow</module>
+		    <module>wagon_custom_url</module>
+		    <module>wagon_selfupdate_from_url</module>
+		    <!-- FIXME: replace with kickoff, rpmcopy ... -->
+		    <module>fixme</module>
+		    <module>suseconfig_after_update</module>
+		    <module>suse_register_after_update</module>
+		    <module>finished</module>
+		</modules>
+		<proposals config:type="list">
+		    <proposal>wagon_proposal</proposal>
+		</proposals>
+	    </subworkflow>
+
+	    <!--
+		manual + suse_register workflow: User selected 'Customer Center'
+	    -->
+	    <subworkflow>
+		<name>manual_suse_register</name>
+		<modules config:type="list">
+		    <module>welcome</module>
+		    <module>update_online_mechanism</module>
+		    <!-- Workflow is switched after this module -->
+		    <module>update_url_dialog</module>
+		    <module>suse_register_workflow</module>
+		    <!-- FIXME: replace with kickoff, rpmcopy ... -->
+		    <module>fixme</module>
+		    <module>suseconfig_after_update</module>
+		    <module>suse_register_after_update</module>
+		    <module>finished</module>
+		</modules>
+		<proposals config:type="list">
+		    <proposal>wagon_proposal</proposal>
+		</proposals>
+	    </subworkflow>
+
+	    <!--
+		manual + custom_url workflow: User selected 'Custom URL'
+	    -->
+	    <subworkflow>
+		<name>manual_custom_url</name>
+		<modules config:type="list">
+		    <module>welcome</module>
+		    <module>update_online_mechanism</module>
+		    <!-- Workflow is switched after this module -->
+		    <module>update_url_dialog</module>
+		    <module>wagon_custom_url</module>
+		    <module>wagon_selfupdate_from_url</module>
+		    <!-- FIXME: replace with kickoff, rpmcopy ... -->
+		    <module>fixme</module>
+		    <module>suseconfig_after_update</module>
+		    <module>suse_register_after_update</module>
+		    <module>finished</module>
+		</modules>
+		<proposals config:type="list">
+		    <proposal>wagon_proposal</proposal>
+		</proposals>
+	    </subworkflow>
+
+	    <!--
+		PatchCD workflow: 'Custom URL' used directly
+	    -->
+	    <subworkflow>
+		<name>PatchCD</name>
+		<modules config:type="list">
+		    <module>welcome</module>
+		    <module>wagon_custom_url</module>
+		    <module>wagon_selfupdate_from_url</module>
+		    <!-- FIXME: replace with kickoff, rpmcopy ... -->
+		    <module>fixme</module>
+		    <module>suseconfig_after_update</module>
+		    <module>suse_register_after_update</module>
+		    <module>finished</module>
+		</modules>
+		<proposals config:type="list">
+		    <proposal>wagon_proposal</proposal>
+		</proposals>
+	    </subworkflow>
+	</subworkflows>
+    </globals>
+
     <proposals config:type="list">
 	<proposal>
 	    <label>Distribution Upgrade Settings</label>
@@ -20,7 +140,10 @@ textdomain="online-migration"
 
 	    <proposal_modules config:type="list">
 		<proposal_module>add-on</proposal_module>
-		<proposal_module>update</proposal_module>
+		<!--
+		    FIXME: replace with new client for migration
+		    <proposal_module>update</proposal_module>
+		-->
 		<proposal_module>packages</proposal_module>
 		<proposal_module>backup</proposal_module>
 	    </proposal_modules>
@@ -42,6 +165,11 @@ textdomain="online-migration"
 	    <stage>normal</stage>
 
 	    <modules config:type="list">
+		<module>
+		    <heading>yes</heading>
+		    <label>Preparation</label>
+		</module>
+
 		<!-- A welcome screen that informs user what is it all about. -->
 		<module>
 		    <label>Welcome</label>
@@ -95,6 +223,11 @@ textdomain="online-migration"
 		    <execute>wagon_selfupdate</execute>
 		</module>
 
+		<module>
+		    <heading>yes</heading>
+		    <label>Migration</label>
+		</module>
+
 		<!--
 		    Use migration URL to Update/Upgrade the running system
 		    This will replace the 'migration-product' with 'new-product'
@@ -108,6 +241,11 @@ textdomain="online-migration"
 		</module>
 
 		<!-- FIXME: inst_kickoff, inst_rpmcopy? -->
+		<module>
+		    <label>Update</label>
+		    <name>fixme</name>
+		    <execute>fixme</execute>
+		</module>
 
 		<module>
 		    <label>Update</label>

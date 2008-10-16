@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 16 15:44:37 CEST 2008 - locilka@suse.cz
+
+- Configuration of subworkflows added to the control file.
+- Handling subworkflows - adjusted by command-line parameter or
+  during module run.
+
+-------------------------------------------------------------------
 Tue Oct 14 15:48:01 CEST 2008 - locilka@suse.cz
 
 - Implemented self-update mechanism partly used from online_update.

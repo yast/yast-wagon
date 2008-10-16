@@ -24,6 +24,7 @@
     import "FileUtils";
     import "Wagon";
     import "CommandLine";
+    import "PackageLock";
 
     textdomain "wagon";
 
@@ -42,23 +43,30 @@
 
     // <-- CommandLine support 
 
-    Wagon::Init (commands);
-
     string do_restart = Directory::vardir + "/restart_yast";
 
     string current_step_file = Directory::vardir + "/current_workflow_step";
     integer current_step = 0;
 
-    // Initialize the control file
-    // Initialize stage, mode, wizard steps
-    void Init () {
-	ProductControl::custom_control_file = "/usr/share/YaST2/control/online_migration.xml";
+    string custom_workflow_file = "/usr/share/YaST2/control/online_migration.xml";
+
+    boolean Init () {
+	ProductControl::custom_control_file = custom_workflow_file;
 	ProductControl::Init();
 
-	Mode::SetMode	("update");
-	Stage::Set	("normal");
+	Mode::SetMode ("update");
+	Stage::Set ("normal");
 
 	ProductControl::AddWizardSteps ([$["stage":Stage::stage(), "mode":Mode::mode()]]);
+
+	// Can't acquire packager lock
+	if (PackageLock::Check() != true) {
+	    return false;
+	}
+
+	Wagon::Init (commands);
+
+	return true;
     }
 
     // In case of restarting YaST, adjust the environment
@@ -102,8 +110,16 @@
 
     Wizard::OpenNextBackStepsDialog();
     Wizard::SetTitleIcon ("yast-update");
-    Init();
-    symbol ret = ProductControl::RunFrom (current_step, false);
+
+    symbol ret = `auto;
+
+    // Exit WAGON if we can't initialize correctly
+    if (Init() != true) {
+	ret = `abort;
+    } else {
+	ret = ProductControl::RunFrom (current_step, false);
+    }
+
     Wizard::CloseDialog();
 
     HandleRet (ret);

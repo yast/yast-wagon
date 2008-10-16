@@ -37,13 +37,13 @@
 		`VBox (
 		    `HBox (
 			`HBox (`Image (Icon::IconPath ("yast-update"), ""), `HSpacing (2)),
-			`RadioButton (`id (`suse_register), _("&Customer Center"), (current_workflow == "suse_register")),
+			`RadioButton (`id (`suse_register), _("&Customer Center"), (current_workflow == "manual_suse_register")),
 			`HStretch()
 		    ),
 		    `VSpacing (1),
 		    `HBox (
 			`HBox (`Image (Icon::IconPath ("yast-cd_update"), ""), `HSpacing (2)),
-			`RadioButton (`id (`custom_url), _("Custom &URL"), (current_workflow == "custom_url")),
+			`RadioButton (`id (`custom_url), _("Custom &URL"), (current_workflow == "manual_custom_url")),
 			`HStretch()
 		    )
 		)
@@ -74,9 +74,9 @@
 	    y2milestone ("Selected workflow: %1", selected);
 
 	    if (selected == `suse_register) {
-		Wagon::SetUpdateWorkflow ("suse_register");
+		Wagon::SetUpdateWorkflow ("manual_suse_register");
 	    } else if (selected == `custom_url) {
-		Wagon::SetUpdateWorkflow ("custom_url");
+		Wagon::SetUpdateWorkflow ("manual_custom_url");
 	    }
 
 	    // Check whether we have a useful workflow

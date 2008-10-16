@@ -27,6 +27,7 @@
     import "Popup";
     import "Label";
     import "Report";
+    import "ProductFeatures";
 
     boolean running_by_applet = false;
 
@@ -43,43 +44,52 @@
 	return update_workflow_type;
     }
 
+    void ResetWorkflowSteps () {
+	ProductControl::UnDisableAllModulesAndProposals (Mode::mode(), Stage::stage());
+    }
+
     global boolean AdjustWizardSteps () {
-	// The simplest one-click workflow
-	if (update_workflow_type == "simple") {
-	    // Shortening the workflow
-	    ProductControl::DisableModule ("update_url_dialog");
-	    ProductControl::DisableModule ("wagon_custom_url");
-	    ProductControl::DisableModule ("wagon_selfupdate_from_url");
+	// Adjusting the steps this way:
+	//   * Disable all steps
+	//   * Enable only the requierd ones
 
-	    // All modules but this one are disabled
-	    ProductControl::EnableModule ("suse_register_after_update");
+	ResetWorkflowSteps();
 
-	// Manual / Server workflow
-	} else if (update_workflow_type == "manual") {
-	    ProductControl::EnableModule ("update_url_dialog");
-	    ProductControl::EnableModule ("wagon_custom_url");
-	    ProductControl::EnableModule ("wagon_selfupdate_from_url");
+	ProductControl::DisableAllModulesAndProposals (Mode::mode(), Stage::stage());
 
-	// Custom URL
-	} else if (update_workflow_type == "custom_url") {
-	    ProductControl::DisableModule ("suse_register_workflow");
+	list <map <string, any> > subworkflows =
+	    (list <map <string, any> >) ProductFeatures::GetFeature ("globals", "subworkflows");
 
-	    ProductControl::EnableModule ("wagon_custom_url");
-	    ProductControl::EnableModule ("wagon_selfupdate_from_url");
+	boolean found = false;
 
-	// URL got from suse_register
-	} else if (update_workflow_type == "suse_register") {
-	    ProductControl::DisableModule ("wagon_custom_url");
-	    ProductControl::DisableModule ("wagon_selfupdate_from_url");
+	foreach (map <string, any> one_subworkflow, subworkflows, {
+	    if (one_subworkflow["name"]:"" == update_workflow_type) {
+		list <string> modules = (list <string>) one_subworkflow["modules"]:[];
+		y2milestone ("Modules: %1", modules);
 
-	    ProductControl::EnableModule ("suse_register_workflow");
+		if (modules != nil && modules != []) {
+		    foreach (string one_module, modules, {
+			ProductControl::EnableModule (one_module);
+		    });
+		}
 
-	// FIXME: ...
-	} else if (update_workflow_type == "PatchCD") {
-	    // PatchCD?
+		list <string> proposals = (list <string>) one_subworkflow["proposals"]:[];
+		y2milestone ("Proposals: %1", proposals);
 
-	} else {
+		if (proposals != nil && proposals != []) {
+		    foreach (string one_proposal, proposals, {
+			ProductControl::EnableProposal (one_proposal);
+		    });
+		}
+
+		found = true;
+		break;
+	    }
+	});
+
+	if (found != true) {
 	    y2error ("Unknown workflow: %1", update_workflow_type);
+	    y2milestone ("Known workflows: %1", subworkflows);
 	    // TRANSLATORS: error message
 	    Report::Error (_("No workflow defined."));
 	    return false;
@@ -92,8 +102,8 @@
 	    ]
 	];
 
-	y2milestone ("Updating wizard steps: %1, Disabled modules: %2",
-	    stage_mode, ProductControl::GetDisabledModules());
+	y2milestone ("Updating wizard steps: %1, Disabled modules: %2, Disabled proposals: %3",
+	    stage_mode, ProductControl::GetDisabledModules(), ProductControl::GetDisabledProposals());
 	ProductControl::UpdateWizardSteps (stage_mode);
 
 	return true;
@@ -106,11 +116,14 @@
      * @see CommandLine module
      */
     global void Init (map <string, any> commands) {
-	if (commands["command"]:"" == "running_by_applet") {
-	    y2milestone ("Running by applet, switching to automatic mode");
-	    SetUpdateWorkflow ("simple");
+	if (haskey (commands, "command")) {
+	    y2milestone ("Starting workflow defined: %1", commands["command"]:"");
+	    SetUpdateWorkflow (commands["command"]:"");
 	} else {
-	    SetUpdateWorkflow ("manual");
+	    string default_subworkflow = ProductFeatures::GetStringFeature ("globals", "default_subworkflow");
+
+	    if (default_subworkflow == nil || default_subworkflow == "") default_subworkflow = "manual";
+	    y2milestone ("Using default workflow: %1", default_subworkflow);
 	}
 
 	AdjustWizardSteps();
@@ -129,6 +142,8 @@
 	    y2error ("Cannot initialize sources");
 	    return false;
 	}
+
+	// FIXME: what's missing here?
 
 	return true;
     }
