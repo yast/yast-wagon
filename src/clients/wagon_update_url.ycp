@@ -29,6 +29,12 @@
 
     string current_workflow = Wagon::GetUpdateWorkflow();
 
+    // Default workflow
+    if (current_workflow != "manual_suse_register" && current_workflow != "manual_custom_url") {
+	current_workflow = "manual_suse_register";
+	y2milestone ("Default workflow is: %1", current_workflow);
+    }
+
     term contents = `HSquash (`MinWidth (frame_width, `Frame (
 	frame_label,
 	`MarginBox (1, 1,
