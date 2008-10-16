@@ -1,0 +1,73 @@
+/**
+ * File:
+ *	clients/wagon_custom_url.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
+{
+    textdomain "wagon";
+
+    import "GetInstArgs";
+    import "Wagon";
+    import "Sequencer";
+
+    include "packager/repositories_include.ycp";
+
+    if (GetInstArgs::going_back()) {
+	y2milestone ("Going back...");
+	return `back;
+    }
+
+    Wagon::InitPkg();
+    Pkg::SourceReleaseAll();
+
+    map <string,any> aliases = $[
+	// Included from inst_source_dialogs.ycp
+	"type"	: ``(TypeDialog()),
+	"edit"	: ``(EditDialog ()),
+	"store"	: ``(StoreSource ()),
+    ];
+
+    list <integer> sources_before = Pkg::SourceGetCurrent (false);
+    y2milestone ("Sources before adding new one: %1", sources_before);
+
+    map sequence = $[
+	"ws_start" : "type",
+	"type" : $[
+	    `next : "edit",
+	    // bnc #392083 
+	    `finish : "store",
+	    `abort : `abort,
+	],
+	"edit" : $[
+	    `next : "store",
+	    // bnc #392083 
+	    `finish : "store",
+	    `abort : `abort,
+	],
+	"store" : $[
+	    `next : `next,
+	    // bnc #392083 
+	    `finish : `next,
+	    `abort : `abort,
+	],
+    ];
+
+    y2milestone ("Starting repository sequence");
+    symbol ret = Sequencer::Run (aliases, sequence);
+
+    y2milestone ("Ret: %1", ret);
+
+    return ret;
+}

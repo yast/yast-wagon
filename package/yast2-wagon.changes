@@ -4,6 +4,8 @@ Thu Oct 16 15:44:37 CEST 2008 - locilka@suse.cz
 - Configuration of subworkflows added to the control file.
 - Handling subworkflows - adjusted by command-line parameter or
   during module run.
+- Added wagon_custom_url client that allows user to select custom
+  update URL manually and for PatchCD.
 
 -------------------------------------------------------------------
 Tue Oct 14 15:48:01 CEST 2008 - locilka@suse.cz
