@@ -26,8 +26,8 @@ textdomain="online-migration"
 		    <module>welcome</module>
 		    <module>update_online_mechanism</module>
 		    <module>suse_register_workflow</module>
-		    <!-- FIXME: replace with kickoff, rpmcopy ... -->
-		    <module>fixme</module>
+		    <module>wagon_kickoff</module>
+		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
 		    <module>suse_register_after_update</module>
 		    <module>finished</module>
@@ -52,8 +52,8 @@ textdomain="online-migration"
 		    <module>suse_register_workflow</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
-		    <!-- FIXME: replace with kickoff, rpmcopy ... -->
-		    <module>fixme</module>
+		    <module>wagon_kickoff</module>
+		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
 		    <module>suse_register_after_update</module>
 		    <module>finished</module>
@@ -74,8 +74,8 @@ textdomain="online-migration"
 		    <!-- Workflow is switched after this module -->
 		    <module>update_url_dialog</module>
 		    <module>suse_register_workflow</module>
-		    <!-- FIXME: replace with kickoff, rpmcopy ... -->
-		    <module>fixme</module>
+		    <module>wagon_kickoff</module>
+		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
 		    <module>suse_register_after_update</module>
 		    <module>finished</module>
@@ -97,8 +97,8 @@ textdomain="online-migration"
 		    <module>update_url_dialog</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
-		    <!-- FIXME: replace with kickoff, rpmcopy ... -->
-		    <module>fixme</module>
+		    <module>wagon_kickoff</module>
+		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
 		    <module>suse_register_after_update</module>
 		    <module>finished</module>
@@ -117,8 +117,8 @@ textdomain="online-migration"
 		    <module>welcome</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
-		    <!-- FIXME: replace with kickoff, rpmcopy ... -->
-		    <module>fixme</module>
+		    <module>wagon_kickoff</module>
+		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
 		    <module>suse_register_after_update</module>
 		    <module>finished</module>
@@ -140,10 +140,7 @@ textdomain="online-migration"
 
 	    <proposal_modules config:type="list">
 		<proposal_module>add-on</proposal_module>
-		<!--
-		    FIXME: replace with new client for migration
-		    <proposal_module>update</proposal_module>
-		-->
+		<proposal_module>wagon_update</proposal_module>
 		<proposal_module>packages</proposal_module>
 		<proposal_module>backup</proposal_module>
 	    </proposal_modules>
@@ -240,15 +237,17 @@ textdomain="online-migration"
 		    <proposal>wagon_proposal</proposal>
 		</module>
 
-		<!-- FIXME: inst_kickoff, inst_rpmcopy? -->
 		<module>
-		    <label>Update</label>
-		    <name>fixme</name>
-		    <execute>fixme</execute>
+		    <name>wagon_kickoff</name>
+		    <execute>inst_kickoff</execute>
 		</module>
 
 		<module>
-		    <label>Update</label>
+		    <name>wagon_rpmcopy</name>
+		    <execute>inst_rpmcopy</execute>
+		</module>
+
+		<module>
 		    <name>suseconfig_after_update</name>
 		    <execute>inst_suseconfig</execute>
 		</module>

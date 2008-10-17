@@ -1,0 +1,53 @@
+/**
+ * File:
+ *	clients/wagon_update_proposal.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
+{
+    textdomain "wagon";
+
+    import "Wagon";
+    import "Report";
+
+    string func = (string) WFM::Args(0);
+    map param = (map) WFM::Args(1);
+    map <string, any> ret = $[];
+
+    if (func == "MakeProposal") {
+	boolean force_reset      = param["force_reset"     ]:false;
+	boolean language_changed = param["language_changed"]:false;
+
+	if (force_reset) {
+	    Wagon::ResetDUPProposal();
+	}
+
+	Wagon::ProposeDUP();
+
+	ret = Wagon::ProposalSummary();
+
+    } else if (func == "AskUser") {
+	Report::Message ("There is nothing to set.");
+	ret = $[ "workflow_sequence" : `next ];
+
+    } else if (func == "Description") {
+	ret = $[
+	    "rich_text_title"	:	_("Update Options"),
+	    "menu_title"	:	_("&Update Options"),
+	    "id"		:	"wagon_update_proposal",
+	];
+    }
+
+    return ret;
+}

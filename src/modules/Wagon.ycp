@@ -28,6 +28,7 @@
     import "Label";
     import "Report";
     import "ProductFeatures";
+    import "Update";
 
     boolean running_by_applet = false;
 
@@ -232,6 +233,51 @@ To do so, please, use zypper instead.
 	});
 
 	return accepted;
+    }
+
+    map <string, any> GetUpdateConf () {
+	map <string, boolean> ret = $[];
+
+	boolean sdp = Update::SilentlyDowngradePackages();
+	if (sdp != nil) {
+	    ret["silent_downgrades"] = sdp;
+	}
+
+	y2milestone ("Using update configuration: %1", ret);
+
+	return ret;
+    }
+
+    boolean already_proposed = false;
+
+    global void ResetDUPProposal () {
+	already_proposed = false;
+    }
+
+    global boolean ProposeDUP () {
+	if (already_proposed == true) {
+	    y2milestone ("DUP already proposed");
+	    return true;
+	}
+
+	map <symbol, integer> update_sum = Pkg::PkgUpdateAll (GetUpdateConf());
+	y2milestone ("Update summary: %1", update_sum);
+
+	already_proposed = true;
+
+	return true;
+    }
+
+    global map <string, any> ProposalSummary () {
+	map <string, any> ret = $[];
+
+	// FIXME: create a useful summary
+	ret = $[
+	    "preformatted_proposal" : "<ul><li>" + _("Distribution Upgrade") + "</li></ul>",
+	    "help" : _("<p>FIXME</p>"),
+	];
+
+	return ret;
     }
 
 /* EOF */

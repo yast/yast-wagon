@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Oct 17 13:16:51 CEST 2008 - locilka@suse.cz
+
+- Added wagon_update_proposal client and DUP proposal functions
+  in Wagon module.
+- Added inst_kickoff and inst_rpmcopy calls into control file.
+- 2.17.2
+
+-------------------------------------------------------------------
 Thu Oct 16 15:44:37 CEST 2008 - locilka@suse.cz
 
 - Configuration of subworkflows added to the control file.
