@@ -138,6 +138,11 @@
 	    return false;
 	}
 
+	if (Pkg::TargetLoad() != true) {
+	    y2error ("Cannot load target");
+	    return false;
+	}
+
 	if (Pkg::SourceStartManager (true) != true) {
 	    y2error ("Cannot initialize sources");
 	    return false;
