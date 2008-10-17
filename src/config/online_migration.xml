@@ -229,7 +229,6 @@ textdomain="online-migration"
 		    Use migration URL to Update/Upgrade the running system
 		    This will replace the 'migration-product' with 'new-product'
 		-->
-		<!-- FIXME: reinit sources? We've got some new ... -->
 		<module>
 		    <label>Update</label>
 		    <name>wagon_proposal</name>
@@ -242,6 +241,7 @@ textdomain="online-migration"
 		    <execute>inst_kickoff</execute>
 		</module>
 
+		<!-- Upgrade the packages -->
 		<module>
 		    <name>wagon_rpmcopy</name>
 		    <execute>inst_rpmcopy</execute>
