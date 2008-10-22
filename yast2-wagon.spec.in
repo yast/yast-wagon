@@ -3,7 +3,7 @@
 @HEADER@
 # Possibility to restart YaST
 Requires:	yast2 >= 2.17.33
-Requires:	yast2-online-update
+Requires:	yast2-online-update >= 2.17.9
 BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite yast2-update
 
 Provides:	yast2-online-update:/usr/share/applications/YaST2/cd_update.desktop
