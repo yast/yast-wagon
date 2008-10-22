@@ -118,6 +118,11 @@
      */
     global void Init (map <string, any> commands) {
 	if (haskey (commands, "command")) {
+	    if (commands["command"]:"" == "cd_update") {
+		// Backward compatibility
+		commands["command"] = "PatchCD";
+	    }
+
 	    y2milestone ("Starting workflow defined: %1", commands["command"]:"");
 	    SetUpdateWorkflow (commands["command"]:"");
 	} else {

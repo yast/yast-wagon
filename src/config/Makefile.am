@@ -6,6 +6,6 @@ controldir = $(yast2dir)/control
 
 control_DATA = $(wildcard *.xml)
 
-desktop_DATA =
+desktop_DATA = $(wildcard *.desktop)
 
 EXTRA_DIST = $(desktop_DATA) $(control_DATA)

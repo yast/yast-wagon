@@ -6,6 +6,8 @@ Requires:	yast2 >= 2.17.33
 Requires:	yast2-online-update
 BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite yast2-update
 
+Provides:	yast2-online-update:/usr/share/applications/YaST2/cd_update.desktop
+
 BuildArchitectures:	noarch
 
 Summary: YaST2 - Migration Tool for Service Packs
@@ -28,5 +30,6 @@ Summary: YaST2 - Migration Tool for Service Packs
 @moduledir@/*.ycp
 @moduledir@/*.ybc
 %dir /usr/share/YaST2/control
+@desktopdir@/*.desktop
 /usr/share/YaST2/control/online_migration.xml
 %doc @docdir@

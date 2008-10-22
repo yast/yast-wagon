@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Oct 17 14:18:43 CEST 2008 - locilka@suse.cz
+
+- PatchCD control file moved here from yast2-online-update.
+
+-------------------------------------------------------------------
 Fri Oct 17 13:16:51 CEST 2008 - locilka@suse.cz
 
 - Added wagon_update_proposal client and DUP proposal functions
