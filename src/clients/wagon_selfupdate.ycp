@@ -22,6 +22,7 @@
     import "Wagon";
     import "FileUtils";
     import "ProductControl";
+    import "ProductFeatures";
     import "Internet";
     import "OnlineUpdateCallbacks";
     import "Popup";
@@ -30,6 +31,112 @@
     if (GetInstArgs::going_back()) {
 	y2milestone ("Going back...");
 	return `back;
+    }
+
+    boolean SolverRunWithFeedback () {
+	UI::OpenDialog (`Label (_("Solving the package dependencies...")));
+	boolean ret = Pkg::PkgSolve (false);
+	UI::CloseDialog();
+
+	return ret;
+    }
+
+    /**
+     * Tries to upgrade packages got as parameter.
+     *
+     * @param list <string> of packages
+     */
+    integer UpgradePackages (list <string> & packages) {
+	// Check the input
+	packages = filter (string one_package, packages, {
+	    return (one_package != nil && one_package != "");
+	});
+
+	integer pkgs_affected = 0;
+
+	map <string, list <string> > installed_versions = $[];
+
+	boolean some_packages_selected = false;
+
+	foreach (string one_package, packages, {
+	    // All packages of the given name
+	    list <map <string, any> > respros = Pkg::ResolvableProperties (one_package, `package, "");
+
+	    // All installed packages of the given name
+	    list <map <string, any> > installed = filter (map <string, any> one_respro, respros, {
+		return (one_respro["status"]:`unknown == `installed);
+	    });
+
+	    // All available packages of the given name
+	    list <map <string, any> > available = filter (map <string, any> one_respro, respros, {
+		return (one_respro["status"]:`unknown == `available);
+	    });
+
+	    // Such package is not installed
+	    if (size (installed) < 1) {
+		y2milestone ("Package %1 is not installed", one_package);
+		return;
+	    }
+
+	    // Er, installed but not available
+	    if (size (available) < 1) {
+		y2warning ("Package %1 is installed but not available", one_package);
+		return;
+	    }
+
+	    // Remember the installed version(s)
+	    installed_versions[one_package] = maplist (map <string,any> one_installed, installed, {
+		return one_installed["version"]:"unknown";
+	    });
+
+	    // Force upgrade/install
+	    y2milestone ("Selecting package %1 for installation", one_package);
+	    if (Pkg::ResolvableInstall (one_package, `package) == true) {
+		some_packages_selected = true;
+	    } else {
+		y2error ("Cannot install package %1", one_package);
+	    }
+	});
+
+	if (some_packages_selected != true) {
+	    y2milestone ("No packages have been selected for upgrade");
+	    return pkgs_affected;
+	}
+
+	// Calling solver to select the best version
+	SolverRunWithFeedback();
+
+	y2milestone ("Some packages have been selected, checking...");
+
+	// Check whether the selected version is different to the already installed one
+	foreach (string one_package, list <string> previously_installed_versions, installed_versions, {
+	    list <map <string, any> > respros = Pkg::ResolvableProperties (one_package, `package, "");
+
+	    // All selected packages of the given name
+	    list <map <string, any> > selected = filter (map <string, any> one_respro, respros, {
+		return (one_respro["status"]:`unknown == `selected);
+	    });
+
+	    // The package of a given name is selected
+	    if (size (selected) > 0) {
+		boolean selection_differs = false;
+
+		foreach (map <string, any> one_selected, selected, {
+		    if (! contains (previously_installed_versions, one_selected["version"]:"some-version")) {
+			pkgs_affected = pkgs_affected + 1;
+			selection_differs = true;
+			break;
+		    }
+		});
+
+		if (selection_differs != true) {
+		    y2milestone ("Selection of packages doesn't differ, neutralizing package: %1", one_package);
+		    Pkg::ResolvableNeutral (one_package, `package, false);
+		}
+	    }
+	});
+
+	return pkgs_affected;
     }
 
     Wagon::InitPkg();
@@ -42,8 +149,23 @@
     // Here the update stack updates itself
     integer selected = Pkg::ResolvablePreselectPatches (`affects_pkg_manager);
 
+    // No patches selected
     if (selected < 1) {
-	y2milestone ("There are no patches that would affect the package manager");
+	y2milestone ("There are no patches that would affect the package manager, trying packages...");
+
+	any pkgs = ProductFeatures::GetFeature ("software", "packages_affecting_pkg_manager");
+
+	if (pkgs == nil || pkgs == "" || pkgs == []) {
+	    y2warning ("No packages_affecting_pkg_manager provided");
+	} else {
+	    list <string> packages = (list <string>) pkgs;
+	    y2milestone ("Packages to upgrade: %1", packages);
+	    selected = UpgradePackages (packages);
+	}
+    }
+
+    if (selected < 1) {
+	y2milestone ("Neither patches nor packages for self-update have been selected");
 	return ret;
     }
 
@@ -51,7 +173,7 @@
 
     while (solved != true) {
 	// Trying to solve automatically
-	solved = Pkg::PkgSolve (false);
+	solved = SolverRunWithFeedback();
 	symbol ret_sel = nil;
 
 	// PkgSolve didn't report any problem
@@ -60,9 +182,9 @@
 	    ret = `restart_same_step;
 	// There are some issues in selecting the patches
 	} else {
-	    repeat {
+	    while (true) {
 		// Try to solve them manually
-		UI::OpenDialog(`opt(`defaultsize), `PackageSelector (`id(`selector), `opt(`youMode)));
+		UI::OpenDialog(`opt(`defaultsize), `PackageSelector (`id(`selector), `opt(`summaryMode)));
 		ret_sel = (symbol) UI::RunPkgSelection (`id(`selector));
 		UI::CloseDialog();
 
@@ -80,6 +202,7 @@ Are sure you want to abort the upgrade process?"),
 			`yes_button
 		    )) {
 			ret = `abort;
+			break;
 		    // Try again
 		    } else {
 			continue;
@@ -87,8 +210,15 @@ Are sure you want to abort the upgrade process?"),
 		// Solved manually
 		} else if (ret_sel == `accept) {
 		    ret = `restart_same_step;
+		    break;
 		}
-	    } until (ret_sel == `cancel || ret_sel == `accept);
+	    }
+	}
+
+	if (ret == `abort) {
+	    solved = nil;
+	    y2warning ("Aborting...");
+	    break;
 	}
 
 	if (! Wagon::AcceptLicenses()) {
@@ -97,8 +227,12 @@ Are sure you want to abort the upgrade process?"),
 	}
     }
 
-    OnlineUpdateCallbacks::RegisterOnlineUpdateCallbacks();
-    WFM::call ("online_update_install");
+    if (solved == true) {
+	y2milestone ("Calling update...");
+	OnlineUpdateCallbacks::RegisterOnlineUpdateCallbacks();
+	any ret = WFM::call ("online_update_install");
+	y2milestone ("Update returned: %1", ret);
+    }
 
     return ret;
 }

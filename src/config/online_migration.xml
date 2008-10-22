@@ -130,6 +130,20 @@ textdomain="online-migration"
 	</subworkflows>
     </globals>
 
+    <software>
+	<!--
+	    Packages that affect the package manager.
+	    If no patches are selected in the wagon self-update
+	    packages are used as a fallback.
+	-->
+	<packages_affecting_pkg_manager config:type="list">
+	    <package>yast2-wagon</package>
+	    <package>yast2-online-update</package>
+	    <package>yast2-pkg-bindings</package>
+	    <package>libzypp</package>
+	</packages_affecting_pkg_manager>
+    </software>
+
     <proposals config:type="list">
 	<proposal>
 	    <label>Distribution Upgrade Settings</label>
