@@ -11,8 +11,8 @@ textdomain="online-migration"
     <textdomain>online-migration</textdomain>
 
     <globals>
-	<!-- Change to 'false' in production -->
-	<debug_workflow config:type="boolean">true</debug_workflow>
+	<!-- Change to 'true' to debug the workflow steps -->
+	<debug_workflow config:type="boolean">false</debug_workflow>
 
 	<default_subworkflow>manual</default_subworkflow>
 
@@ -26,6 +26,7 @@ textdomain="online-migration"
 		    <module>welcome</module>
 		    <module>update_online_mechanism</module>
 		    <module>suse_register_workflow</module>
+		    <module>prepare_progress</module>
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
@@ -52,6 +53,7 @@ textdomain="online-migration"
 		    <module>suse_register_workflow</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
+		    <module>prepare_progress</module>
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
@@ -74,6 +76,7 @@ textdomain="online-migration"
 		    <!-- Workflow is switched after this module -->
 		    <module>update_url_dialog</module>
 		    <module>suse_register_workflow</module>
+		    <module>prepare_progress</module>
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
@@ -97,6 +100,7 @@ textdomain="online-migration"
 		    <module>update_url_dialog</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
+		    <module>prepare_progress</module>
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
@@ -117,6 +121,7 @@ textdomain="online-migration"
 		    <module>welcome</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
+		    <module>prepare_progress</module>
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
@@ -249,6 +254,12 @@ textdomain="online-migration"
 		    <execute>inst_proposal</execute>
 		    <proposal>wagon_proposal</proposal>
 		</module>
+
+		<!-- Download slideshow, count download sizes, ... -->
+		<module>
+		    <name>prepare_progress</name>
+		    <execute>inst_prepareprogress</execute>
+		<module>
 
 		<module>
 		    <name>wagon_kickoff</name>

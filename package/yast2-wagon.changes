@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Oct 27 12:52:02 CET 2008 - locilka@suse.cz
+
+- Calling inst_prepareprogress before inst_kickoff (bnc #438848).
+
+-------------------------------------------------------------------
 Wed Oct 22 19:15:47 CEST 2008 - locilka@suse.cz
 
 - Enhanced self-update mechanism to use packages as fallback when
