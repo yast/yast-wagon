@@ -259,7 +259,7 @@ textdomain="online-migration"
 		<module>
 		    <name>prepare_progress</name>
 		    <execute>inst_prepareprogress</execute>
-		<module>
+		</module>
 
 		<module>
 		    <name>wagon_kickoff</name>
