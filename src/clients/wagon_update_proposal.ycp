@@ -26,6 +26,9 @@
     map <string, any> ret = $[];
 
     if (func == "MakeProposal") {
+	// Make sure the packager is initialized
+	Wagon::InitPkg();
+
 	boolean force_reset      = param["force_reset"     ]:false;
 	boolean language_changed = param["language_changed"]:false;
 

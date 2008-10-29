@@ -164,6 +164,7 @@
 	}
     }
 
+    y2milestone ("Selected resolvables: %1", selected);
     if (selected < 1) {
 	y2milestone ("Neither patches nor packages for self-update have been selected");
 	return ret;
@@ -178,10 +179,12 @@
 
 	// PkgSolve didn't report any problem
 	if (solved) {
+	    y2milestone ("Solved automatically");
 	    // FIXME: inform user?
 	    ret = `restart_same_step;
 	// There are some issues in selecting the patches
 	} else {
+	    y2milestone ("Cannot be solved automatically");
 	    while (true) {
 		// Try to solve them manually
 		UI::OpenDialog(`opt(`defaultsize), `PackageSelector (`id(`selector), `opt(`summaryMode)));
@@ -209,7 +212,7 @@ Are sure you want to abort the upgrade process?"),
 		    }
 		// Solved manually
 		} else if (ret_sel == `accept) {
-		    ret = `restart_same_step;
+		    solved = true;
 		    break;
 		}
 	    }
@@ -228,11 +231,20 @@ Are sure you want to abort the upgrade process?"),
     }
 
     if (solved == true) {
-	y2milestone ("Calling update...");
-	OnlineUpdateCallbacks::RegisterOnlineUpdateCallbacks();
-	any ret = WFM::call ("online_update_install");
-	y2milestone ("Update returned: %1", ret);
+	// Solver ends with some resolvables changed
+	if (Pkg::IsAnyResolvable (`any, `to_install) == true || Pkg::IsAnyResolvable (`any, `to_remove) == true) {
+	    y2milestone ("Calling update...");
+	    OnlineUpdateCallbacks::RegisterOnlineUpdateCallbacks();
+	    any oui_ret = WFM::call ("online_update_install");
+	    y2milestone ("Update returned: %1", oui_ret);
+	    ret = `restart_same_step;
+	} else {
+	    y2milestone ("Nothing to install/remove");
+	    ret = `auto;
+	}
     }
+
+    y2milestone ("Returning: %1", ret);
 
     return ret;
 }
