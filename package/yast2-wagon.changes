@@ -6,6 +6,7 @@ Wed Oct 29 16:41:12 CET 2008 - locilka@suse.cz
 - Remembering and reusing adjusted wagon workflow.
 - Fixed Provides for PatchCD desktop file - it was owned by
   yast2-online-update-frontend.
+- Storing sources when restarting or correctly finishing wagon.
 
 -------------------------------------------------------------------
 Mon Oct 27 12:52:02 CET 2008 - locilka@suse.cz

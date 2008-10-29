@@ -265,8 +265,10 @@ To do so, please, use zypper instead.
 	    return true;
 	}
 
-	map <symbol, integer> update_sum = Pkg::PkgUpdateAll (GetUpdateConf());
-	y2milestone ("Update summary: %1", update_sum);
+	map <string, any> update_conf = GetUpdateConf();
+
+	map <symbol, integer> update_sum = Pkg::PkgUpdateAll (update_conf);
+	y2milestone ("Update configuration: %1, update summary: %2", update_conf, update_sum);
 
 	already_proposed = true;
 

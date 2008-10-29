@@ -25,6 +25,7 @@
     import "Wagon";
     import "CommandLine";
     import "PackageLock";
+    import "PackageCallbacks";
 
     textdomain "wagon";
 
@@ -90,10 +91,16 @@
 		y2milestone ("YaST will be restarted starting from the very next step: %1", next_step);
 		SCR::Write (.target.ycp, current_step_file, next_step);
 
+		// Also the current workflow type has to be stored
 		string current_workflow = Wagon::GetUpdateWorkflow();
 		y2milestone ("Current workflow is '%1'", current_workflow);
 		SCR::Write (.target.ycp, current_workflow_file, current_workflow);
 	    }
+	}
+
+	if (ret == `restart_same_step || ret == `restart_yast || ret == `reboot || ret == `accept || ret == `next) {
+	    y2milestone ("Storing all the current sources...");
+	    Pkg::SourceSaveAll();
 	}
     }
 
