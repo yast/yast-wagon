@@ -4,6 +4,8 @@ Wed Oct 29 16:41:12 CET 2008 - locilka@suse.cz
 - Restarting the very next step instead of the same step in case of
   restarting wagon after self-update (prevents from loop).
 - Remembering and reusing adjusted wagon workflow.
+- Fixed Provides for PatchCD desktop file - it was owned by
+  yast2-online-update-frontend.
 
 -------------------------------------------------------------------
 Mon Oct 27 12:52:02 CET 2008 - locilka@suse.cz
