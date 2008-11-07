@@ -27,6 +27,7 @@
     import "OnlineUpdateCallbacks";
     import "Popup";
     import "Label";
+    import "PackagesUI";
 
     if (GetInstArgs::going_back()) {
 	y2milestone ("Going back...");
@@ -187,9 +188,7 @@
 	    y2milestone ("Cannot be solved automatically");
 	    while (true) {
 		// Try to solve them manually
-		UI::OpenDialog(`opt(`defaultsize), `PackageSelector (`id(`selector), `opt(`summaryMode)));
-		ret_sel = (symbol) UI::RunPkgSelection (`id(`selector));
-		UI::CloseDialog();
+		ret_sel = PackagesUI::RunPackageSelector ($["mode":`summaryMode]);
 
 		// Cannot or don't want to accept the proposal
 		if (ret_sel == `cancel) {

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Nov  7 11:34:02 CET 2008 - locilka@suse.cz
+
+- Using PackagesUI for opening a package selector (bnc #435479).
+- 2.17.5
+
+-------------------------------------------------------------------
 Wed Oct 29 16:41:12 CET 2008 - locilka@suse.cz
 
 - Restarting the very next step instead of the same step in case of
