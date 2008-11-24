@@ -147,6 +147,9 @@
 
     symbol ret = `auto;
 
+    // Patches need solver run
+    Pkg::PkgSolve (true);
+
     // Here the update stack updates itself
     integer selected = Pkg::ResolvablePreselectPatches (`affects_pkg_manager);
 
