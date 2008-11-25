@@ -17,3 +17,11 @@ fi
 
 ## and generate the output...
 @YAST2-OUTPUT@
+
+## Nasty hack: xgettext doesn't work for XML files, so let's symlink it 
+( cd src/config;
+ for xml in `ls *.xml`; do
+    ln -sf $xml  `basename $xml .xml`.glade
+ done
+ )
+find src/config -name \*.glade | LC_ALL=C sort > POTFILES

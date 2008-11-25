@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Nov 25 16:39:56 CET 2008 - locilka@suse.cz
+
+- Fixed potfile generation (bnc #439104).
+
+-------------------------------------------------------------------
 Fri Nov  7 11:34:02 CET 2008 - locilka@suse.cz
 
 - Using PackagesUI for opening a package selector (bnc #435479).
