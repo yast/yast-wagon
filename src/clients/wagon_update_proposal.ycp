@@ -41,7 +41,7 @@
 	ret = Wagon::ProposalSummary();
 
     } else if (func == "AskUser") {
-	Report::Message ("There is nothing to set.");
+	Report::Message (_("There is nothing to set."));
 	ret = $[ "workflow_sequence" : `next ];
 
     } else if (func == "Description") {
