@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Feb  9 10:10:05 CET 2009 - locilka@suse.cz
+
+- Added new wagon_congratulate client - an envelope that loads the
+  product control file with congratulate text and calls
+  inst_congratulate client that show that text (bnc #445974).
+- 2.18.0
+
+-------------------------------------------------------------------
 Fri Dec  5 14:25:45 CET 2008 - locilka@suse.cz
 
 - New control.rnc/rng for control file validation (bnc #455994).

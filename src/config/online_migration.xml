@@ -292,7 +292,7 @@ textdomain="online-migration"
 		<module>
 		    <label>Finished</label>
 		    <name>finished</name>
-		    <execute>inst_congratulate</execute>
+		    <execute>wagon_congratulate</execute>
 		</module>
 	    </modules>
 	</workflow>

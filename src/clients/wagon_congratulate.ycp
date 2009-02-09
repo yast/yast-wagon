@@ -1,0 +1,48 @@
+/**
+ * File:
+ *	clients/wagon_congratulate.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id:$
+ *
+ */
+
+{
+    // FIXME: add own congratulations dialog to the wagon control file
+
+    import "ProductControl";
+    import "ProductFeatures";
+
+    // BNC #445974
+    // Don't use custom control file, only the base-product one has
+    // a congratulations text defined
+    string custom_workflow_file = "";
+
+    if (ProductControl::custom_control_file != nil && ProductControl::custom_control_file != "") {
+	custom_workflow_file = ProductControl::custom_control_file;
+	ProductControl::custom_control_file = "";
+	ProductControl::Init();
+	// Disable AutoYaST Cloning check-box
+	ProductFeatures::SetBooleanFeature ("globals", "enable_clone", false);
+	ProductControl::clone_modules = [];
+	y2milestone ("X: %1", ProductFeatures::GetBooleanFeature("globals", "enable_clone"));
+    }
+
+    symbol ret = (symbol) WFM::CallFunction ("inst_congratulate", WFM::Args());
+
+    // Re-use the previous custom control file
+    if (custom_workflow_file != nil && custom_workflow_file != "") {
+	ProductControl::custom_control_file = custom_workflow_file;
+	ProductControl::Init();
+    }
+
+    return ret;
+}
