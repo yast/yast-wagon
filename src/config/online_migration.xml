@@ -159,6 +159,7 @@ textdomain="online-migration"
 	    <mode>update</mode>
 	    <stage>normal</stage>
 	    <name>wagon_proposal</name>
+	    <unique_id>wagon_proposal</unique_id>
 	    <enable_skip>no</enable_skip>
 
 	    <proposal_modules config:type="list">
