@@ -17,9 +17,8 @@ X-SuSE-YaST-SortKey=
 X-SuSE-YaST-AutoInstResource=
 
 Icon=yast-cd_update
-Exec=/sbin/yast2 wagon PatchCD
+Exec=xdg-su -c "/sbin/yast2 wagon PatchCD"
 
 Name=Patch CD Update
 GenericName=Install patches from CD to correct and improve your existing installation
-X-KDE-SubstituteUID=true
 StartupNotify=true
