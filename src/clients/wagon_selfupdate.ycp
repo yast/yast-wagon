@@ -28,18 +28,13 @@
     import "Popup";
     import "Label";
     import "PackagesUI";
+    import "Report";
+
+    include "wagon/common_func.ycp";
 
     if (GetInstArgs::going_back()) {
 	y2milestone ("Going back...");
 	return `back;
-    }
-
-    boolean SolverRunWithFeedback () {
-	UI::OpenDialog (`Label (_("Solving the package dependencies...")));
-	boolean ret = Pkg::PkgSolve (false);
-	UI::CloseDialog();
-
-	return ret;
     }
 
     /**
@@ -140,10 +135,49 @@
 	return pkgs_affected;
     }
 
+    integer UpdateInstalledProducts () {
+	integer affected_products = 0;
+
+	list <map <string,any> > products = Pkg::ResolvableProperties ("", `product, "");
+
+	foreach (map<string, any> p, products, {
+	    // Product is not installed
+	    if (p["status"]:`unknown != `installed) return;
+
+	    // Make the logs readable
+	    p["license"] = "...";
+	    p["description"] = "...";
+
+	    string product_name = p["name"]:"";
+	    string product_version = p["version"]:"";
+
+	    if (product_name == nil || product_name == "") {
+		y2error ("Cannot distinguish product name: %1", product_name);
+		return;
+	    }
+
+	    // Product version is the same but release can be different
+	    // product map doesn't contain the release string. To be sure, product will be reinstalled
+	    y2milestone ("Upgrading product %1 version %2", product_name, product_version);
+	    // The version is the same, release can be different
+	    if (Pkg::ResolvableInstall (product_name, `product) != true) {
+		Report::Error (sformat(_("Cannot update installed product %1."), product_name));
+		return;
+	    }
+
+	    affected_products = affected_products + 1;
+	});
+
+	return affected_products;
+    }
+
     Wagon::InitPkg();
 
     list <map <string, any> > products = Pkg::ResolvableProperties ("", `product, "");
     y2milestone ("All known products: %1", products);
+
+    Wagon::ReadProductsBeforeMigration();
+    Wagon::StoreProductsBeforeMigration();
 
     symbol ret = `auto;
 
@@ -168,71 +202,21 @@
 	}
     }
 
+    integer products_selected_for_update = UpdateInstalledProducts();
+    if (products_selected_for_update > 0) {
+	y2milestone ("%1 products were selected for update", products_selected_for_update);
+	selected = products_selected_for_update;
+    }
+
     y2milestone ("Selected resolvables: %1", selected);
     if (selected < 1) {
 	y2milestone ("Neither patches nor packages for self-update have been selected");
 	return ret;
     }
 
-    boolean solved = nil;
+    ret = SolveDependencies();
 
-    while (solved != true) {
-	// Trying to solve automatically
-	solved = SolverRunWithFeedback();
-	symbol ret_sel = nil;
-
-	// PkgSolve didn't report any problem
-	if (solved) {
-	    y2milestone ("Solved automatically");
-	    // FIXME: inform user?
-	    ret = `restart_same_step;
-	// There are some issues in selecting the patches
-	} else {
-	    y2milestone ("Cannot be solved automatically");
-	    while (true) {
-		// Try to solve them manually
-		ret_sel = PackagesUI::RunPackageSelector ($["mode":`summaryMode]);
-
-		// Cannot or don't want to accept the proposal
-		if (ret_sel == `cancel) {
-		    // Confirmed
-		    if (Popup::AnyQuestion (
-			// TRANSLATORS: headline
-			_("Aborting the Upgrade"),
-			// TRANSLATORS: pop-up question
-			_("Cannot continue without installing the required patches.
-Are sure you want to abort the upgrade process?"),
-			_("Abort Upgrade"),
-			Label::NoButton(),
-			`yes_button
-		    )) {
-			ret = `abort;
-			break;
-		    // Try again
-		    } else {
-			continue;
-		    }
-		// Solved manually
-		} else if (ret_sel == `accept) {
-		    solved = true;
-		    break;
-		}
-	    }
-	}
-
-	if (ret == `abort) {
-	    solved = nil;
-	    y2warning ("Aborting...");
-	    break;
-	}
-
-	if (! Wagon::AcceptLicenses()) {
-	    y2warning ("Some license(s) have been rejected, running solver again");
-	    solved = nil;
-	}
-    }
-
-    if (solved == true) {
+    if (ret != `abort) {
 	// Solver ends with some resolvables changed
 	if (Pkg::IsAnyResolvable (`any, `to_install) == true || Pkg::IsAnyResolvable (`any, `to_remove) == true) {
 	    y2milestone ("Calling update...");

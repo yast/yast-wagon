@@ -29,8 +29,10 @@ textdomain="online-migration"
 		<modules config:type="list">
 		    <module>welcome</module>
 		    <module>update_online_mechanism</module>
+		    <module>install_migration_products</module>
 		    <module>suse_register_workflow</module>
 		    <module>prepare_progress</module>
+		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
@@ -52,12 +54,14 @@ textdomain="online-migration"
 		<modules config:type="list">
 		    <module>welcome</module>
 		    <module>update_online_mechanism</module>
+		    <module>install_migration_products</module>
 		    <!-- Workflow is switched after this module -->
 		    <module>update_url_dialog</module>
 		    <module>suse_register_workflow</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
 		    <module>prepare_progress</module>
+		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
@@ -77,10 +81,12 @@ textdomain="online-migration"
 		<modules config:type="list">
 		    <module>welcome</module>
 		    <module>update_online_mechanism</module>
+		    <module>install_migration_products</module>
 		    <!-- Workflow is switched after this module -->
 		    <module>update_url_dialog</module>
 		    <module>suse_register_workflow</module>
 		    <module>prepare_progress</module>
+		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
@@ -100,11 +106,13 @@ textdomain="online-migration"
 		<modules config:type="list">
 		    <module>welcome</module>
 		    <module>update_online_mechanism</module>
+		    <module>install_migration_products</module>
 		    <!-- Workflow is switched after this module -->
 		    <module>update_url_dialog</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
 		    <module>prepare_progress</module>
+		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
@@ -126,6 +134,7 @@ textdomain="online-migration"
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
 		    <module>prepare_progress</module>
+		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
@@ -199,16 +208,22 @@ textdomain="online-migration"
 		    <enable_back>no</enable_back>
 		</module>
 
-		<!-- Update itself, Add new 'migration-product' -->
+		<!-- Update itself -->
 		<module>
 		    <label>Renew Update Stack</label>
 		    <name>update_online_mechanism</name>
 		    <execute>wagon_selfupdate</execute>
 		</module>
 
+		<!-- Add new 'migration-products' -->
+		<module>
+		    <label>Migration Configuration</label>
+		    <name>install_migration_products</name>
+		    <execute>wagon_migration_products</execute>
+		</module>
+
 		<!-- Offer several possibilities how to set update repository URL -->
 		<module>
-		    <label>Renew Update Stack</label>
 		    <name>update_url_dialog</name>
 		    <execute>wagon_update_url</execute>
 		</module>
@@ -219,7 +234,6 @@ textdomain="online-migration"
 		    (*) Offered in wagon_update_url if not running via applet
 		-->
 		<module>
-		    <label>Renew Update Stack</label>
 		    <name>suse_register_workflow</name>
 		    <execute>inst_suse_register</execute>
 		</module>
@@ -229,7 +243,6 @@ textdomain="online-migration"
 		    (*) Offered in wagon_update_url if not running via applet
 		-->
 		<module>
-		    <label>Renew Update Stack</label>
 		    <name>wagon_custom_url</name>
 		    <execute>wagon_custom_url</execute>
 		</module>
@@ -239,7 +252,6 @@ textdomain="online-migration"
 		    Follows the wagon_ownurl
 		-->
 		<module>
-		    <label>Renew Update Stack</label>
 		    <name>wagon_selfupdate_from_url</name>
 		    <execute>wagon_selfupdate</execute>
 		</module>
@@ -264,6 +276,12 @@ textdomain="online-migration"
 		<module>
 		    <name>prepare_progress</name>
 		    <execute>inst_prepareprogress</execute>
+		</module>
+
+		<!-- From this point, some possibilities are simply 'impossible' ;) -->
+		<module>
+		    <name>point_of_no_return</name>
+		    <execute>wagon_point_of_no_return</execute>
 		</module>
 
 		<module>

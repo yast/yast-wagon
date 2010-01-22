@@ -26,6 +26,10 @@
     import "CommandLine";
     import "PackageLock";
     import "PackageCallbacks";
+    import "Report";
+    import "FileUtils";
+
+    include "wagon/common_func.ycp";
 
     textdomain "wagon";
 
@@ -137,6 +141,134 @@
 	}
     }
 
+    boolean RevertToOldProducts () {
+	if (Wagon::abort_can_revert_products != true) {
+	    y2warning ("Cannot revert the previous state of products, sorry. Installed products were: %1, Migration products were: %2",
+		Wagon::products_before_migration, Wagon::migration_products);
+
+	    Report::Warning (_("Cannot revert the previous state of installed products.
+You will have to revert them manually."));
+
+	    return false;
+	}
+
+	Wizard::SetContents (
+	    _("Reverting Migration"),
+	    `Label(_("Migration tool has to remove the temporary migration products,
+install the previously installed ones and contact Novell Customer Center
+to get update repositories.")),
+	    _("<p>Several tasks can be done by the migration tool. If you skip this step,
+you will have to do them manually.</p>"),
+	    false, true
+	);
+	Wizard::EnableAbortButton ();
+
+	boolean cont = true;
+	while (true) {
+	    any ret = UI::UserInput();
+	    if (ret == `next) {
+		cont = true;
+		break;
+	    } else if (ret == `abort || ret == `cancel) {
+		if (Popup::AnyQuestion (
+		    // popup dialog caption
+		    _("Migration Has to Be Reverted"),
+		    // popup dialog qustion
+		    _("Are you sure you want to skip reverting the migration?"),
+		    // button
+		    _("&Yes, Skip It"),
+		    // button
+		    _("&No"),
+		    `focus_no
+		)) {
+		    cont = false;
+		    break;
+		}
+	    }
+	}
+
+	if (cont != true) {
+	    y2warning ("User decided not to rollback");
+	    return false;
+	}
+
+	ResetPackager();
+
+	// Full paths to product files
+	list <string> removed_product_files = [];
+	// Product packages
+	list <string> removed_packages = [];
+
+	Wizard::SetContents (
+	    _("Reverting Migration"),
+	    `Label(_("Removing temporary migration products...")),
+	    "",
+	    false, true
+	);
+
+	// Remove all the migration products using packages approach manually
+	// Removing via ResolvableRemove + PkgSolve usually produces errors,
+	// dependency loops etc.
+	//
+	y2milestone ("Removing newly installed products: %1", Wagon::migration_products);
+	foreach (string migration_product, Wagon::migration_products, {
+	    foreach (map <string, any> remove_product, Pkg::ResolvableProperties (migration_product, `product, ""), {
+		remove_product = Wagon::MinimizeProductMap (remove_product);
+
+		string product_file = remove_product["product_file"]:"";
+		if (product_file == nil || product_file == "") {
+		    y2error ("Cannot remove product: %1, no product file defined", remove_product);
+		    Report::Error (sformat(_("Cannot remove product %1"), remove_product["name"]:_("Unknown product")));
+		    return;
+		}
+
+		if (! regexpmatch (product_file, "^/etc/products\\.d/.+"))
+		    product_file = sformat ("/etc/products.d/%1", product_file);
+
+		if (contains (removed_product_files, product_file)) {
+		    y2milestone ("Product file %1 has been already removed", product_file);
+		    return;
+		}
+
+		string package_name = Wagon::GetFileOwner (product_file);
+
+		if (package_name == nil || package_name == "") {
+		    y2error ("Cannot find out file owner %1", product_file);
+		    Report::Error (sformat(_("Cannot remove product %1"), remove_product["name"]:_("Unknown product")));
+		    return;
+		}
+
+		if (Pkg::TargetRemove (package_name) != true) {
+		    y2error ("Cannot remove package %1", package_name);
+		    Report::Error (sformat(_("Cannot remove product %1.
+Remove package %2 manually"), remove_product["name"]:_("Unknown product"), package_name));
+		    return;
+		}
+
+		y2milestone ("Product %1/%2 has been successfully removed", remove_product, package_name);
+		removed_product_files = add (removed_product_files, product_file);
+		removed_packages = add (removed_packages, package_name);
+	    });
+	});
+
+	if (size (removed_packages) > 0) {
+	    y2milestone ("%1 products were removed, reseting packager", size (removed_packages));
+	    ResetPackager();
+
+	    foreach (string one_package, removed_packages, {
+		y2milestone ("Removed product package check: %1", Pkg::ResolvableProperties (one_package, `package, ""));
+	    });
+	}
+
+	y2milestone ("Running registration");
+	if (WFM::call ("inst_suse_register") == `abort) {
+	    y2error ("Unable to register");
+	    return false;
+	}
+
+	return true;
+    }
+
     // main()
     HandleInit();
 
@@ -150,6 +282,12 @@
 	ret = `abort;
     } else {
 	ret = ProductControl::RunFrom (current_step, false);
+    }
+
+    // Wagon has been aborted, revert to the previous products
+    // if possible
+    if (ret == `abort || ret == `cancel) {
+	RevertToOldProducts();
     }
 
     Wizard::CloseDialog();

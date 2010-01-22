@@ -1,0 +1,39 @@
+/**
+ * File:
+ *	clients/wagon_custom_url.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
+{
+    textdomain "wagon";
+
+    import "GetInstArgs";
+    import "Wagon";
+
+    if (GetInstArgs::going_back()) {
+	y2milestone ("Going back...");
+	return `back;
+    }
+
+    /**
+     * Point of no return. After this call, YaST will start removing
+     * and installing packages. In other words, the real migration
+     * will start.
+     */
+
+    y2warning ("From this point, wagon cannot revert products anymore!");
+    Wagon::abort_can_revert_products = false;
+
+    return `auto;
+}

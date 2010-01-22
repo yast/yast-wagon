@@ -29,10 +29,22 @@
     import "Report";
     import "ProductFeatures";
     import "Update";
+    import "FileUtils";
+    import "String";
 
     boolean running_by_applet = false;
 
     string update_workflow_type = "manual";
+
+    // Products installed for the time of the migration
+    global list <string> migration_products = [];
+
+    // Products installed before the migration
+    global list <map <string, string> > products_before_migration = [];
+
+    // When aborting before the real migration starts, we can still
+    // revert to the old products
+    global boolean abort_can_revert_products = true;
 
     global void SetUpdateWorkflow (string new_update_workflow_type) {
 	// FIXME: check
@@ -275,16 +287,191 @@ To do so, please, use zypper instead.
 	return true;
     }
 
+    global map <string,any> MinimizeProductMap (map <string,any> product) {
+	if (haskey (product, "license")) product["license"] = "...";
+	if (haskey (product, "description")) product["description"] = "...";
+
+	return product;
+    }
+
+    string GetDisplayName (string display_name, string name) {
+	if (display_name == name)
+	    return display_name;
+
+	// 'Product Long Name (product-libzypp-name)'
+	return sformat (_("%1 (%2)"), display_name, name);
+    }
+
+    string GetDistributionUpgradeSummary () {
+	string ret = "";
+
+	list <map <string,any> > products = sort (
+	    map <string,any> x, map <string,any> y, Pkg::ResolvableProperties ("", `product, ""),
+	    ``(x["display_name"]:x["short_name"]:x["name"]:"a" < y["display_name"]:x["short_name"]:x["name"]:"b")
+	);
+
+	// migration_products contains list of temporary products for migration process
+
+	y2milestone ("All known migration products: %1", migration_products);
+
+	string display_name = nil;
+	string name = nil;
+
+	// list of all products that will be installed (are selected)
+	list <string> products_to_be_installed = [];
+	foreach (map <string,any> product, products, {
+	    if (product["status"]:`unknown != `selected) return;
+	    name = product["name"]:_("No short name defined");
+	    products_to_be_installed = add (products_to_be_installed, name);
+	});
+
+	// list of all products that will be upgraded
+	list <string> products_to_be_upgraded = [];
+
+	// Products that are going to be removed
+	foreach (map <string,any> product, products, {
+	    if (product["status"]:`unknown != `removed) return;
+
+	    product = MinimizeProductMap (product);
+	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined");
+	    name = product["name"]:_("No short name defined");
+
+	    // Removing product and installing the same one (name) means -> upgrade
+	    if (contains (products_to_be_installed, name)) {
+		products_to_be_upgraded = add (products_to_be_upgraded, name);
+		y2milestone ("Product to be upgraded: %1 (this is the removed one)", product);
+		// Do not list this product as 'to removed', list it as 'to upgrade'
+		return;
+	    }
+
+	    // Removing a migration product is fine
+	    if (contains (migration_products, product["name"]:"")) {
+		y2milestone ("Migration product will be removed: %1", product);
+		ret = ret + "<li>" + sformat (
+		    _("Temporary migration product <b>%1</b> will be removed"),
+		    GetDisplayName (display_name, name)
+		) + "</li>\n";
+	    // Removing another product might be an issue
+	    } else {
+		y2warning ("Product will be removed: %1", product);
+		ret = ret + "<li>" + sformat (
+		    _("<font color='red'>Warning: Product <b>%1</b> will be removed</font>"),
+		    GetDisplayName (display_name, name)
+		) + "</li>\n";
+	    }
+	});
+
+	// Products that are going to be installed (new ones) or upgraded
+	foreach (map <string,any> product, products, {
+	    if (product["status"]:`unknown != `selected) return;
+
+	    product = MinimizeProductMap (product);
+	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined");
+	    name = product["name"]:_("No short name defined");
+
+	    // Product is going to be upgraded (removed + installed new version)
+	    if (contains (products_to_be_upgraded, name)) {
+		y2milestone ("Product will be upgraded to: %1 (this is the installed one)", product);
+		ret = ret + "<li>" + sformat (
+		    _("Product <b>%1</b> will be upgraded"),
+		    GetDisplayName (display_name, name)
+		) + "</li>\n";
+	    // Newly installed product
+	    } else {
+		y2milestone ("Product will be upgraded: %1", product);
+		ret = ret + "<li>" + sformat (
+		    _("New product <b>%1</b> will be installed"),
+		    GetDisplayName (display_name, name)
+		) + "</li>\n";
+	    }
+	});
+
+	// Products that will keep installed (unchanged)
+	foreach (map <string,any> product, products, {
+	    if (product["status"]:`unknown != `installed) return;
+
+	    product = MinimizeProductMap (product);
+	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined");
+	    name = product["name"]:_("No short name defined");
+
+	    y2milestone ("Product will keep: %1", product);
+	    ret = ret + "<li>" + sformat (
+		_("Product <b>%1</b> will keep installed"),
+		GetDisplayName (display_name, name)
+	    ) + "</li>\n";
+	});
+
+	return "<ul>\n" + ret + "</ul>\n";
+    }
+
     global map <string, any> ProposalSummary () {
 	map <string, any> ret = $[];
 
-	// FIXME: create a useful summary
 	ret = $[
-	    "preformatted_proposal" : "<ul><li>" + _("Distribution Upgrade") + "</li></ul>",
-	    "help" : _("<p>FIXME</p>"),
+	    "preformatted_proposal" : GetDistributionUpgradeSummary(),
+	    // help text
+	    "help" : _("<p>To change update settings go to <p>Software Proposal</p> section.</p>"),
 	];
 
 	return ret;
+    }
+
+    global list <map <string, string> > ReadProductsBeforeMigration () {
+	list <map <string, any> > products = Pkg::ResolvableProperties ("", `product, "");
+	y2milestone ("All known products: %1", products);
+
+	foreach (map<string, any> p, products, {
+	    if (p["status"]:`unknown != `installed)
+		return;
+
+	    // Remember the 'old' product just for the case of reverting
+	    products_before_migration = add (
+		products_before_migration,
+		    $["name" : p["name"]:"", "version" : p["version"]:""]
+	    );
+	});
+
+	return products_before_migration;
+    }
+
+    // YaST can be restarted but some data have to be kept
+    string migration_products_store_file = sformat ("%1/wagon_products_before_migration", Directory::vardir);
+
+    global boolean StoreProductsBeforeMigration () {
+	return (boolean) SCR::Write (.target.ycp, migration_products_store_file, products_before_migration);
+    }
+
+    global boolean RestoreProductsBeforeMigration () {
+	products_before_migration = (list <map <string, string> >) SCR::Read (.target.ycp, migration_products_store_file);
+
+	if (products_before_migration == nil) {
+	    products_before_migration = [];
+	    Report::Error (_("Error restoring the list of previously installed products."));
+	    return false;
+	}
+
+	return true;
+    }
+
+    global string GetFileOwner (string file) {
+	if (file == nil || file == "") {
+	    y2error ("File not provided");
+	    return nil;
+	}
+
+	if (! FileUtils::Exists (file)) {
+	    y2error ("File %1 doesn't exist", file);
+	    return nil;
+	}
+
+	string command = sformat ("rpm -qf '%1'", String::Quote (file)) + " --queryformat \"%{NAME}\"";
+	map <string, any> cmd = (map <string, any>) SCR::Execute (.target.bash_output, command);
+	if (cmd["exit"]:-1 != 0) {
+	    y2error ("Cannot get file owner %1: %2", command, cmd);
+	    return nil;
+	}
+
+	return (string) splitstring (cmd["stdout"]:"", "\n")[0]:nil;
     }
 
 /* EOF */
