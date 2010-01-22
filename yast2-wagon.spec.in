@@ -36,6 +36,8 @@ Summary: YaST2 - Migration Tool for Service Packs
 @clientdir@/*.ycp
 @moduledir@/*.ycp
 @moduledir@/*.ybc
+%dir @yncludedir@/wagon
+@yncludedir@/wagon/*.ycp
 %dir /usr/share/YaST2/control
 @desktopdir@/*.desktop
 /usr/share/YaST2/control/*.xml

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jan 22 11:57:00 CET 2010 - locilka@suse.cz
+
+- Wagon extended to read and use migration products from the
+  <upgrade> section from product control files (BNC #559554).
+- 2.17.9
+
+-------------------------------------------------------------------
 Mon Feb  9 10:10:05 CET 2009 - locilka@suse.cz
 
 - Added new wagon_congratulate client - an envelope that loads the

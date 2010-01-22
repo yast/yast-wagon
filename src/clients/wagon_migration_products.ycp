@@ -1,0 +1,127 @@
+/**
+ * File:
+ *	clients/wagon_migration_products.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
+{
+    /**
+     * Selects and installs all migration products.
+     */
+
+    textdomain "wagon";
+
+    import "Wagon";
+    import "PackagesUI";
+    import "GetInstArgs";
+    import "Report";
+    import "Popup";
+    import "Label";
+
+    include "wagon/common_func.ycp";
+
+    if (GetInstArgs::going_back()) {
+	y2milestone ("Going back...");
+	return `back;
+    }
+
+    boolean FindAndSelectMigrationProducts () {
+	if (Wagon::InitPkg() != true) {
+	    Report::Error (_("Unable to initialize the package manager."));
+	    return false;
+	}
+
+	list <map <string,any> > products = Pkg::ResolvableProperties ("", `product, "");
+
+	foreach (map<string, any> p, products, {
+	    if (p["status"]:`unknown != `installed) {
+		y2milestone ("Product %1 (%2) is not installed, skipping...",
+		    p["name"]:"not-defined", p["short_name"]:p["display_name"]:"not-defined");
+		return;
+	    }
+
+	    if (! haskey (p, "upgrades") || p["upgrades"]:[] == []) {
+		y2warning ("Product %1 (%2) does not contain 'upgrades' section...",
+		    p["name"]:"not-defined", p["short_name"]:p["display_name"]:"not-defined");
+		return;
+	    }
+
+	    y2milestone ("Going to upgrade product %1 (%2)",
+		p["name"]:"not-defined", p["short_name"]:p["display_name"]:"not-defined");
+
+	    if (p["name"]:"" == nil || p["name"]:"" == "") {
+		y2error ("Product %1 doesn't have a name, reverting will be impossible", p);
+		Report::Error (sformat(_("Product %1 does not have a machine-readable 'name'.
+Automatic reverting of the product state will be impossible."),  p["short_name"]:p["display_name"]:"not-defined"));
+	    }
+
+	    foreach (map <string, any> supported_upgrade, (list <map <string, any> >) p["upgrades"]:[], {
+		if (! haskey (supported_upgrade, "product") || supported_upgrade["product"]:"" == "") {
+		    y2error ("Erroneous product upgrades: %1 (%2)", p, supported_upgrade);
+		    Report::Error (sformat (_("Cannot upgrade product %1 (%2).
+Migration path is erroneous."),  p["display_name"]:p["short_name"]:_("Unknown"), p["name"]:_("not-defined")));
+		    return;
+		}
+
+		string old_product = p["name"]:"";
+		string migration_product = supported_upgrade["product"]:"";
+
+		// Install the migration product
+		if ((size (Pkg::ResolvableProperties (migration_product, `product, "")) == 0) || (Pkg::ResolvableInstall (migration_product, `product) != true)) {
+		    y2error ("Cannot select migration product for installation: %1", Pkg::ResolvableProperties (migration_product, `product, ""));
+		    Report::Error (sformat (_("Cannot select product
+%1 (%2) for installation."), supported_upgrade["name"]:"", migration_product));
+		    return;
+		} else {
+		    Wagon::migration_products = add (Wagon::migration_products, migration_product);
+		}
+
+// Old products are removed automatically during the upgrade
+//		// Remove the old product
+//		if ((Pkg::ResolvableInstalled (old_product, `product) != true) || (Pkg::ResolvableRemove (migration_product, `product) == true)) {
+//		    Report::Error (sformat (_("Cannot select product %1 for deinstallation."), migration_product));
+//		    return;
+//		}
+	    });
+	});
+
+	return true;
+    }
+
+    if (FindAndSelectMigrationProducts() != true) {
+	return `auto;
+    }
+
+    symbol ret = SolveDependencies();
+
+    if (ret != `abort) {
+	// Solver ends with some resolvables changed
+	if (Pkg::IsAnyResolvable (`any, `to_install) == true || Pkg::IsAnyResolvable (`any, `to_remove) == true) {
+	    y2milestone ("Installing packages...");
+	    // Everybody hold your breath 'cause we're gonna be sinkin' soon
+	    any inst_ret = WFM::call ("inst_rpmcopy");
+	    y2milestone ("Package installation returned: %1", inst_ret);
+	    ret = `auto;
+	} else {
+	    y2milestone ("Nothing to install/remove");
+	    ret = `auto;
+	}
+    }
+
+    ResetPackager();
+
+    y2milestone ("Returning: %1", ret);
+
+    return ret;
+}
