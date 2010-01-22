@@ -1,0 +1,128 @@
+/**
+ * File:
+ *	include/wagon/common_func.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
+{
+    textdomain "wagon";
+
+    import "Label";
+    import "Popup";
+    import "PackagesUI";
+    import "Wagon";
+    import "Wizard";
+
+    boolean SolverRunWithFeedback () {
+	UI::OpenDialog (`Label (_("Solving the package dependencies...")));
+	boolean ret = Pkg::PkgSolve (true);
+	UI::CloseDialog();
+
+	return ret;
+    }
+
+    symbol SolveDependencies () {
+	symbol ret = `auto;
+
+	boolean solved = nil;
+
+	while (solved != true) {
+	    // Trying to solve automatically
+	    solved = SolverRunWithFeedback();
+	    symbol ret_sel = nil;
+
+	    // PkgSolve didn't report any problem
+	    if (solved == true) {
+		y2milestone ("Solved automatically");
+		ret = `auto;
+	    // There are some issues in selecting the patches
+	    } else {
+		y2milestone ("Cannot be solved automatically");
+		while (true) {
+		    // Try to solve them manually
+		    ret_sel = PackagesUI::RunPackageSelector ($["mode":`summaryMode]);
+
+		    // Cannot or don't want to accept the proposal
+		    if (ret_sel == `cancel) {
+			// Confirmed
+			if (Popup::AnyQuestion (
+			    // TRANSLATORS: headline
+			    _("Aborting the Upgrade"),
+			    // TRANSLATORS: pop-up question
+			    _("Cannot continue without installing the required patches.
+Are sure you want to abort the upgrade process?"),
+			    _("Abort Upgrade"),
+			    Label::NoButton(),
+			    `yes_button
+			)) {
+			    ret = `abort;
+			    break;
+			// Try again
+			} else {
+			    continue;
+			}
+		    // Solved manually
+		    } else if (ret_sel == `accept) {
+			ret = `auto;
+			solved = true;
+			break;
+		    }
+		}
+	    }
+
+	    if (ret == `abort) {
+		solved = nil;
+		y2warning ("Aborting...");
+		break;
+	    }
+
+	    if (! Wagon::AcceptLicenses()) {
+		y2warning ("Some license(s) have been rejected, running solver again");
+		solved = nil;
+	    }
+	}
+
+	return ret;
+    }
+
+    void ResetPackager () {
+	Wizard::SetContents (
+	    _("Reseting Package Manager"),
+	    `Label(_("Reseting package manager...")),
+	    "",
+	    false, true
+	);
+
+	y2milestone ("Reseting Pkg");
+	Pkg::PkgApplReset();
+	Pkg::PkgReset();
+
+	symbol status = nil;
+	string name = nil;
+
+	y2milestone ("Neutralizing all resolvables");
+	foreach (symbol resolvable, [`pattern, `patch, `package, `product, `scrpackage], {
+	    Pkg::ResolvableNeutral ("" /* all */, resolvable, true /* force */);
+	});
+
+	y2milestone ("Running solver");
+	Pkg::PkgSolve (true);
+
+	Pkg::TargetFinish();
+	Pkg::SourceFinishAll();
+
+	Wagon::InitPkg();
+	Pkg::PkgSolve (true);
+    }
+}
