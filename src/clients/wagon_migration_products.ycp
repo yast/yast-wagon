@@ -36,6 +36,42 @@
 	return `back;
     }
 
+    integer UpdateInstalledProducts () {
+	integer affected_products = 0;
+
+	list <map <string,any> > products = Pkg::ResolvableProperties ("", `product, "");
+
+	foreach (map<string, any> p, products, {
+	    // Product is not installed
+	    if (p["status"]:`unknown != `installed) return;
+
+	    // Make the logs readable
+	    p["license"] = "...";
+	    p["description"] = "...";
+
+	    string product_name = p["name"]:"";
+	    string product_version = p["version"]:"";
+
+	    if (product_name == nil || product_name == "") {
+		y2error ("Cannot distinguish product name: %1", product_name);
+		return;
+	    }
+
+	    // Product version is the same but release can be different
+	    // product map doesn't contain the release string. To be sure, product will be reinstalled
+	    y2milestone ("Upgrading product %1 version %2", product_name, product_version);
+	    // The version is the same, release can be different
+	    if (Pkg::ResolvableInstall (product_name, `product) != true) {
+		Report::Error (sformat(_("Cannot update installed product %1."), product_name));
+		return;
+	    }
+
+	    affected_products = affected_products + 1;
+	});
+
+	return affected_products;
+    }
+
     boolean FindAndSelectMigrationProducts () {
 	if (Wagon::InitPkg() != true) {
 	    Report::Error (_("Unable to initialize the package manager."));
@@ -99,13 +135,39 @@ Migration path is erroneous."),  p["display_name"]:p["short_name"]:_("Unknown"),
 	return true;
     }
 
+    Wagon::InitPkg();
+
+    Wagon::ReadProductsBeforeMigration();
+    Wagon::StoreProductsBeforeMigration();
+
+    // BNC #573084: New code (upgrading products) can be added after
+    // wagon self-upgrade and restart
+    integer products_for_upgrade = UpdateInstalledProducts();
+
+    if (products_for_upgrade > 0) {
+	symbol ret = SolveDependencies();
+
+	if (ret != `abort && ret != `cancel) {
+	    y2milestone ("Upgrading %1 product packages...", products_for_upgrade);
+	    any inst_ret = WFM::call ("inst_rpmcopy");
+	    y2milestone ("Product package upgrade returned: %1", inst_ret);
+	    ret = `auto;
+	} else {
+	    return `abort;
+	}
+
+	ResetPackager();
+    } else {
+	y2warning ("No products selected for upgrade");
+    }
+
     if (FindAndSelectMigrationProducts() != true) {
 	return `auto;
     }
 
     symbol ret = SolveDependencies();
 
-    if (ret != `abort) {
+    if (ret != `abort && ret != `cancel) {
 	// Solver ends with some resolvables changed
 	if (Pkg::IsAnyResolvable (`any, `to_install) == true || Pkg::IsAnyResolvable (`any, `to_remove) == true) {
 	    y2milestone ("Installing packages...");

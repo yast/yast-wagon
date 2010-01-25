@@ -135,49 +135,7 @@
 	return pkgs_affected;
     }
 
-    integer UpdateInstalledProducts () {
-	integer affected_products = 0;
-
-	list <map <string,any> > products = Pkg::ResolvableProperties ("", `product, "");
-
-	foreach (map<string, any> p, products, {
-	    // Product is not installed
-	    if (p["status"]:`unknown != `installed) return;
-
-	    // Make the logs readable
-	    p["license"] = "...";
-	    p["description"] = "...";
-
-	    string product_name = p["name"]:"";
-	    string product_version = p["version"]:"";
-
-	    if (product_name == nil || product_name == "") {
-		y2error ("Cannot distinguish product name: %1", product_name);
-		return;
-	    }
-
-	    // Product version is the same but release can be different
-	    // product map doesn't contain the release string. To be sure, product will be reinstalled
-	    y2milestone ("Upgrading product %1 version %2", product_name, product_version);
-	    // The version is the same, release can be different
-	    if (Pkg::ResolvableInstall (product_name, `product) != true) {
-		Report::Error (sformat(_("Cannot update installed product %1."), product_name));
-		return;
-	    }
-
-	    affected_products = affected_products + 1;
-	});
-
-	return affected_products;
-    }
-
     Wagon::InitPkg();
-
-    list <map <string, any> > products = Pkg::ResolvableProperties ("", `product, "");
-    y2milestone ("All known products: %1", products);
-
-    Wagon::ReadProductsBeforeMigration();
-    Wagon::StoreProductsBeforeMigration();
 
     symbol ret = `auto;
 
@@ -200,12 +158,6 @@
 	    y2milestone ("Packages to upgrade: %1", packages);
 	    selected = UpgradePackages (packages);
 	}
-    }
-
-    integer products_selected_for_update = UpdateInstalledProducts();
-    if (products_selected_for_update > 0) {
-	y2milestone ("%1 products were selected for update", products_selected_for_update);
-	selected = products_selected_for_update;
     }
 
     y2milestone ("Selected resolvables: %1", selected);
