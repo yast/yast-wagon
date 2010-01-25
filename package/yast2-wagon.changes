@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Jan 25 11:59:30 CET 2010 - locilka@suse.cz
+
+- Upgrading installed products moved after wagon self-update and
+  restart In some cases the newly added code was not executed
+  (BNC #573084).
+- 2.17.10
+
+-------------------------------------------------------------------
 Fri Jan 22 11:57:00 CET 2010 - locilka@suse.cz
 
 - Wagon extended to read and use migration products from the
