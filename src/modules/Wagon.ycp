@@ -474,5 +474,31 @@ To do so, please, use zypper instead.
 	return (string) splitstring (cmd["stdout"]:"", "\n")[0]:nil;
     }
 
+    global boolean RunHook (string script_name) {
+	if (script_name == nil || script_name == "") {
+	    y2error ("Script name '%1' is not supported", script_name);
+	}
+
+	script_name = sformat ("/usr/lib/YaST2/bin/wagon_hook_%1", script_name);
+
+	if (! FileUtils::Exists (script_name)) {
+	    y2milestone ("Hook script %1 doesn't exist, nothing to run", script_name);
+	    return false;
+	}
+
+	y2milestone ("Running hook %1", script_name);
+	map cmd = (map) WFM::Execute (.local.bash_output, String::Quote (script_name));
+
+	if (cmd["exit"]:-1 != 0) {
+	    y2error ("Hook script returned: %1", cmd);
+	    Report::Error (sformat(_("Error running hook script %1."), script_name));
+	    return false;
+	}
+
+	y2milestone ("Hook script returned: %1", cmd);
+
+	return true;
+    }
+
 /* EOF */
 }

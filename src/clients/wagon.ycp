@@ -269,6 +269,10 @@ Remove package %2 manually"), remove_product["name"]:_("Unknown product"), packa
 	return true;
     }
 
+    // Hooks for testing and manual changes
+    // --> /usr/lib/YaST2/bin/wagon_hook_init
+    Wagon::RunHook ("init");
+
     // main()
     HandleInit();
 
@@ -293,6 +297,10 @@ Remove package %2 manually"), remove_product["name"]:_("Unknown product"), packa
     Wizard::CloseDialog();
 
     HandleRet (ret);
+
+    // Hooks for testing and manual changes
+    // --> /usr/lib/YaST2/bin/wagon_hook_finish
+    Wagon::RunHook ("finish");
 
     return ret;
 }
