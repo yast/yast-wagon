@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Jan 26 15:13:12 CET 2010 - locilka@suse.cz
+
+- Added support for migration hook scripts.
+
+-------------------------------------------------------------------
 Mon Jan 25 11:59:30 CET 2010 - locilka@suse.cz
 
 - Upgrading installed products moved after wagon self-update and
