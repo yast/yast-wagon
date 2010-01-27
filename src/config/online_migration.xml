@@ -31,6 +31,7 @@ textdomain="online-migration"
 		    <module>update_online_mechanism</module>
 		    <module>install_migration_products</module>
 		    <module>suse_register_workflow</module>
+		    <module>wagon_modify_repositories</module>
 		    <module>prepare_progress</module>
 		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
@@ -60,6 +61,7 @@ textdomain="online-migration"
 		    <module>suse_register_workflow</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
+		    <module>wagon_modify_repositories</module>
 		    <module>prepare_progress</module>
 		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
@@ -85,6 +87,7 @@ textdomain="online-migration"
 		    <!-- Workflow is switched after this module -->
 		    <module>update_url_dialog</module>
 		    <module>suse_register_workflow</module>
+		    <module>wagon_modify_repositories</module>
 		    <module>prepare_progress</module>
 		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
@@ -111,6 +114,7 @@ textdomain="online-migration"
 		    <module>update_url_dialog</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
+		    <module>wagon_modify_repositories</module>
 		    <module>prepare_progress</module>
 		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
@@ -253,6 +257,11 @@ textdomain="online-migration"
 		<module>
 		    <name>wagon_selfupdate_from_url</name>
 		    <execute>wagon_selfupdate</execute>
+		</module>
+
+		<module>
+		    <name>wagon_modify_repositories</name>
+		    <execute>wagon_modify_repositories</execute>
 		</module>
 
 		<module>

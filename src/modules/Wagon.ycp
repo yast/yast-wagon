@@ -42,6 +42,12 @@
     // Products installed before the migration
     global list <map <string, string> > products_before_migration = [];
 
+    // Repositories that were disabled by wagon during migration
+    // List of aliases (unique identification)
+    // BNC #573092
+    global list <string> disabled_repositories = [];
+    global list <string> repositories_to_disable = [];
+
     // When aborting before the real migration starts, we can still
     // revert to the old products
     global boolean abort_can_revert_products = true;
@@ -499,6 +505,5 @@ To do so, please, use zypper instead.
 
 	return true;
     }
-
 /* EOF */
 }

@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Jan 27 11:52:01 CET 2010 - locilka@suse.cz
+
+- Disabling repositories that provide some old version of product
+  to be upgraded (BNC #573092).
+- Fixed RPM dependencies.
+- 2.17.8.2
+
+-------------------------------------------------------------------
 Tue Jan 26 15:13:12 CET 2010 - locilka@suse.cz
 
 - Added support for migration hook scripts.

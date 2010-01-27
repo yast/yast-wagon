@@ -206,6 +206,24 @@ you will have to do them manually.</p>"),
 	    false, true
 	);
 
+	y2milestone ("Repositories disabled by migration: %1", Wagon::disabled_repositories);
+	foreach (string repo_alias, Wagon::disabled_repositories, {
+	    integer repo_id = FindRepoIdByAlias (repo_alias);
+
+	    if (repo_id == nil) {
+		y2error ("Cannot enable repo (alias)%1, repo not found ", repo_alias);
+		Report::Error (sformat(_("Cannot enable repository with alias
+%1
+Repository was not found."), repo_alias));
+		return;
+	    }
+
+	    y2milestone ("Enabling repository %1 returned: %2", repo_id, Pkg::SourceSetEnabled (repo_id, true));
+	});
+
+	Pkg::SourceSaveAll();
+	Wagon::InitPkg();
+
 	// Remove all the migration products using packages approach manually
 	// Removing via ResolvableRemove + PkgSolve usually produces errors,
 	// dependency loops etc.

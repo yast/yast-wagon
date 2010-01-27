@@ -125,4 +125,21 @@ Are sure you want to abort the upgrade process?"),
 	Wagon::InitPkg();
 	Pkg::PkgSolve (true);
     }
+
+    integer FindRepoIdByAlias (string repo_alias) {
+	integer repo_id = nil;
+
+	map one_repo = $[];
+
+	foreach (integer repo_id_to_check, Pkg::SourceGetCurrent (false /* all repos */), {
+	    one_repo = Pkg::SourceGeneralData (repo_id_to_check);
+
+	    if (one_repo["alias"]:"" == repo_alias) {
+		repo_id = repo_id_to_check;
+		break;
+	    }
+	});
+
+	return repo_id;
+    }
 }
