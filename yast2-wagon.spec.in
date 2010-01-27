@@ -9,6 +9,9 @@ Requires:	yast2-online-update-frontend >= 2.17.9
 # BNC #571621, Returns <upgrades> section from product file
 Requires:	yast2-pkg-bindings >= 2.19.1
 
+# Called in proposal and in code
+Requires:	yast2-packager yast2-update yast2-add-on
+
 BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite yast2-update
 
 # xmllint

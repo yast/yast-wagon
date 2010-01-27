@@ -1,0 +1,62 @@
+/**
+ * File:
+ *	clients/wagon_migration_products.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
+{
+    /**
+     * Modify repositories as needed.
+     */
+
+    textdomain "wagon";
+
+    import "Wagon";
+    import "GetInstArgs";
+    import "Report";
+
+    include "wagon/common_func.ycp";
+
+    if (GetInstArgs::going_back()) {
+	y2milestone ("Going back...");
+	return `back;
+    }
+
+    symbol ret = `auto;
+
+    Wagon::InitPkg();
+
+    integer repo_id = nil;
+
+    foreach (string repo_alias, Wagon::repositories_to_disable, {
+	repo_id = FindRepoIdByAlias (repo_alias);
+
+	if (repo_id == nil) {
+	    y2error ("Cannot disable repository %1, alias not found", repo_alias);
+	    return;
+	}
+
+	y2milestone ("Disabling repository (alias)%1 (id)%2 returned: %3", repo_alias, repo_id, Pkg::SourceSetEnabled (repo_id, false));
+	Wagon::disabled_repositories = add (Wagon::disabled_repositories, repo_alias);
+    });
+
+    if (size (Wagon::disabled_repositories) > 0)
+	Pkg::SourceSaveAll();
+
+    ResetPackager();
+
+    y2milestone ("Returning: %1", ret);
+
+    return ret;
+}

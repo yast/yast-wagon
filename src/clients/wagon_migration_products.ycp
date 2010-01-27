@@ -135,6 +135,77 @@ Migration path is erroneous."),  p["display_name"]:p["short_name"]:_("Unknown"),
 	return true;
     }
 
+    /**
+     * Finds all products that contain information about their migration product
+     * finds which repositories provide these products and disables the
+     * repositories.
+     *
+     * @see BNC #573092
+     */
+    boolean FindOldRepositoriesToBeDisabled () {
+	if (Wagon::InitPkg() != true) {
+	    Report::Error (_("Unable to initialize the package manager."));
+	    return false;
+	}
+
+	list <map <string,any> > products = Pkg::ResolvableProperties ("", `product, "");
+
+	foreach (map<string, any> p, products, {
+	    if (p["status"]:`unknown != `installed) {
+		y2milestone ("Product %1 (%2) is not installed, skipping...",
+		    p["name"]:"not-defined", p["short_name"]:p["display_name"]:"not-defined");
+		return;
+	    }
+
+	    if (! haskey (p, "upgrades") || p["upgrades"]:[] == []) {
+		y2warning ("Product %1 (%2) does not contain 'upgrades' section...",
+		    p["name"]:"not-defined", p["short_name"]:p["display_name"]:"not-defined");
+		return;
+	    }
+
+	    y2milestone ("Going to disable repositories providing product %1 (%2)",
+		p["name"]:"not-defined", p["short_name"]:p["display_name"]:"not-defined");
+
+	    if (p["name"]:"" == nil || p["name"]:"" == "") {
+		y2error ("Product %1 doesn't have a name, reverting will be impossible", p);
+		Report::Error (sformat(_("Product %1 does not have a machine-readable 'name'.
+Cannot disable ."),  p["short_name"]:p["display_name"]:"not-defined"));
+	    }
+
+	    // Find all available products
+	    list <map <string, any> > matching_products = Pkg::ResolvableProperties (p["name"]:"", `product, "");
+	    matching_products = filter (map <string, any> one_product, matching_products, {
+		return (one_product["status"]:`unknown == `available);
+	    });
+
+	    if (matching_products == nil || size (matching_products) == 0) {
+		y2error ("Nothing provides product: '%1'", p["name"]:"");
+		Report::Error (sformat(_("No repository provides product %1 (%2).
+Migration might not work."),
+		    p["name"]:"not-defined", p["short_name"]:p["display_name"]:"not-defined"));
+	    }
+
+	    integer repo_id = nil;
+	    map repo_details = nil;
+
+	    foreach (map <string, any> one_product, matching_products, {
+		repo_id = one_product["source"]:-1;
+
+		if (repo_id < 0) {
+		    y2error ("Available product with source<0: %1", Wagon::MinimizeProductMap (one_product));
+		    return;
+		}
+
+		repo_details = Pkg::SourceGeneralData (repo_id);
+		Wagon::repositories_to_disable = add (Wagon::repositories_to_disable, repo_details["alias"]:"");
+	    });
+	});
+
+	y2milestone ("Repositories to be disabled later: %1", Wagon::repositories_to_disable);
+
+	return true;
+    }
+
     Wagon::InitPkg();
 
     Wagon::ReadProductsBeforeMigration();
@@ -182,6 +253,9 @@ Migration path is erroneous."),  p["display_name"]:p["short_name"]:_("Unknown"),
     }
 
     ResetPackager();
+
+    // Remembers all repositories that will be disabled later (after registration run)
+    FindOldRepositoriesToBeDisabled();
 
     y2milestone ("Returning: %1", ret);
 
