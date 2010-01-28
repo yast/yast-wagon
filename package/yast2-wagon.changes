@@ -2,6 +2,7 @@
 Thu Jan 28 11:45:12 CET 2010 - locilka@suse.cz
 
 - Updated RPM dependencies (BNC #573482).
+- Fixed reset-packager functionality (BNC #573575).
 
 -------------------------------------------------------------------
 Wed Jan 27 11:52:01 CET 2010 - locilka@suse.cz

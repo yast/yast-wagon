@@ -112,7 +112,7 @@ Are sure you want to abort the upgrade process?"),
 	string name = nil;
 
 	y2milestone ("Neutralizing all resolvables");
-	foreach (symbol resolvable, [`pattern, `patch, `package, `product, `scrpackage], {
+	foreach (symbol resolvable, [`pattern, `patch, `package, `product, `srcpackage], {
 	    Pkg::ResolvableNeutral ("" /* all */, resolvable, true /* force */);
 	});
 
