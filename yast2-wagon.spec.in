@@ -8,7 +8,10 @@ Requires:	yast2-online-update-frontend >= 2.17.9
 Requires:	yast2-pkg-bindings >= 2.17.39.2
 
 # Called in proposal and in code 
-Requires:	yast2-packager yast2-update yast2-add-on
+Requires:	yast2-packager yast2-add-on
+
+# Counting packages directly in packages proposal (BNC #573482)
+Requires:	yast2-update >= 2.17.18.1
 
 BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite yast2-update
 

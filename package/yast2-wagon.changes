@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Jan 28 11:45:12 CET 2010 - locilka@suse.cz
+
+- Updated RPM dependencies (BNC #573482).
+
+-------------------------------------------------------------------
 Wed Jan 27 11:52:01 CET 2010 - locilka@suse.cz
 
 - Disabling repositories that provide some old version of product

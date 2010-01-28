@@ -162,6 +162,7 @@ textdomain="online-migration"
 	    <package>yast2-wagon</package>
 	    <package>yast2-online-update</package>
 	    <package>yast2-pkg-bindings</package>
+	    <package>yast2-update</package>
 	    <package>libzypp</package>
 	</packages_affecting_pkg_manager>
     </software>
