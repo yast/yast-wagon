@@ -20,6 +20,9 @@
 
     import "ProductControl";
     import "ProductFeatures";
+    import "Report";
+
+    textdomain "wagon";
 
     // BNC #445974
     // Don't use custom control file, only the base-product one has
@@ -43,6 +46,10 @@
 	ProductControl::custom_control_file = custom_workflow_file;
 	ProductControl::Init();
     }
+
+    // BNC #575093: Report the need to reboot ASAP
+    Report::Message(_("Migration has just finished.
+Reboot the system as soon as possible."));
 
     return ret;
 }
