@@ -308,8 +308,9 @@ To do so, please, use zypper instead.
 	return sformat (_("%1 (%2)"), display_name, name);
     }
 
-    string GetDistributionUpgradeSummary () {
+    global map <string, any> ProposalSummary () {
 	string ret = "";
+	string warning = "";
 
 	list <map <string,any> > products = sort (
 	    map <string,any> x, map <string,any> y, Pkg::ResolvableProperties ("", `product, ""),
@@ -322,6 +323,7 @@ To do so, please, use zypper instead.
 
 	string display_name = nil;
 	string name = nil;
+	symbol transact_by = nil;
 
 	// list of all products that will be installed (are selected)
 	list <string> products_to_be_installed = [];
@@ -334,6 +336,8 @@ To do so, please, use zypper instead.
 	// list of all products that will be upgraded
 	list <string> products_to_be_upgraded = [];
 
+	integer products_removed_by_solver = 0;
+
 	// Products that are going to be removed
 	foreach (map <string,any> product, products, {
 	    if (product["status"]:`unknown != `removed) return;
@@ -341,6 +345,7 @@ To do so, please, use zypper instead.
 	    product = MinimizeProductMap (product);
 	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined");
 	    name = product["name"]:_("No short name defined");
+	    transact_by = product["transact_by"]:`unknown;
 
 	    // Removing product and installing the same one (name) means -> upgrade
 	    if (contains (products_to_be_installed, name)) {
@@ -358,12 +363,22 @@ To do so, please, use zypper instead.
 		    GetDisplayName (display_name, name)
 		) + "</li>\n";
 	    // Removing another product might be an issue
-	    } else {
-		y2warning ("Product will be removed: %1", product);
+	    // (nevertheless selected by user or directly by YaST)
+	    } else if (transact_by == `user || transact_by == `app_high) {
+		y2warning ("Product will be removed: %1 (%2)", product, transact_by);
 		ret = ret + "<li>" + sformat (
-		    _("<font color='red'>Warning: Product <b>%1</b> will be removed</font>"),
+		    _("<font color='red'><b>Warning:</b> Product <b>%1</b> will be removed</font>"),
 		    GetDisplayName (display_name, name)
 		) + "</li>\n";
+	    // Not selected by user
+	    // @see BNC #575117
+	    } else {
+		y2warning ("Product will be removed: %1 (%2)", product, transact_by);
+		ret = ret + "<li>" + sformat (
+		    _("<font color='red'><b>Error:</b> Product <b>%1</b> will be automatically removed</font>"),
+		    GetDisplayName (display_name, name)
+		) + "</li>\n";
+		products_removed_by_solver = products_removed_by_solver + 1;
 	    }
 	});
 
@@ -407,19 +422,30 @@ To do so, please, use zypper instead.
 	    ) + "</li>\n";
 	});
 
-	return "<ul>\n" + ret + "</ul>\n";
-    }
+	ret = "<ul>\n" + ret + "</ul>\n";
 
-    global map <string, any> ProposalSummary () {
-	map <string, any> ret = $[];
-
-	ret = $[
-	    "preformatted_proposal" : GetDistributionUpgradeSummary(),
+	map <string, any> summary = $[
+	    "preformatted_proposal" : ret,
 	    // help text
-	    "help" : _("<p>To change update settings go to <p>Software Proposal</p> section.</p>"),
+	    "help" : _("<p>To change the update settings, go to <p>Packages Proposal</p> section.</p>"),
 	];
 
-	return ret;
+	// Product removal MUST be confirmed by user, otherwise migration will not continue.
+	if (products_removed_by_solver > 0) {
+	    summary["warning_level"] = `blocker;
+	    summary["warning"] = "<ul>" + (
+		products_removed_by_solver > 1 ?
+		sformat(_("<li><b>%1 products are going to be removed.
+Go to packages proposal and solve the issue manually.<br>
+It it also safe to abort the migration now.</b></li>"), products_removed_by_solver)
+		:
+		_("<li><b>One product is going to be removed.
+Go to packages proposal and solve the issue manually.<br>
+It it also safe to abort the migration now.</b></li>")
+	    ) + "</ul>";
+	}
+
+	return summary;
     }
 
     global list <map <string, string> > ReadProductsBeforeMigration () {
