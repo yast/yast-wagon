@@ -5,6 +5,7 @@ Fri Jan 29 16:35:00 CET 2010 - locilka@suse.cz
   migration ones) by solver in proposal (BNC #575117).
 - Requesting to reboot to the new system as soon as possible at
   the end of the migration (BNC #575093).
+- 2.17.8.3
 
 -------------------------------------------------------------------
 Thu Jan 28 11:45:12 CET 2010 - locilka@suse.cz
