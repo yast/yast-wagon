@@ -5,6 +5,7 @@ Wed Feb  3 09:43:21 CET 2010 - locilka@suse.cz
 - Checking repositories after registration, offering to rerun
   the registration if no changes in the list of registered
   repositories were made (BNC #575102).
+- Proper (new) congratulations dialog (BNC #576519).
 
 -------------------------------------------------------------------
 Fri Jan 29 16:35:00 CET 2010 - locilka@suse.cz

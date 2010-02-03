@@ -16,40 +16,77 @@
  */
 
 {
-    // FIXME: add own congratulations dialog to the wagon control file
-
     import "ProductControl";
-    import "ProductFeatures";
-    import "Report";
+    import "Wizard";
+    import "Popup";
+    import "GetInstArgs";
+    import "Label";
 
     textdomain "wagon";
 
-    // BNC #445974
-    // Don't use custom control file, only the base-product one has
-    // a congratulations text defined
-    string custom_workflow_file = "";
+    symbol ret = `auto;
 
-    if (ProductControl::custom_control_file != nil && ProductControl::custom_control_file != "") {
-	custom_workflow_file = ProductControl::custom_control_file;
-	ProductControl::custom_control_file = "";
-	ProductControl::Init();
-	// Disable AutoYaST Cloning check-box
-	ProductFeatures::SetBooleanFeature ("globals", "enable_clone", false);
-	ProductControl::clone_modules = [];
-	y2milestone ("X: %1", ProductFeatures::GetBooleanFeature("globals", "enable_clone"));
+    map display = UI::GetDisplayInfo();
+    integer space = display["TextMode"]:true ? 1 : 3;
+
+    string caption = _("Migration Completed");
+
+    string text = ProductControl::GetTranslatedText ("migration_congratulate");
+
+    if (text == nil || text == "") {
+	y2warning ("Using fallback migration_congratulate text");
+	text =
+	    _("<p><b>Congratulations!</b><br>
+You have just successfully finished the on-line migration.</p>
+<p>The whole system has been upgraded. It should be rebooted
+it as soon as possible.</p>
+<p>Please visit us at http://www.novell.com/linux/.</p>
+<p>Have a nice day!<br>
+Your SUSE Linux Team</p>");
     }
 
-    symbol ret = (symbol) WFM::CallFunction ("inst_congratulate", WFM::Args());
+    term contents = `VBox (
+	`VSpacing (space),
+	`HBox (
+	    `HSpacing (2*space),
+	    `VBox (
+		`RichText (`id (`text), text)
+	    ),
+	    `HSpacing (2*space)
+	),
+	`VSpacing (space),
+	`VSpacing (2)
+    );
 
-    // Re-use the previous custom control file
-    if (custom_workflow_file != nil && custom_workflow_file != "") {
-	ProductControl::custom_control_file = custom_workflow_file;
-	ProductControl::Init();
+    string help = _("<p><b>Finish</b> will close the migration
+and you should restart the system as soon as possible.</b>");
+
+    Wizard::SetContents (caption, contents, help,
+            GetInstArgs::enable_back(), GetInstArgs::enable_next());
+    Wizard::SetTitleIcon ("yast-license");
+                                          
+    Wizard::SetNextButton(`next, Label::FinishButton() );
+    Wizard::RestoreAbortButton();
+    Wizard::SetFocusToNextButton();
+
+    repeat {
+	ret = (symbol) Wizard::UserInput();
+
+	if (ret == `abort) {
+	    if (Popup::ConfirmAbort (`incomplete))
+	    break;
+	}
+    } until (ret == `next || ret == `back);
+
+    if (ret == `back) {
+	Wizard::RestoreNextButton();
+    } else if (ret == `next) {
+	Wizard::SetContents (caption, `Label(_("Finishing the migration...")), help,
+	    GetInstArgs::enable_back(), GetInstArgs::enable_next());
+
+	Pkg::SourceSaveAll();
+	Pkg::TargetFinish();
     }
-
-    // BNC #575093: Report the need to reboot ASAP
-    Report::Message(_("Migration has just finished.
-Reboot the system as soon as possible."));
 
     return ret;
 }
