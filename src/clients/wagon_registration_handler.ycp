@@ -1,0 +1,98 @@
+/**
+ * File:
+ *	clients/wagon_registration_handler.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id:$
+ *
+ */
+
+{
+    /**
+     * This is a handler scipt for registration that checks whether registration
+     * did its job and whether or not has user skipped it.
+     * See more in BNC #575102.
+     */
+
+    import "Wagon";
+    import "Popup";
+
+    textdomain "wagon";
+
+    list <string> GetCurrentlyEnabledReposByAlias () {
+	list <string> ret = [];
+	map repo_data = $[];
+
+	Wagon::InitPkg();
+	foreach (integer repo_id, Pkg::SourceGetCurrent (true /* enabled only */), {
+	    repo_data = Pkg::SourceGeneralData (repo_id);
+	    if (repo_data == nil || repo_data == $[]) {
+		y2error ("Erroneous repo ID: %1 - no repo data: %2", repo_id, repo_data);
+		return;
+	    }
+	    ret = add (ret, repo_data["alias"]:"");
+	});
+
+	return sort (ret);
+    }
+
+    // all repository aliases
+    list <string> all_repos = GetCurrentlyEnabledReposByAlias();
+
+    symbol ret = `auto;
+
+    while (true) {
+	ret = (symbol) WFM::CallFunction ("inst_suse_register", WFM::Args());
+
+	// `abort, `cancel, `back ...
+	// Just return the symbol
+	if (ret != `next) {
+	    y2milestone ("Registration returned %1", ret);
+	    break;
+	}
+	// --> `next
+
+	// Registration must have done something with repositories
+	// e.g., register new ones, disable old ones - that's wanted
+	if (all_repos != GetCurrentlyEnabledReposByAlias()) {
+	    Wagon::repos_already_registered = true;
+	    y2milestone ("List of repositories has changed");
+	    break;
+	}
+
+	// Registration was called again
+	if (Wagon::repos_already_registered == true) {
+	    y2milestone ("Repos already registered");
+	    break;
+	}
+
+	// Never called before, nothing changed
+	if (Popup::AnyQuestion (
+	    // dialog caption
+	    _("Warning"),
+	    // pop-up question
+	    _("No changes were made to list of the registered repositories.
+This means that you might have skipped the registration or there might
+have been an error in configuration. Eventually, repositories might
+have been already added before.
+
+Do you want to rerun the registration?"),
+	    _("&Yes"),
+	    _("&No, Skip It"),
+	    `focus_yes
+	) == false) {
+	    y2warning ("User does not want to rerun the registration");
+	    break;
+	}
+    }
+
+    return ret;
+}

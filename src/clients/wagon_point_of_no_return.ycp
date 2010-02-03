@@ -35,5 +35,9 @@
     y2warning ("From this point, wagon cannot revert products anymore!");
     Wagon::abort_can_revert_products = false;
 
+    // @see BNC 575102
+    y2milestone ("Reseting repos_already_registered flag");
+    Wagon::repos_already_registered = false;
+
     return `auto;
 }

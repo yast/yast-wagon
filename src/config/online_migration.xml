@@ -229,6 +229,7 @@ textdomain="online-migration"
 
 		<!-- Offer several possibilities how to set update repository URL -->
 		<module>
+		    <label>Migration Configuration</label>
 		    <name>update_url_dialog</name>
 		    <execute>wagon_update_url</execute>
 		</module>
@@ -239,8 +240,9 @@ textdomain="online-migration"
 		    (*) Offered in wagon_update_url if not running via applet
 		-->
 		<module>
+		    <label>Migration Configuration</label>
 		    <name>suse_register_workflow</name>
-		    <execute>inst_suse_register</execute>
+		    <execute>wagon_registration_handler</execute>
 		</module>
 
 		<!--
@@ -248,6 +250,7 @@ textdomain="online-migration"
 		    (*) Offered in wagon_update_url if not running via applet
 		-->
 		<module>
+		    <label>Migration Configuration</label>
 		    <name>wagon_custom_url</name>
 		    <execute>wagon_custom_url</execute>
 		</module>
@@ -257,11 +260,13 @@ textdomain="online-migration"
 		    Follows the wagon_ownurl
 		-->
 		<module>
+		    <label>Migration Configuration</label>
 		    <name>wagon_selfupdate_from_url</name>
 		    <execute>wagon_selfupdate</execute>
 		</module>
 
 		<module>
+		    <label>Migration Configuration</label>
 		    <name>wagon_modify_repositories</name>
 		    <execute>wagon_modify_repositories</execute>
 		</module>
@@ -284,28 +289,33 @@ textdomain="online-migration"
 
 		<!-- Download slideshow, count download sizes, ... -->
 		<module>
+		    <label>Update</label>
 		    <name>prepare_progress</name>
 		    <execute>inst_prepareprogress</execute>
 		</module>
 
 		<!-- From this point, some possibilities are simply 'impossible' ;) -->
 		<module>
+		    <label>Update</label>
 		    <name>point_of_no_return</name>
 		    <execute>wagon_point_of_no_return</execute>
 		</module>
 
 		<module>
+		    <label>Update</label>
 		    <name>wagon_kickoff</name>
 		    <execute>inst_kickoff</execute>
 		</module>
 
 		<!-- Upgrade the packages -->
 		<module>
+		    <label>Update</label>
 		    <name>wagon_rpmcopy</name>
 		    <execute>inst_rpmcopy</execute>
 		</module>
 
 		<module>
+		    <label>Update</label>
 		    <name>suseconfig_after_update</name>
 		    <execute>inst_suseconfig</execute>
 		</module>
@@ -314,7 +324,7 @@ textdomain="online-migration"
 		<module>
 		    <label>Registration</label>
 		    <name>suse_register_after_update</name>
-		    <execute>inst_suse_register</execute>
+		    <execute>wagon_registration_handler</execute>
 		</module>
 
 		<!-- Congratulate, Inform user to reboot etc. -->
