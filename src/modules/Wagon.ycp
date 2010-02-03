@@ -52,6 +52,10 @@
     // revert to the old products
     global boolean abort_can_revert_products = true;
 
+    // Registration can be skipped, this variable tells whether some repos were already
+    // added by registration
+    global boolean repos_already_registered = false;
+
     global void SetUpdateWorkflow (string new_update_workflow_type) {
 	// FIXME: check
 
