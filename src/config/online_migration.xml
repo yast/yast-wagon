@@ -243,6 +243,10 @@ textdomain="online-migration"
 		    <label>Migration Configuration</label>
 		    <name>suse_register_workflow</name>
 		    <execute>wagon_registration_handler</execute>
+		    <!-- BNC #576553: By default, do not set any optional data -->
+		    <arguments>
+			<suse_register_defaults>none</suse_register_defaults>
+		    </arguments>
 		</module>
 
 		<!--
@@ -325,6 +329,10 @@ textdomain="online-migration"
 		    <label>Registration</label>
 		    <name>suse_register_after_update</name>
 		    <execute>wagon_registration_handler</execute>
+		    <!-- BNC #576553: By default, do not set any optional data -->
+		    <arguments>
+			<suse_register_defaults>selected</suse_register_defaults>
+		    </arguments>
 		</module>
 
 		<!-- Congratulate, Inform user to reboot etc. -->

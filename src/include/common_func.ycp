@@ -23,6 +23,7 @@
     import "PackagesUI";
     import "Wagon";
     import "Wizard";
+    import "GetInstArgs";
 
     boolean SolverRunWithFeedback () {
 	UI::OpenDialog (`Label (_("Solving the package dependencies...")));
@@ -141,5 +142,33 @@ Are sure you want to abort the upgrade process?"),
 	});
 
 	return repo_id;
+    }
+
+    /**
+     * During the first (migration) registration, it's not needed to include
+     * the optional data as it is also faster but after the migration, it's
+     * better to to include them.
+     * @see #BNC 576553
+     */
+    void AdjustSuseRegisterDefaults () {
+	map argmap = GetInstArgs::argmap();
+
+	if (argmap["suse_register_defaults"]:"" == "none") {
+	    y2milestone (
+		"suse_register: no optional data selected by default (%1/%2/%3)",
+		SCR::Write (.sysconfig.suse_register.SUBMIT_OPTIONAL, "false"),
+		SCR::Write (.sysconfig.suse_register.SUBMIT_HWDATA, "false"),
+		SCR::Write (.sysconfig.suse_register, nil)
+	    );
+	} else if (argmap["suse_register_defaults"]:"" == "selected") {
+	    y2milestone (
+		"suse_register: all optional data selected by default (%1/%2/%3)",
+		SCR::Write (.sysconfig.suse_register.SUBMIT_OPTIONAL, "true"),
+		SCR::Write (.sysconfig.suse_register.SUBMIT_HWDATA, "true"),
+		SCR::Write (.sysconfig.suse_register, nil)
+	    );
+	} else {
+	    y2warning ("Undefined how to handled suse_register optional data");
+	}
     }
 }
