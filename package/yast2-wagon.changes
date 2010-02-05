@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Feb  5 16:12:02 CET 2010 - locilka@suse.cz
+
+- Adjusting default values for sending optional data during
+  registration: no data before, all data after the migration
+  (BNC #576553).
+- 2.17.14
+
+-------------------------------------------------------------------
 Wed Feb  3 09:43:21 CET 2010 - locilka@suse.cz
 
 - Adapted RPM depenencies to prevent from crashes (BNC #551613).

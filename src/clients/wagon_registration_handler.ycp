@@ -24,8 +24,11 @@
 
     import "Wagon";
     import "Popup";
+    import "Mode";
 
     textdomain "wagon";
+
+    include "wagon/common_func.ycp";
 
     list <string> GetCurrentlyEnabledReposByAlias () {
 	list <string> ret = [];
@@ -47,10 +50,16 @@
     // all repository aliases
     list <string> all_repos = GetCurrentlyEnabledReposByAlias();
 
+    // BNC #576553: Adjusts suse_config sysconfig values according the control file
+    AdjustSuseRegisterDefaults();
+
     symbol ret = `auto;
 
     while (true) {
+	// Only in mode=="normal" suse_register reads settings from sysconfig
+	Mode::SetMode ("normal");
 	ret = (symbol) WFM::CallFunction ("inst_suse_register", WFM::Args());
+	Mode::SetMode ("update");
 
 	// `abort, `cancel, `back ...
 	// Just return the symbol
