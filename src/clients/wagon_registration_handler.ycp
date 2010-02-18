@@ -30,6 +30,16 @@
 
     include "wagon/common_func.ycp";
 
+    void AdjustRegistrationHandlerScreen () {
+	Wizard::SetContents (
+	    _("Novell Customer Center Configuration"),
+	    `Label(_("Checking the current repositories...")),
+	    " ",
+	    GetInstArgs::enable_back(),
+	    GetInstArgs::enable_next()
+	);
+    }
+
     list <string> GetCurrentlyEnabledReposByAlias () {
 	list <string> ret = [];
 	map repo_data = $[];
@@ -55,11 +65,15 @@
 
     symbol ret = `auto;
 
+    AdjustRegistrationHandlerScreen();
+
     while (true) {
 	// Only in mode=="normal" suse_register reads settings from sysconfig
 	Mode::SetMode ("normal");
 	ret = (symbol) WFM::CallFunction ("inst_suse_register", WFM::Args());
 	Mode::SetMode ("update");
+
+	AdjustRegistrationHandlerScreen();
 
 	// `abort, `cancel, `back ...
 	// Just return the symbol
