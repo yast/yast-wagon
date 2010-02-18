@@ -150,17 +150,20 @@ Migration path is erroneous."),  p["display_name"]:p["short_name"]:_("Unknown"),
 
 	list <map <string,any> > products = Pkg::ResolvableProperties ("", `product, "");
 
-	foreach (map<string, any> p, products, {
+	// all known products
+	products = filter (map<string, any> p, products, {
+	    // skip those not installed ones
 	    if (p["status"]:`unknown != `installed) {
 		y2milestone ("Product %1 (%2) is not installed, skipping...",
 		    p["name"]:"not-defined", p["short_name"]:p["display_name"]:"not-defined");
-		return;
+		return false;
 	    }
 
+	    // skip those that do not provide 'upgrades' section
 	    if (! haskey (p, "upgrades") || p["upgrades"]:[] == []) {
 		y2warning ("Product %1 (%2) does not contain 'upgrades' section...",
 		    p["name"]:"not-defined", p["short_name"]:p["display_name"]:"not-defined");
-		return;
+		return false;
 	    }
 
 	    y2milestone ("Going to disable repositories providing product %1 (%2)",
@@ -169,36 +172,69 @@ Migration path is erroneous."),  p["display_name"]:p["short_name"]:_("Unknown"),
 	    if (p["name"]:"" == nil || p["name"]:"" == "") {
 		y2error ("Product %1 doesn't have a name, reverting will be impossible", p);
 		Report::Error (sformat(_("Product %1 does not have a machine-readable 'name'.
-Cannot disable ."),  p["short_name"]:p["display_name"]:"not-defined"));
+It cannot be disabled."),  p["short_name"]:p["display_name"]:"not-defined"));
+		return false;
 	    }
 
-	    // Find all available products
+	    return true;
+	});
+
+	// all installed, those that provide 'upgrades' section, and have a name
+	foreach (map<string, any> p, products, {
+	    // Find all available matching products
 	    list <map <string, any> > matching_products = Pkg::ResolvableProperties (p["name"]:"", `product, "");
 	    matching_products = filter (map <string, any> one_product, matching_products, {
 		return (one_product["status"]:`unknown == `available);
 	    });
 
-	    if (matching_products == nil || size (matching_products) == 0) {
-		y2error ("Nothing provides product: '%1'", p["name"]:"");
-		Report::Error (sformat(_("No repository provides product %1 (%2).
-Migration might not work."),
-		    p["name"]:"not-defined", p["short_name"]:p["display_name"]:"not-defined"));
-	    }
-
+	    list <integer> product_repos = [];
 	    integer repo_id = nil;
 	    map repo_details = nil;
 
-	    foreach (map <string, any> one_product, matching_products, {
-		repo_id = one_product["source"]:-1;
+	    // installed product is not available anymore
+	    if (matching_products == nil || size (matching_products) == 0) {
+		matching_products = [];
+		y2warning ("Nothing provides `available product: '%1'", p["name"]:"");
+	    } else {
+		foreach (map <string, any> one_product, matching_products, {
+		    repo_id = one_product["source"]:-1;
 
-		if (repo_id < 0) {
-		    y2error ("Available product with source<0: %1", Wagon::MinimizeProductMap (one_product));
+		    if (repo_id == nil || repo_id < 0) {
+			y2error ("Available product with wrong source id: %1", Wagon::MinimizeProductMap (one_product));
+		    } else {
+			y2milestone ("Repo %1 will be disabled, provides product %2", repo_id, p["name"]:"");
+			product_repos = add (product_repos, repo_id);
+		    }
+		});
+	    }
+
+	    // BNC #579905: Some repositories provide packages with products but these products
+	    // are not mentioned in metadata. We have to disable also these repositories.
+	    string inst_product_package_name = GetProductPackageName (p);
+	    list <map <string, any> > matching_packages = Pkg::ResolvableProperties (inst_product_package_name, `package, "");
+
+	    foreach (map <string, any> one_package, matching_packages, {
+		// operate with available packages only
+		if (one_package["status"]:`unknown != `available)
 		    return;
-		}
 
+		repo_id = one_package["source"]:-1;
+
+		if (repo_id == nil || repo_id < 0) {
+		    y2error ("Available package with wrong source id: %1", Wagon::MinimizeProductMap (one_package));
+		} else {
+		    y2milestone ("Repo %1 will be disabled, provides product package %2", repo_id, inst_product_package_name);
+		    product_repos = add (product_repos, repo_id);
+		}
+	    });
+
+	    // Check all 
+	    foreach (integer repo_id, product_repos, {
 		repo_details = Pkg::SourceGeneralData (repo_id);
 		Wagon::repositories_to_disable = add (Wagon::repositories_to_disable, repo_details["alias"]:"");
 	    });
+
+	    Wagon::repositories_to_disable = toset (Wagon::repositories_to_disable);
 	});
 
 	y2milestone ("Repositories to be disabled later: %1", Wagon::repositories_to_disable);

@@ -24,6 +24,7 @@
     import "Wagon";
     import "Wizard";
     import "GetInstArgs";
+    import "Report";
 
     boolean SolverRunWithFeedback () {
 	UI::OpenDialog (`Label (_("Solving the package dependencies...")));
@@ -170,5 +171,53 @@ Are sure you want to abort the upgrade process?"),
 	} else {
 	    y2warning ("Undefined how to handled suse_register optional data");
 	}
+    }
+
+    // Full paths to product files
+    map <string, string> checked_product_files = $[];
+
+    /**
+     * Finds a package that provides the required product
+     * defined by parameter.
+     *
+     * @return string product_package
+     */
+    string GetProductPackageName (map <string, any> product) {
+        product = Wagon::MinimizeProductMap (product);
+        string product_file = product["product_file"]:"";
+
+        // undefined product file
+        if (product_file == nil || product_file == "") {
+            y2error ("Cannot remove product: %1, no product file defined", product);
+            Report::Error (sformat(_("Cannot remove product %1"), product["name"]:_("Unknown product")));
+            return "";
+        }
+
+        // unify the product file path
+        if (! regexpmatch (product_file, "^/etc/products\\.d/.+"))
+            product_file = sformat ("/etc/products.d/%1", product_file);
+
+        // use a cached value
+        if (haskey (checked_product_files, product_file)) {
+            if (checked_product_files[product_file]:"" == "") {
+                return "";
+            } else {
+                return checked_product_files[product_file]:"";
+            }
+        }
+
+        string package_name = Wagon::GetFileOwner (product_file);
+
+        // no package owns the file
+        if (package_name == nil || package_name == "") {
+            y2error ("Cannot find out file owner %1", product_file);
+            Report::Error (sformat(_("Cannot find out owner of product %1"), product["name"]:_("Unknown product")));
+            return "";
+        }
+
+        // cache the value
+        checked_product_files[product_file] = package_name;
+
+        return package_name;
     }
 }

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Feb 18 17:18:03 CET 2010 - locilka@suse.cz
+
+- Disabling also repositories that provide installed products (as
+  packages) but do not describe products in metadata (BNC #579905).
+
+-------------------------------------------------------------------
 Fri Feb  5 16:12:02 CET 2010 - locilka@suse.cz
 
 - Adjusting default values for sending optional data during

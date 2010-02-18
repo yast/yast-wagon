@@ -194,11 +194,6 @@ you will have to do them manually.</p>"),
 
 	ResetPackager();
 
-	// Full paths to product files
-	list <string> removed_product_files = [];
-	// Product packages
-	list <string> removed_packages = [];
-
 	Wizard::SetContents (
 	    _("Reverting Migration"),
 	    `Label(_("Removing temporary migration products...")),
@@ -224,6 +219,9 @@ Repository was not found."), repo_alias));
 	Pkg::SourceSaveAll();
 	Wagon::InitPkg();
 
+	// Packages removed by this run
+	list <string> removed_packages = [];
+
 	// Remove all the migration products using packages approach manually
 	// Removing via ResolvableRemove + PkgSolve usually produces errors,
 	// dependency loops etc.
@@ -233,28 +231,14 @@ Repository was not found."), repo_alias));
 	    foreach (map <string, any> remove_product, Pkg::ResolvableProperties (migration_product, `product, ""), {
 		remove_product = Wagon::MinimizeProductMap (remove_product);
 
-		string product_file = remove_product["product_file"]:"";
-		if (product_file == nil || product_file == "") {
-		    y2error ("Cannot remove product: %1, no product file defined", remove_product);
-		    Report::Error (sformat(_("Cannot remove product %1"), remove_product["name"]:_("Unknown product")));
+		string package_name = GetProductPackageName (remove_product);
+
+		if (package_name == "")
 		    return;
-		}
 
-		if (! regexpmatch (product_file, "^/etc/products\\.d/.+"))
-		    product_file = sformat ("/etc/products.d/%1", product_file);
-
-		if (contains (removed_product_files, product_file)) {
-		    y2milestone ("Product file %1 has been already removed", product_file);
+		// Package has been already removed
+		if (contains (removed_packages, package_name))
 		    return;
-		}
-
-		string package_name = Wagon::GetFileOwner (product_file);
-
-		if (package_name == nil || package_name == "") {
-		    y2error ("Cannot find out file owner %1", product_file);
-		    Report::Error (sformat(_("Cannot remove product %1"), remove_product["name"]:_("Unknown product")));
-		    return;
-		}
 
 		if (Pkg::TargetRemove (package_name) != true) {
 		    y2error ("Cannot remove package %1", package_name);
@@ -264,7 +248,8 @@ Remove package %2 manually"), remove_product["name"]:_("Unknown product"), packa
 		}
 
 		y2milestone ("Product %1/%2 has been successfully removed", remove_product, package_name);
-		removed_product_files = add (removed_product_files, product_file);
+
+		// Do not try to remove it again
 		removed_packages = add (removed_packages, package_name);
 	    });
 	});
