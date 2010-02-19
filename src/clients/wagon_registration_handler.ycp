@@ -59,6 +59,7 @@
 
     // all repository aliases
     list <string> all_repos = GetCurrentlyEnabledReposByAlias();
+    y2milestone ("Currently registered repositories: %1", all_repos);
 
     // BNC #576553: Adjusts suse_config sysconfig values according the control file
     AdjustSuseRegisterDefaults();
@@ -70,7 +71,9 @@
     while (true) {
 	// Only in mode=="normal" suse_register reads settings from sysconfig
 	Mode::SetMode ("normal");
+	y2milestone ("Running inst_suse_register...");
 	ret = (symbol) WFM::CallFunction ("inst_suse_register", WFM::Args());
+	y2milestone ("Script inst_suse_register returned: %1", ret);
 	Mode::SetMode ("update");
 
 	AdjustRegistrationHandlerScreen();
@@ -85,9 +88,10 @@
 
 	// Registration must have done something with repositories
 	// e.g., register new ones, disable old ones - that's wanted
-	if (all_repos != GetCurrentlyEnabledReposByAlias()) {
+	list <string> current_repos = GetCurrentlyEnabledReposByAlias();
+	if (all_repos != current_repos) {
 	    Wagon::repos_already_registered = true;
-	    y2milestone ("List of repositories has changed");
+	    y2milestone ("List of repositories has changed: %1", current_repos);
 	    break;
 	}
 
@@ -96,6 +100,8 @@
 	    y2milestone ("Repos already registered");
 	    break;
 	}
+
+	y2warning ("Repos were not changed: %1", current_repos);
 
 	// Never called before, nothing changed
 	if (Popup::AnyQuestion (
