@@ -5,6 +5,7 @@ Thu Feb 18 17:18:03 CET 2010 - locilka@suse.cz
   packages) but do not describe products in metadata (BNC #579905).
 - Cleanup before and after suse_register (BNC #580523).
 - Added macro-recording.
+- 2.17.15
 
 -------------------------------------------------------------------
 Fri Feb  5 16:12:02 CET 2010 - locilka@suse.cz
