@@ -111,6 +111,9 @@
     // Checks whether YaST has been restarted
     // Adjust step to start with
     void HandleInit () {
+	// logs what user does in UI
+	UI::RecordMacro (Directory::logdir + "/macro_online_migration.ycp");
+
 	if (FileUtils::Exists (do_restart)) {
 	    y2milestone ("YaST has been restarted");
 	    SCR::Execute (.target.remove, do_restart);
