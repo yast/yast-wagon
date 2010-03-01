@@ -35,7 +35,7 @@ Click 'Next' to start the update."))
     );
 
     // help text
-    string help_text = _("<p>This tools updates the running system to a service pack.</p>");
+    string help_text = _("<p>This tool updates the running system to a service pack.</p>");
 
     Wizard::SetContents (heading_text, contents, help_text,
 	GetInstArgs::enable_back(), GetInstArgs::enable_next());
