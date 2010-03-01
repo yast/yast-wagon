@@ -2,6 +2,8 @@
 Fri Feb 19 15:29:38 CET 2010 - locilka@suse.cz
 
 - Fixed help text (BNC #583177).
+- Storing a solver testcase in case of solver issue (as suggested
+  in BNC #582046).
 
 -------------------------------------------------------------------
 Thu Feb 18 17:18:03 CET 2010 - locilka@suse.cz

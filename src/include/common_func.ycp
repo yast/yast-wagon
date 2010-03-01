@@ -25,10 +25,29 @@
     import "Wizard";
     import "GetInstArgs";
     import "Report";
+    import "Directory";
+    import "FileUtils";
+
+    string solver_testcase_dir = sformat ("%1/wagon_solver_testcase", Directory::logdir);
 
     boolean SolverRunWithFeedback () {
 	UI::OpenDialog (`Label (_("Solving the package dependencies...")));
+
 	boolean ret = Pkg::PkgSolve (true);
+
+	// BNC #582046: Store a solver testcase in case of solver issue
+	if (ret != true) {
+	    y2warning ("Solver failed, storing solver testcase to %1", solver_testcase_dir);
+
+	    if (FileUtils::Exists (solver_testcase_dir)) {
+		y2warning ("Directory %1 exists, removing first", solver_testcase_dir);
+		SCR::Execute (.target.bash, sformat ("rm -rf %1", solver_testcase_dir));
+	    }
+
+	    Pkg::CreateSolverTestCase (solver_testcase_dir);
+	    y2milestone ("Done");
+	}
+
 	UI::CloseDialog();
 
 	return ret;
