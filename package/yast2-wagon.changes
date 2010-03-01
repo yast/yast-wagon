@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Feb 19 15:29:38 CET 2010 - locilka@suse.cz
+
+- Fixed help text (BNC #583177).
+
+-------------------------------------------------------------------
 Thu Feb 18 17:18:03 CET 2010 - locilka@suse.cz
 
 - Disabling also repositories that provide installed products (as
