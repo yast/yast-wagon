@@ -24,8 +24,8 @@
 
     textdomain "wagon";
 
-    string frame_label = _("Select from where to get the update URL");
-    integer frame_width = (UI::TextMode() ? 2 * size (frame_label) : size (frame_label));
+    string frame_label = _("Select from Where to Get the Update URL");
+    integer frame_width = (UI::TextMode() ? 2 * size (frame_label) : 2.2 * size (frame_label));
 
     string current_workflow = Wagon::GetUpdateWorkflow();
 
@@ -43,7 +43,13 @@
 		`VBox (
 		    `HBox (
 			`HBox (`Image (Icon::IconPath ("yast-update"), ""), `HSpacing (2)),
-			`RadioButton (`id (`suse_register), _("&Customer Center"), (current_workflow == "manual_suse_register")),
+			`VBox (
+			    `Left(`RadioButton (`id (`suse_register), _("&Customer Center"), (current_workflow == "manual_suse_register"))),
+			    `HBox (
+				`HSpacing (2),
+				`Left(`CheckBox (`id (`manual_check), _("Check Automatic &Repository Changes"), Wagon::check_repositories_manually))
+			    )
+			),
 			`HStretch()
 		    ),
 		    `VSpacing (1),
@@ -57,10 +63,16 @@
 	)
     )));
 
-    string heading_text = _("Update URL");
+    string heading_text = _("Update Method");
 
-    // FIXME: ...
-    string help_text = _("FIXME: some help text");
+    // help text 1
+    string help_text = _("<p>Here you can choose whether to use the <b>Customer Center</b>
+to handle the installation repositories during migration or use <b>Custom &URL</b>
+if you want to set them manually.</p>") +
+    // help text 2
+    _("<p>Additionally, select <b>Check Automatic Repository Changes</b> to ensure
+that Customer Center has modified the repositories correctly. You can also modify
+them there too.</p>");
 
     Wizard::SetContents (heading_text, contents, help_text,
 	GetInstArgs::enable_back(), GetInstArgs::enable_next());
@@ -80,13 +92,21 @@
 	    y2milestone ("Selected workflow: %1", selected);
 
 	    if (selected == `suse_register) {
+		Wagon::check_repositories_manually = ((boolean) UI::QueryWidget (`id (`manual_check), `Value) == true);
+		y2milestone ("Checking repos manually: %1", Wagon::check_repositories_manually);
 		Wagon::SetUpdateWorkflow ("manual_suse_register");
 	    } else if (selected == `custom_url) {
+		// custom URL uses the same dialog in a different context
+		Wagon::check_repositories_manually = false;
+		y2milestone ("Checking repos manually: %1", Wagon::check_repositories_manually);
 		Wagon::SetUpdateWorkflow ("manual_custom_url");
 	    }
 
+	    Wagon::AdjustVariableSteps();
 	    // Check whether we have a useful workflow
-	    if (Wagon::AdjustWizardSteps()) {
+	    if (Wagon::SetWizardSteps()) {
+		Wagon::AdjustVariableSteps();
+		Wagon::RedrawWizardSteps();
 		ret = `next;
 		break;
 	    }
