@@ -56,6 +56,14 @@
     // added by registration
     global boolean repos_already_registered = false;
 
+    // Script suse_register changes the repositories automatically.
+    // Additionally, Wagon also disables some repositories. This option provides
+    // the possibility to check what was changed and how and/or add/remove some more.
+    // BNC #579905
+    global boolean check_repositories_manually = false;
+
+    string check_repos_module = "wagon_check_repositories";
+
     global void SetUpdateWorkflow (string new_update_workflow_type) {
 	// FIXME: check
 
@@ -71,7 +79,10 @@
 	ProductControl::UnDisableAllModulesAndProposals (Mode::mode(), Stage::stage());
     }
 
-    global boolean AdjustWizardSteps () {
+    /**
+     * Replaces the current workflow steps with a new one.
+     */
+    global boolean SetWizardSteps () {
 	// Adjusting the steps this way:
 	//   * Disable all steps
 	//   * Enable only the requierd ones
@@ -88,7 +99,7 @@
 	foreach (map <string, any> one_subworkflow, subworkflows, {
 	    if (one_subworkflow["name"]:"" == update_workflow_type) {
 		list <string> modules = (list <string>) one_subworkflow["modules"]:[];
-		y2milestone ("Modules: %1", modules);
+		y2milestone ("Modules to enable: %1", modules);
 
 		if (modules != nil && modules != []) {
 		    foreach (string one_module, modules, {
@@ -97,7 +108,7 @@
 		}
 
 		list <string> proposals = (list <string>) one_subworkflow["proposals"]:[];
-		y2milestone ("Proposals: %1", proposals);
+		y2milestone ("Proposals to enable: %1", proposals);
 
 		if (proposals != nil && proposals != []) {
 		    foreach (string one_proposal, proposals, {
@@ -118,6 +129,27 @@
 	    return false;
 	}
 
+	return true;
+    }
+
+    /**
+     * Handles the optional workflow steps according to the current settigns.
+     */
+    global void AdjustVariableSteps () {
+	// BNC #579905: Check modified repositories manually.
+	if (check_repositories_manually != false) {
+	    y2milestone ("Enabling module %1", check_repos_module);
+	    ProductControl::EnableModule (check_repos_module);
+	} else {
+	    y2milestone ("Disabling module %1", check_repos_module);
+	    ProductControl::DisableModule (check_repos_module);
+	}
+    }
+
+    /**
+     * Redraws the wizard steps according to current workflow settings.
+     */
+    global void RedrawWizardSteps () {
 	list<map> stage_mode = [
 	    $[
 		"stage" : Stage::stage(),
@@ -128,6 +160,17 @@
 	y2milestone ("Updating wizard steps: %1, Disabled modules: %2, Disabled proposals: %3",
 	    stage_mode, ProductControl::GetDisabledModules(), ProductControl::GetDisabledProposals());
 	ProductControl::UpdateWizardSteps (stage_mode);
+    }
+
+    /**
+     * Sets wizard steps and redraws the UI.
+     */
+    global boolean AdjustWizardSteps () {
+	if (SetWizardSteps() != true) {
+	    return false;
+	}
+
+	RedrawWizardSteps();
 
 	return true;
     }

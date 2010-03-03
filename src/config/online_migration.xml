@@ -59,9 +59,10 @@ textdomain="online-migration"
 		    <!-- Workflow is switched after this module -->
 		    <module>update_url_dialog</module>
 		    <module>suse_register_workflow</module>
-		    <module>wagon_custom_url</module>
+		    <module>wagon_manual_url_repositories</module>
 		    <module>wagon_selfupdate_from_url</module>
 		    <module>wagon_modify_repositories</module>
+		    <module>wagon_check_repositories</module>
 		    <module>prepare_progress</module>
 		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
@@ -88,6 +89,7 @@ textdomain="online-migration"
 		    <module>update_url_dialog</module>
 		    <module>suse_register_workflow</module>
 		    <module>wagon_modify_repositories</module>
+		    <module>wagon_check_repositories</module>
 		    <module>prepare_progress</module>
 		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
@@ -112,7 +114,7 @@ textdomain="online-migration"
 		    <module>install_migration_products</module>
 		    <!-- Workflow is switched after this module -->
 		    <module>update_url_dialog</module>
-		    <module>wagon_custom_url</module>
+		    <module>wagon_manual_url_repositories</module>
 		    <module>wagon_selfupdate_from_url</module>
 		    <module>wagon_modify_repositories</module>
 		    <module>prepare_progress</module>
@@ -254,8 +256,8 @@ textdomain="online-migration"
 		-->
 		<module>
 		    <label>Migration Configuration</label>
-		    <name>wagon_custom_url</name>
-		    <execute>wagon_custom_url</execute>
+		    <name>wagon_manual_url_repositories</name>
+		    <execute>wagon_repositories_handler</execute>
 		</module>
 
 		<!--
@@ -268,10 +270,30 @@ textdomain="online-migration"
 		    <execute>wagon_selfupdate</execute>
 		</module>
 
+		<!--
+		    Used by PatchCD
+		-->
+		<module>
+		    <label>Migration Configuration</label>
+		    <name>wagon_custom_url</name>
+		    <execute>wagon_custom_url</execute>
+		</module>
+
 		<module>
 		    <label>Migration Configuration</label>
 		    <name>wagon_modify_repositories</name>
 		    <execute>wagon_modify_repositories</execute>
+		</module>
+
+		<!--
+		    Used only if user decides to check repositories manually
+		    Option comes from 'update_url_dialog'
+		    BNC #579905
+		-->
+		<module>
+		    <label>Migration Configuration</label>
+		    <name>wagon_check_repositories</name>
+		    <execute>wagon_repositories_handler</execute>
 		</module>
 
 		<module>
