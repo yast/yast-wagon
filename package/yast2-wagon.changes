@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Mar  2 19:10:10 CET 2010 - locilka@suse.cz
+
+- Added new possibility to check used repositories (modified by
+  Customer Center) before migration (BNC #579905). The very same
+  dialog is also used for manual way of adjusting repositories.
+- Fixed 'Migration Type' dialog layout (BNC #582239).
+- 2.17.16
+
+-------------------------------------------------------------------
 Fri Feb 19 15:29:38 CET 2010 - locilka@suse.cz
 
 - Fixed help text (BNC #583177).
