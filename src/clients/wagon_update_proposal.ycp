@@ -28,6 +28,9 @@
     if (func == "MakeProposal") {
 	// Make sure the packager is initialized
 	Wagon::InitPkg();
+	// BNC #585095: All repositories (enabled/disabled) repositories
+	// logged with their state.
+	Wagon::LogAllRepos();
 
 	boolean force_reset      = param["force_reset"     ]:false;
 	boolean language_changed = param["language_changed"]:false;

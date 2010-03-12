@@ -553,6 +553,19 @@ It it also safe to abort the migration now.</b></li>")
 	return (string) splitstring (cmd["stdout"]:"", "\n")[0]:nil;
     }
 
+    global void LogAllRepos () {
+	// We assume all repositories are already loaded
+	y2milestone ("------ All repositories ------");
+	foreach (integer one_repo, Pkg::SourceGetCurrent (false /* not only enabled ones */), {
+	    y2milestone ("REPO %1: GeneralData: %2 ProductData: %3",
+		one_repo,
+		Pkg::SourceGeneralData (one_repo),
+		MinimizeProductMap (Pkg::SourceProductData (one_repo))
+	    );
+	});
+	y2milestone ("------ All repositories ------");
+    }
+
     global boolean RunHook (string script_name) {
 	if (script_name == nil || script_name == "") {
 	    y2error ("Script name '%1' is not supported", script_name);
