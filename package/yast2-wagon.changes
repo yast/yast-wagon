@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Mar 12 17:38:57 CET 2010 - locilka@suse.cz
+
+- Logging all repositories with their products during
+  wagon_update_proposal run (BNC #585095).
+
+-------------------------------------------------------------------
 Tue Mar  2 19:10:10 CET 2010 - locilka@suse.cz
 
 - Added new possibility to check used repositories (modified by
