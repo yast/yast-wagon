@@ -94,12 +94,12 @@ them there too.</p>");
 	    if (selected == `suse_register) {
 		Wagon::check_repositories_manually = ((boolean) UI::QueryWidget (`id (`manual_check), `Value) == true);
 		y2milestone ("Checking repos manually: %1", Wagon::check_repositories_manually);
-		Wagon::SetUpdateWorkflow ("manual_suse_register");
+		Wagon::SetMigrationMethod("suse_register");
 	    } else if (selected == `custom_url) {
 		// custom URL uses the same dialog in a different context
 		Wagon::check_repositories_manually = false;
 		y2milestone ("Checking repos manually: %1", Wagon::check_repositories_manually);
-		Wagon::SetUpdateWorkflow ("manual_custom_url");
+		Wagon::SetMigrationMethod("custom");
 	    }
 
 	    Wagon::AdjustVariableSteps();
