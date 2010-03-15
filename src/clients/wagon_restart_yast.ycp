@@ -1,0 +1,31 @@
+/**
+ * File:
+ *	clients/wagon_restart_yast.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Lukas Ocilka <locilka@suse.cz>
+ *
+ * Summary:
+ *	Online Migration Tool
+ *
+ * $Id$
+ *
+ */
+
+{
+    textdomain "wagon";
+
+    import "GetInstArgs";
+    import "Wagon";
+
+    if (GetInstArgs::going_back()) {
+	y2milestone ("Going back...");
+	return `back;
+    }
+
+    y2milestone ("YaST will be restarted");
+    return `restart_same_step;
+}

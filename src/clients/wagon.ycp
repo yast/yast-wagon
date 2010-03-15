@@ -99,6 +99,11 @@
 		string current_workflow = Wagon::GetUpdateWorkflow();
 		y2milestone ("Current workflow is '%1'", current_workflow);
 		SCR::Write (.target.ycp, current_workflow_file, current_workflow);
+
+		// Store also current migration method
+		string current_method = Wagon::GetMigrationMethod();
+		y2milestone ("Current migration method is '%1'", current_method);
+		SCR::Write (.target.ycp, Wagon::migration_method_file, current_method);
 	    }
 	}
 
@@ -139,6 +144,18 @@
 		} else {
 		    y2milestone ("Adjusting required workflow type: %1", workflow_type);
 		    Wagon::SetUpdateWorkflow (workflow_type);
+		}
+	    }
+
+	    if (FileUtils::Exists (Wagon::migration_method_file)) {
+		string migration_method = (string) SCR::Read (.target.ycp, Wagon::migration_method_file);
+		SCR::Execute (.target.remove, Wagon::migration_method_file);
+
+		if (migration_method == nil || migration_method == "") {
+		    y2error ("Migration method is invalid: %1", migration_method);
+		} else {
+		    y2milestone ("Adjusting to migration method: %1", migration_method);
+		    Wagon::SetMigrationMethod (migration_method);
 		}
 	    }
 	}

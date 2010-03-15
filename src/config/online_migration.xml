@@ -37,6 +37,7 @@ textdomain="online-migration"
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
+		    <module>restart_yast_before_registration</module>
 		    <module>suse_register_after_update</module>
 		    <module>finished</module>
 		</modules>
@@ -56,11 +57,10 @@ textdomain="online-migration"
 		    <module>welcome</module>
 		    <module>update_online_mechanism</module>
 		    <module>install_migration_products</module>
-		    <!-- Workflow is switched after this module -->
+		    <!-- Workflow is tuned after this module -->
 		    <module>update_url_dialog</module>
 		    <module>suse_register_workflow</module>
 		    <module>wagon_manual_url_repositories</module>
-		    <module>wagon_selfupdate_from_url</module>
 		    <module>wagon_modify_repositories</module>
 		    <module>wagon_check_repositories</module>
 		    <module>prepare_progress</module>
@@ -68,60 +68,7 @@ textdomain="online-migration"
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
-		    <module>suse_register_after_update</module>
-		    <module>finished</module>
-		</modules>
-		<proposals config:type="list">
-		    <proposal>wagon_proposal</proposal>
-		</proposals>
-	    </subworkflow>
-
-	    <!--
-		manual + suse_register workflow: User selected 'Customer Center'
-	    -->
-	    <subworkflow>
-		<name>manual_suse_register</name>
-		<modules config:type="list">
-		    <module>welcome</module>
-		    <module>update_online_mechanism</module>
-		    <module>install_migration_products</module>
-		    <!-- Workflow is switched after this module -->
-		    <module>update_url_dialog</module>
-		    <module>suse_register_workflow</module>
-		    <module>wagon_modify_repositories</module>
-		    <module>wagon_check_repositories</module>
-		    <module>prepare_progress</module>
-		    <module>point_of_no_return</module>
-		    <module>wagon_kickoff</module>
-		    <module>wagon_rpmcopy</module>
-		    <module>suseconfig_after_update</module>
-		    <module>suse_register_after_update</module>
-		    <module>finished</module>
-		</modules>
-		<proposals config:type="list">
-		    <proposal>wagon_proposal</proposal>
-		</proposals>
-	    </subworkflow>
-
-	    <!--
-		manual + custom_url workflow: User selected 'Custom URL'
-	    -->
-	    <subworkflow>
-		<name>manual_custom_url</name>
-		<modules config:type="list">
-		    <module>welcome</module>
-		    <module>update_online_mechanism</module>
-		    <module>install_migration_products</module>
-		    <!-- Workflow is switched after this module -->
-		    <module>update_url_dialog</module>
-		    <module>wagon_manual_url_repositories</module>
-		    <module>wagon_selfupdate_from_url</module>
-		    <module>wagon_modify_repositories</module>
-		    <module>prepare_progress</module>
-		    <module>point_of_no_return</module>
-		    <module>wagon_kickoff</module>
-		    <module>wagon_rpmcopy</module>
-		    <module>suseconfig_after_update</module>
+		    <module>restart_yast_before_registration</module>
 		    <module>suse_register_after_update</module>
 		    <module>finished</module>
 		</modules>
@@ -144,6 +91,7 @@ textdomain="online-migration"
 		    <module>wagon_kickoff</module>
 		    <module>wagon_rpmcopy</module>
 		    <module>suseconfig_after_update</module>
+		    <module>restart_yast_before_registration</module>
 		    <module>suse_register_after_update</module>
 		    <module>finished</module>
 		</modules>
@@ -262,8 +210,7 @@ textdomain="online-migration"
 		</module>
 
 		<!--
-		    Option B:
-		    Follows the wagon_ownurl
+		    Used by PatchCD
 		-->
 		<module>
 		    <label>Migration Configuration</label>
@@ -344,6 +291,17 @@ textdomain="online-migration"
 		    <label>Update</label>
 		    <name>suseconfig_after_update</name>
 		    <execute>inst_suseconfig</execute>
+		</module>
+
+		<!--
+		    BNC #587506: Restart YaST before registration is called to prevent
+		    from crashes caused by backward-incompatible changes in (Perl)
+		    libraries used by registration.
+		-->
+		<module>
+		    <label>Registration</label>
+		    <name>restart_yast_before_registration</name>
+		    <execute>wagon_restart_yast</execute>
 		</module>
 
 		<!-- Register the 'new-product' -->
