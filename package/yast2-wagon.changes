@@ -3,6 +3,7 @@ Mon Mar 15 13:28:41 CET 2010 - locilka@suse.cz
 
 - Restarting YaST before calling registration after packages are
   upgraded (BNC #587506).
+- 2.17.8.8
 
 -------------------------------------------------------------------
 Fri Mar 12 17:38:57 CET 2010 - locilka@suse.cz
