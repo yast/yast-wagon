@@ -75,6 +75,29 @@
 	return update_workflow_type;
     }
 
+    string migration_method = nil;
+
+    global string migration_method_file = sformat ("%1/wagon_migration_method", Directory::vardir);
+
+    global boolean SetMigrationMethod (string m_method) {
+	y2milestone ("Setting migration method: %1", m_method);
+
+	if (m_method == "suse_register" || m_method == "custom") {
+	    migration_method = m_method;
+	} else {
+	    y2error ("Unknown migration method: %1", m_method);
+	    Report::Error (sformat(_("Error switching migration method.
+Unknown migration method: %1"), m_method));
+	    return false;
+	}
+
+	return true;
+    }
+
+    global string GetMigrationMethod () {
+	return migration_method;
+    }
+
     void ResetWorkflowSteps () {
 	ProductControl::UnDisableAllModulesAndProposals (Mode::mode(), Stage::stage());
     }
@@ -136,13 +159,29 @@
      * Handles the optional workflow steps according to the current settigns.
      */
     global void AdjustVariableSteps () {
-	// BNC #579905: Check modified repositories manually.
-	if (check_repositories_manually != false) {
-	    y2milestone ("Enabling module %1", check_repos_module);
-	    ProductControl::EnableModule (check_repos_module);
-	} else {
-	    y2milestone ("Disabling module %1", check_repos_module);
-	    ProductControl::DisableModule (check_repos_module);
+	y2milestone ("Adjusting variable steps to '%1' migration method", migration_method);
+
+	// BNC #587506: enable/disable steps according to selected method
+	//
+	// User will not have to enter migration repositories manually
+	// registration takes care about it
+	if (migration_method == "suse_register") {
+	    ProductControl::DisableModule ("wagon_manual_url_repositories");
+	    ProductControl::EnableModule ("suse_register_workflow");
+
+	    // BNC #579905: Check modified repositories manually.
+	    if (check_repositories_manually != false) {
+		y2milestone ("Enabling module %1", check_repos_module);
+		ProductControl::EnableModule (check_repos_module);
+	    } else {
+		y2milestone ("Disabling module %1", check_repos_module);
+		ProductControl::DisableModule (check_repos_module);
+	    }
+	// User has chosen to enter all migration repositories manually
+	} else if (migration_method == "custom") {
+	    ProductControl::DisableModule ("wagon_check_repositories");
+	    ProductControl::DisableModule ("suse_register_workflow");
+	    ProductControl::EnableModule ("wagon_manual_url_repositories");
 	}
     }
 
