@@ -69,7 +69,10 @@
 	ProductControl::AddWizardSteps ([$["stage":Stage::stage(), "mode":Mode::mode()]]);
 
 	// Can't acquire packager lock
-	if (PackageLock::Check() != true) {
+	// BNC #616982
+	map <string,any> pkg_connected = PackageLock::Connect(false);
+	if (pkg_connected["connected"]:false != true) {
+	    y2warning ("PackageLock not obtained");
 	    return false;
 	}
 
