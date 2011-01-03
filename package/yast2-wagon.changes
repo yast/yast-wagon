@@ -2,6 +2,7 @@
 Mon Jan  3 15:32:13 CET 2011 - locilka@suse.cz
 
 - Do not allow to continue without package lock (BNC #616982)
+- 2.17.18
 
 -------------------------------------------------------------------
 Mon Mar 15 13:28:41 CET 2010 - locilka@suse.cz
