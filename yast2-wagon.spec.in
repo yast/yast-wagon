@@ -28,6 +28,10 @@ BuildRequires:	yast2-installation >= 2.17.44
 
 Provides:	yast2-online-update-frontend:/usr/share/applications/YaST2/cd_update.desktop
 
+# See BNC #613820, Comment #22
+Conflicts:<---->yast2-perl-bindings < 2.19.0
+Conflicts:<---->yast2-storage < 2.19.0
+
 BuildArchitectures:	noarch
 
 Summary: YaST2 - Migration Tool for Service Packs

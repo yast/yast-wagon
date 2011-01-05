@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jan  5 10:58:15 CET 2011 - locilka@suse.cz
+
+- Added more explicit RPM requirements (BNC #613820, Comment #22)
+- 2.20.2
+
+-------------------------------------------------------------------
 Mon Jan  3 15:32:13 CET 2011 - locilka@suse.cz
 
 - Do not allow to continue without package lock (BNC #616982)
