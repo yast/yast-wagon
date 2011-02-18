@@ -15,9 +15,6 @@ Requires:	yast2-packager yast2-add-on
 # Counting packages directly in packages proposal (BNC #573482)
 Requires:	yast2-update >= 2.18.7
 
-# Prevent from crashes (BNC #551613)
-Requires:	yast2-registration >= 2.18.0
-
 BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite yast2-update
 
 # xmllint
@@ -26,11 +23,14 @@ BuildRequires:	libxml2
 # control.rng
 BuildRequires:	yast2-installation >= 2.17.44
 
-Provides:	yast2-online-update-frontend:/usr/share/applications/YaST2/cd_update.desktop
+Provides:	yast2-online-update-frontend:%{_datadir}/applications/YaST2/cd_update.desktop
 
 # See BNC #613820, Comment #22
 Conflicts:	yast2-perl-bindings < 2.19.0
 Conflicts:	yast2-storage < 2.19.0
+
+# Requires a control file
+Requires:	wagon-control-file
 
 BuildArchitectures:	noarch
 
@@ -46,8 +46,12 @@ through command line tools.
 @BUILD@
 
 @INSTALL@
+xmllint --noout --relaxng %{_datadir}/YaST2/control/control.rng %{buildroot}%{_datadir}/YaST2/control/*.xml
+# ghost file
+touch %{buildroot}%{_datadir}/YaST2/control/online_migration.xml
 
 @CLEAN@
+rm -rf %{buildroot}%%{_datadir}/YaST2/control/online_migration.xml
 
 %files
 %defattr(-,root,root)
@@ -55,7 +59,72 @@ through command line tools.
 @clientdir@/*.ycp
 @moduledir@/*.ycp
 @moduledir@/*.ybc
-%dir /usr/share/YaST2/control
 @desktopdir@/*.desktop
-/usr/share/YaST2/control/*.xml
 %doc @docdir@
+%exclude %{_datadir}/YaST2/control
+%exclude %{_datadir}/YaST2/control/*.xml
+
+###
+#
+# yast2-wagon-control-openSUSE
+#
+###
+
+%package control-openSUSE
+
+# Generic 'provides'
+Provides: wagon-control-file
+
+Group:	System/YaST
+License: GPL v2 or later
+
+Conflicts:	otherproviders(wagon-control-file)
+Supplements: packageand(yast2-wagon:branding-openSUSE)
+
+Summary: YaST Wagon control file for openSUSE
+
+%description control-openSUSE
+YaST Wagon control file for openSUSE
+
+%post control-openSUSE
+ln -sf online_migration-SLE.xml %{_datadir}/YaST2/control/online_migration.xml
+
+%files control-openSUSE
+%defattr(-,root,root)
+%dir %{_datadir}/YaST2/control
+%{_datadir}/YaST2/control/online_migration-openSUSE.xml
+%ghost %{_datadir}/YaST2/control/online_migration.xml
+
+###
+#
+# yast2-wagon-control-SLE
+#
+###
+
+%package control-SLE
+
+# Generic 'provides'
+Provides: wagon-control-file
+
+Group:	System/YaST
+License: GPL v2 or later
+
+# Prevent from crashes (BNC #551613)
+Requires:	yast2-registration >= 2.18.0
+
+Conflicts:	otherproviders(wagon-control-file)
+Supplements: packageand(yast2-wagon:branding-SLE)
+
+Summary: YaST Wagon control file for SLE
+
+%description control-SLE
+YaST Wagon control file for SLE
+
+%post control-SLE
+ln -sf online_migration-SLE.xml %{_datadir}/YaST2/control/online_migration.xml
+
+%files control-SLE
+%defattr(-,root,root)
+%dir %{_datadir}/YaST2/control
+%{_datadir}/YaST2/control/online_migration-SLE.xml
+%ghost %{_datadir}/YaST2/control/online_migration.xml
