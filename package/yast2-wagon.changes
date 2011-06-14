@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jun 14 08:42:02 UTC 2011 - lslezak@suse.cz
+
+- implemented download in advance mode support (fate#308951)
+- 2.21.0
+
+-------------------------------------------------------------------
 Fri Feb 18 14:22:27 CET 2011 - locilka@suse.cz
 
 - yast2-wagon control files have been moved to separate packages
