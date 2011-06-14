@@ -20,6 +20,7 @@
 
     import "Wagon";
     import "Report";
+    import "PackageInstallation";
 
     string func = (string) WFM::Args(0);
     map param = (map) WFM::Args(1);
@@ -50,7 +51,7 @@
 	// toggle the download mode status
 	if (chosen_id == Wagon::GetDownloadModeLink())
 	{
-	    Wagon::download_in_advance = !Wagon::download_in_advance;
+	    PackageInstallation::SetDownloadInAdvance(!PackageInstallation::DownloadInAdvance());
 	}
 	else
 	{
