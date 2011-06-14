@@ -40,11 +40,23 @@
 	}
 
 	Wagon::ProposeDUP();
+	Wagon::ProposeDownloadMode();
 
 	ret = Wagon::ProposalSummary();
 
     } else if (func == "AskUser") {
-	Report::Message (_("There is nothing to set."));
+	string chosen_id = param["chosen_id"]:"";
+
+	// toggle the download mode status
+	if (chosen_id == Wagon::GetDownloadModeLink())
+	{
+	    Wagon::download_in_advance = !Wagon::download_in_advance;
+	}
+	else
+	{
+	    Report::Message (_("There is nothing to set."));
+	}
+
 	ret = $[ "workflow_sequence" : `next ];
 
     } else if (func == "Description") {

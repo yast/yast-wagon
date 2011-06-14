@@ -31,6 +31,8 @@
     import "Update";
     import "FileUtils";
     import "String";
+    import "Packages";
+    import "PackageInstallation";
 
     boolean running_by_applet = false;
 
@@ -73,6 +75,13 @@
 
     global string GetUpdateWorkflow () {
 	return update_workflow_type;
+    }
+
+    const string download_mode_link = "wagon-download_in_advance";
+
+    global define string GetDownloadModeLink()
+    {
+	return download_mode_link;
     }
 
     string migration_method = nil;
@@ -379,6 +388,68 @@ To do so, please, use zypper instead.
 	return true;
     }
 
+    string FindMountPoint(string dir, list<string> dirs)
+    {
+	while (dir != nil && dir != "" && !contains(dirs, dir))
+	{
+	    // strip the last path component and try it again
+	    list<string> comps = splitstring(dir, "/");
+	    comps = remove(comps, size(comps) - 1);
+	    dir = mergestring(comps, "/");
+	}
+
+	return dir;
+    }
+
+    map<string, any> CheckDownloadSpace()
+    {
+	map<string, list> du = Pkg::TargetGetDU();
+	list<string> mounts = maplist(string dir, list info, du, {return dir;});
+
+	map<string,any> zconfig = Pkg::ZConfig();
+	string pkg_path = zconfig["repo_packages_path"]:"";
+
+	string packages_mount = FindMountPoint(pkg_path, mounts);
+	y2milestone("Packages will we downloaded to mountpoint %1", packages_mount);
+
+	// download size in bytes
+	integer download_size = Packages::CountSizeToBeDownloaded();
+	y2milestone("Size of packages to download: %1MB", download_size >> 20);
+
+	// du contains maps: $[ "dir" : [ total, used, pkgusage, readonly ], .... ]
+	integer after_install = du[packages_mount, 2]:0;
+	integer total = du[packages_mount, 0]:0;
+
+	symbol result = `ok;
+	string message = "";
+
+	if (after_install + download_size < total)
+	{
+	    result = `error;
+	    message = "Not enough free space";
+	    y2error("Not enough free space for download in advance upgrade");
+	}
+	else if (after_install + download_size < total - 100<<20)
+	{
+	    result = `warning;
+	    message = "Not enough free space";
+	    y2error("Not enough free space for download in advance upgrade");
+	}
+
+	return $[ "result" : result, "message" : message ];
+    }
+
+    global void ProposeDownloadMode()
+    {
+	if (PackageInstallation::DownloadInAdvance() == nil)
+	{
+	    map<string, any> dwspace = CheckDownloadSpace();
+
+	    PackageInstallation::SetDownloadInAdvance(dwspace["result"]:nil == `ok);
+	    y2milestone("Proposed download in advance mode: %1", PackageInstallation::DownloadInAdvance());
+	}
+    }
+
     global map <string,any> MinimizeProductMap (map <string,any> product) {
 	if (haskey (product, "license")) product["license"] = "...";
 	if (haskey (product, "description")) product["description"] = "...";
@@ -510,9 +581,14 @@ To do so, please, use zypper instead.
 
 	ret = "<ul>\n" + ret + "</ul>\n";
 
+	ret = ret + "<ul><li>\n" + _("Download all packages before upgrade: ") +
+	    sformat("<a href=\"%1\">%2</a>", download_mode_link, (PackageInstallation::DownloadInAdvance() ? _("Enabled") : _("Disabled")))
+	     + "</li></ul>\n";
+
 	map <string, any> summary = $[
 	    "preformatted_proposal" : ret,
-	    // help text
+	    "links" : [ download_mode_link ],
+	    // help text, TODO FIXME: replace the inner <p> by <b>
 	    "help" : _("<p>To change the update settings, go to <p>Packages Proposal</p> section.</p>"),
 	];
 
