@@ -8,6 +8,8 @@ Requires:	yast2 >= 2.17.40
 Requires:	yast2-online-update-frontend >= 2.17.9
 # Pkg::ZConfig()
 Requires:	yast2-pkg-bindings >= 2.21.1
+# Pkg::ZConfig()
+BuildRequires:	yast2-pkg-bindings >= 2.21.1
 
 # Called in proposal and in code
 Requires:	yast2-packager >= 2.21.2
