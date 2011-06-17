@@ -33,18 +33,21 @@ our %TYPEINFO;
 # for more datils about the file format
 my $reg_file = "/var/lib/suseRegister/registration-status.xml";
 
+# return the default registration status file name
 BEGIN{ $TYPEINFO{RegFile} = ["function", "string"]; }
 sub RegFile {
     my ($self) = @_;
     return $reg_file;
 }
 
+# parse the default registration XML status file
 BEGIN{ $TYPEINFO{Read} = ["function", ["map","any","any"]]; }
 sub Read {
     my ($self) = @_;
     return ReadFile($reg_file);
 }
 
+# parse the requested registration XML status file, convert the XML file into a map
 BEGIN{ $TYPEINFO{ReadFile} = ["function", ["map","any","any"], "string"]; }
 sub ReadFile {
     my $self = shift;

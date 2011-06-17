@@ -27,6 +27,7 @@
     // max age for the registration status (in seconds)
     integer max_age = max_age_days * 24 * 60 * 60;
 
+    // is the registration status file outdated?
     define boolean OutdatedStatus(map<string,any> status)
     {
 	// missing data, we cannot tell if it's outdated, suppose not
@@ -41,6 +42,7 @@
 	return ret;
     }
 
+    // get deatils about an installed product
     define map<string,any> InstalledProduct(string name)
     {
 	list<map<string,any> > products = Pkg::ResolvableProperties(name, `product, "");
@@ -56,6 +58,7 @@
 	return products[0]:$[];
     }
 
+    // return list of installed but unregistered products
     define list<map<string,any> > UnknownProducts(map<string,any> status)
     {
 	list<string> known_products = (list<string>)(status["registered"]:[] + status["provisional"]:[]
@@ -71,7 +74,7 @@
 	return unknown_products;
     }
 
-
+    // convert registration status map into a rich text summary
     define string RegistrationSummary(map<string,any> status)
     {
 	string msg = "<h3>" + _("Registration Summary") + "</h3>";
@@ -171,6 +174,7 @@
 	return msg;
     }
 
+    // set registration summary dialog content
     define void SetContent(map<string,any> status)
     {
 	// heading text
@@ -191,6 +195,7 @@
 	Wizard::EnableAbortButton();
     }
 
+    // run registration summary dialog
     define symbol RegistrationSummaryDialog(map<string,any> status)
     {
 	SetContent(status);
@@ -223,6 +228,8 @@
 	return ret;
     }
 
+    // check whether the parsed registration status contains unregistered or
+    // some other problem and user has to be informed about it
     define boolean Interactive(map<string,any> status)
     {
 	// the system is not registered at all
@@ -259,10 +266,12 @@
     }
 
     Wagon::InitPkg();
+    // read the registration XML file
     map<string,any> reg_status = Wagon::RegistrationStatus();
 
     y2milestone("Read registration status: %1", reg_status);
 
+    // if no user interation needed then go on
     if (!Interactive(reg_status))
     {
 	if (GetInstArgs::going_back()) {
