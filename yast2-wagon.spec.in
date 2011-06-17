@@ -7,6 +7,9 @@ Requires:	yast2-online-update-frontend >= 2.17.9
 # <upgrades> section from product file
 Requires:	yast2-pkg-bindings >= 2.17.44
 
+BuildRequires:	perl-XML-Simple
+Requires:	perl-XML-Simple
+
 # Called in proposal and in code
 Requires:	yast2-packager >= 2.17.82
 Requires:	yast2-add-on
