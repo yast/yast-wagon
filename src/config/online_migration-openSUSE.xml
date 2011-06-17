@@ -148,6 +148,12 @@ textdomain="online-migration"
 		    <enable_back>no</enable_back>
 		</module>
 
+		<module>
+		    <label>Registration Check</label>
+		    <name>registration_check</name>
+		    <execute>wagon_registration_check</execute>
+		</module>
+
 		<!-- Update itself -->
 		<module>
 		    <label>Renew Update Stack</label>
