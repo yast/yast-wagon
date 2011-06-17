@@ -35,6 +35,8 @@
     import "PackageInstallation";
     import "RegistrationStatus";
 
+    include "wagon/wagon_helpers.ycp";
+
     boolean running_by_applet = false;
 
     string update_workflow_type = "manual";
@@ -389,19 +391,6 @@ To do so, please, use zypper instead.
 	return true;
     }
 
-    string FindMountPoint(string dir, list<string> dirs)
-    {
-	while (dir != nil && dir != "" && !contains(dirs, dir))
-	{
-	    // strip the last path component and try it again
-	    list<string> comps = splitstring(dir, "/");
-	    comps = remove(comps, size(comps) - 1);
-	    dir = mergestring(comps, "/");
-	}
-
-	return dir;
-    }
-
     map<string, any> CheckDownloadSpace()
     {
 	// display a warning if estimated free size after migration is below 100MB
@@ -414,7 +403,7 @@ To do so, please, use zypper instead.
 	string pkg_path = zconfig["repo_packages_path"]:"";
 
 	string packages_mount = FindMountPoint(pkg_path, mounts);
-	y2milestone("Packages will we downloaded to mountpoint %1", packages_mount);
+	y2milestone("Packages will we downloaded to %1 (mountpoint %2)", pkg_path, packages_mount);
 
 	// download size in bytes
 	integer download_size = Packages::CountSizeToBeDownloaded();
@@ -423,6 +412,7 @@ To do so, please, use zypper instead.
 	// du contains maps: $[ "dir" : [ total, used, pkgusage, readonly ], .... ]
 	integer after_install = du[packages_mount, 2]:0;
 	integer total = du[packages_mount, 0]:0;
+	y2milestone("Size after installation: %1MB (of %2MB)", after_install >> 20, total >> 20);
 
 	symbol result = `ok;
 	string message = "";
