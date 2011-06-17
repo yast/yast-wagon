@@ -29,7 +29,15 @@ use YaST::YCP qw(:DATA :LOGGING);
 
 our %TYPEINFO;
 
+# see https://wiki.innerweb.novell.com/index.php/Registration#Add_Registration_Status_to_zmdconfig
+# for more datils about the file format
 my $reg_file = "/var/lib/suseRegister/registration-status.xml";
+
+BEGIN{ $TYPEINFO{RegFile} = ["function", "string"]; }
+sub RegFile {
+    my ($self) = @_;
+    return $reg_file;
+}
 
 BEGIN{ $TYPEINFO{Read} = ["function", ["map","any","any"]]; }
 sub Read {

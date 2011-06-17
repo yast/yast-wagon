@@ -33,6 +33,7 @@
     import "String";
     import "Packages";
     import "PackageInstallation";
+    import "RegistrationStatus";
 
     boolean running_by_applet = false;
 
@@ -705,6 +706,132 @@ It it also safe to abort the migration now.</b></li>")
 	y2milestone ("Hook script returned: %1", cmd);
 
 	return true;
+    }
+
+    /*
+    * Read registration status and sort products according their status
+    * @param file Read this registration status file
+    * @return map<string,any> result: $[
+    *
+	    "registered_system" : (boolean) - true registration was run, false registration has never run or there is no product to register (e.g. openSUSE installation) or the registration completely failed
+	    "timestamp"		: (integer) - time when the status was saved (unix time), -1 in an unregistered system
+	    "registered"	: (list<string>) - registered products
+	    "provisional"	: (list<string>) - products with provisional subscription (registered, but no updates available)
+	    "rma"		: (list<string>) - refunded subscriptions, not active anymore
+	    "expired"		: (list<string>) - expired subscriptions
+	    "no_subscription"	: (list<string>) - products which do not need a subscription (e.g. SLES-SDK)
+	    "failed"		: (list<string>) - registration failed (e.g. invalid registration code)
+    * ]
+    */
+    global define map<string,any> RegistrationStatusFromFile(string file)
+    {
+	boolean registered_system = true;
+	integer timestamp = -1;
+
+	list<string> failed = [];
+	list<string> no_subscription = [];
+	list<string> expired = [];
+	list<string> rma = [];
+	list<string> provisional = [];
+	list<string> registered = [];
+
+	// 0 = empty file, -1 = missing
+	if (FileUtils::GetSize(file) <= 0)
+	{
+	    y2milestone("File %1 does not exist", file);
+	    registered_system = false;
+	}
+	else
+	{
+	    // read the registration status
+	    // see https://wiki.innerweb.novell.com/index.php/Registration#Add_Registration_Status_to_zmdconfig
+	    // for more datils about the file format
+	    map status = RegistrationStatus::ReadFile(file);
+
+	    timestamp = tointeger(status["generated"]:"-1");
+	    list<map> products = status["productstatus"]:[];
+
+	    // check each product
+	    foreach(map product, products,
+		{
+		    string product_name = product["product"]:"";
+
+		    // not registered (error present, but not "expired")
+		    if (product["result"]:"" == "error" && product["errorcode"]:"" != "ERR_SUB_EXP")
+		    {
+			failed = add(failed, product_name);
+		    }
+		    else
+		    {
+			// registered, but subscription is not needed (e.g. SLES-SDK)
+			if (product["subscription"]:$[] == $[])
+			{
+			    no_subscription = add(no_subscription, product_name);
+			}
+			else
+			{
+			    string status = product["subscription", "status"]:"";
+			    string expiration = product["subscription", "expiration"]:"";
+
+			    // expired subscription (status == EXPIRED or the timestamp is in the past)
+			    if (status == "EXPIRED" || (expiration != "" && tointeger(expiration) < time()))
+			    {
+				expired = add(expired, product_name);
+			    }
+			    else if (status == "RMA")
+			    {
+				rma = add(rma, product_name);
+			    }
+			    else
+			    {
+				string type = product["subscription", "type"]:"";
+
+				// provisional subscription
+				if (type == "PROVISIONAL")
+				{
+				    provisional = add(provisional, product_name);
+				}
+				else
+				{
+				    registered = add(registered, product_name);
+				}
+			    }
+			}
+		    }
+		}
+	    );
+	}
+
+	return $[
+	    "registered_system" : registered_system,
+	    "timestamp"		: timestamp,
+	    "registered"	: registered,
+	    "provisional"	: provisional,
+	    "rma"		: rma,
+	    "expired"		: expired,
+	    "no_subscription"	: no_subscription,
+	    "failed"		: failed
+	];
+
+    }
+
+    /*
+    * Read registration status from /var/lib/suseRegister/registration-status.xml and sort products according their status
+    * @return map<string,any> result: $[
+    *
+	    "registered_system" : (boolean) - true registration was run, false registration has never run or there is no product to register (e.g. openSUSE installation) or the registration completely failed
+	    "timestamp"		: (integer) - time when the status was saved (unix time), -1 in an unregistered system
+	    "registered"	: (list<string>) - registered products
+	    "provisional"	: (list<string>) - products with provisional subscription (registered, but no updates available)
+	    "rma"		: (list<string>) - refunded subscriptions, not active anymore
+	    "expired"		: (list<string>) - expired subscriptions
+	    "no_subscription"	: (list<string>) - products which do not need a subscription (e.g. SLES-SDK)
+	    "failed"		: (list<string>) - registration failed (e.g. invalid registration code)
+    * ]
+    */
+    global define map<string,any> RegistrationStatus()
+    {
+	return RegistrationStatusFromFile(RegistrationStatus::RegFile());
     }
 /* EOF */
 }
