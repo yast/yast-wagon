@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jun 22 14:40:00 UTC 2011 - lslezak@suse.cz
+
+- added a new client for selecting DUP repositories (fate#311994)
+- 2.21.1
+
+-------------------------------------------------------------------
 Thu Jun 16 14:41:31 UTC 2011 - lslezak@suse.cz
 
 - added a new client for checking registration status before

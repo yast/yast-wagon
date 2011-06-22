@@ -32,7 +32,9 @@ textdomain="online-migration"
 		    <module>update_online_mechanism</module>
 		    <module>install_migration_products</module>
 		    <module>suse_register_workflow</module>
+		    <module>wagon_dup_repositories</module>
 		    <module>wagon_modify_repositories</module>
+
 		    <module>prepare_progress</module>
 		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
@@ -63,8 +65,10 @@ textdomain="online-migration"
 		    <module>update_url_dialog</module>
 		    <module>suse_register_workflow</module>
 		    <module>wagon_manual_url_repositories</module>
+		    <module>wagon_dup_repositories</module>
 		    <module>wagon_modify_repositories</module>
 		    <module>wagon_check_repositories</module>
+
 		    <module>prepare_progress</module>
 		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
@@ -89,6 +93,8 @@ textdomain="online-migration"
 		    <module>registration_check</module>
 		    <module>wagon_custom_url</module>
 		    <module>wagon_selfupdate_from_url</module>
+		    <module>wagon_dup_repositories</module>
+
 		    <module>prepare_progress</module>
 		    <module>point_of_no_return</module>
 		    <module>wagon_kickoff</module>
@@ -251,6 +257,12 @@ textdomain="online-migration"
 		    <label>Migration Configuration</label>
 		    <name>wagon_check_repositories</name>
 		    <execute>wagon_repositories_handler</execute>
+		</module>
+
+		<module>
+		    <label>Migration Configuration</label>
+		    <name>wagon_dup_repositories</name>
+		    <execute>wagon_dup_repositories</execute>
 		</module>
 
 		<module>

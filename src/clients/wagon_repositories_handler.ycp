@@ -41,7 +41,7 @@
 //	Mode::SetMode ("normal");
 	y2milestone ("Running repositories...");
 	ret = (symbol) WFM::call ("repositories");
-	y2milestone ("Script inst_suse_register returned: %1", ret);
+	y2milestone ("Script repositories returned: %1", ret);
 //	Mode::SetMode ("update");
 
 	if (ret == `cancel || ret == `abort) {
