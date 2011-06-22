@@ -110,6 +110,20 @@ Unknown migration method: %1"), m_method));
 	return migration_method;
     }
 
+    // do the distribution upgrade from selected repositories
+    list<integer> dup_repos = [];
+
+    global list<integer> DupRepos()
+    {
+	return dup_repos;
+    }
+
+    global void SetDupRepos(list<integer> repos)
+    {
+	dup_repos = repos;
+    }
+
+
     void ResetWorkflowSteps () {
 	ProductControl::UnDisableAllModulesAndProposals (Mode::mode(), Stage::stage());
     }
@@ -381,10 +395,34 @@ To do so, please, use zypper instead.
 	    return true;
 	}
 
-	map <string, any> update_conf = GetUpdateConf();
+	// reset upgrade repo config
+	y2milestone("Resetting upgrade repos config");
+	list<integer> repos = Pkg::GetUpgradeRepos();
+	foreach(integer repo, repos, {Pkg::RemoveUpgradeRepo(repo);});
 
-	map <symbol, integer> update_sum = Pkg::PkgUpdateAll (update_conf);
-	y2milestone ("Update configuration: %1, update summary: %2", update_conf, update_sum);
+	// all repositories selected for upgrade?
+	if (sort(Pkg::SourceGetCurrent(true)) == sort(dup_repos))
+	{
+	    // reset solver flags (needed when switching from full DUP to partial DUP
+	    Pkg::SetSolverFlags($["reset" : true]);
+
+	    // do full distribution upgrade
+	    map <string, any> update_conf = GetUpdateConf();
+	    map <symbol, integer> update_sum = Pkg::PkgUpdateAll (update_conf);
+	    y2milestone ("Update configuration: %1, update summary: %2", update_conf, update_sum);
+	}
+	else
+	{
+	    // do partial DUP
+	    // add upgrade repositories
+	    y2milestone("Adding upgrade repos: %1", dup_repos);
+	    foreach(integer repo, dup_repos, {Pkg::AddUpgradeRepo(repo);});
+
+	    // be compatible with "zypper dup --from"
+	    Pkg::SetSolverFlags($["ignoreAlreadyRecommended" : true]);
+	}
+
+	Pkg::PkgSolve(true);
 
 	already_proposed = true;
 

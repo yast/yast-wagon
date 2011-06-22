@@ -1,0 +1,159 @@
+/**
+ * File:
+ *	clients/wagon_dup_repositories.ycp
+ *
+ * Module:
+ *	Wagon
+ *
+ * Authors:
+ *	Ladislav Slezak <lslezak@suse.cz>
+ *
+ * Summary:
+ *	Display dialog for selecting distribution upgrade repositories.
+ *
+ *
+ */
+
+{
+    textdomain "wagon";
+
+    import "Wagon";
+    import "GetInstArgs";
+    import "Wizard";
+    import "Popup";
+
+
+    define list TableContent()
+    {
+	// current enabled repositories
+	list<integer> repos = Pkg::SourceGetCurrent(true);
+	list<integer> dup_repos = Wagon::DupRepos();
+	list ret = [];
+
+	y2internal("Current repositories: %1", repos);
+	y2internal("DUP repositories: %1", dup_repos);
+
+	foreach(integer repo, repos,
+	    {
+		map info = Pkg::SourceGeneralData(repo);
+		// if nothing selected yet propose all repositories
+		string selected = (dup_repos == [] || contains(dup_repos, repo)) ? UI::Glyph(`CheckMark) : "";
+
+		ret = add(ret, `item(`id(repo), selected, info["name"]:"", info["url"]:""));
+	    });
+
+	y2internal("Table content: %1", ret);
+
+	return ret;
+    }
+
+    // display the repository selection dialog
+    define void SetContent()
+    {
+	// heading text
+	string heading_text = _("Migration Repositories");
+
+	term contents = `VBox(
+	    `Left(`Label(_("The packages will be switched to versions in the selected repositories."))),
+	    `Table(`id(`table), `opt(`notify, `immediate, `keepSorting), `header(`Center(_("Selected")), _("Name"), _("URL")), TableContent()),
+	    `HBox(
+		`PushButton(`id(`select), _("Select")),
+		`PushButton(`id(`deselect), _("Deselect"))
+	    )
+	);
+
+	// help text
+	string help_text = "<p>" + _("YaST checks whether the installed products are the installed products are registered.")
+	    + "</p><p>" + _("Migrating unregistered or partly registered system might result in broken system.") + "</p>";
+
+	Wizard::SetContents (heading_text, contents, help_text,
+	    GetInstArgs::enable_back(), GetInstArgs::enable_next());
+    }
+
+    // run the repository selection dialog
+    define symbol DupSelectionDialog()
+    {
+	SetContent();
+
+	symbol ret = nil;
+
+	while (true) {
+	    map event = UI::WaitForEvent();
+	    ret = event["ID"]:`nothing;
+
+	    if (ret == `table && event["EventReason"]:"" == "Activated")
+	    {
+		ret = `toggle;
+	    }
+
+	    if (ret == `back)
+	    {
+		break;
+	    }
+	    else if (ret == `next)
+	    {
+		y2milestone("Table content: %1", UI::QueryWidget(`id(`table), `Items));
+
+		list<term> table_lines = (list<term>)UI::QueryWidget(`id(`table), `Items);
+		list<integer> selected = [];
+
+		foreach(term table_line, table_lines,
+		    {
+			if (table_line[1]:"" != "")
+			{
+			    selected = add(selected, table_line[0,0]:-1);
+			}
+		    });
+
+		if (size(selected) == 0)
+		{
+		    // error message, no migration repository selected in the table
+		    Popup::Error("Select at least one migration repository.");
+		    continue;
+		}
+
+		y2milestone("Selected repositories for distribution upgrade: %1", selected);
+
+		Wagon::SetDupRepos(selected);
+
+		break;
+	    }
+	    else if ((ret == `abort || ret == `cancel || ret == `close) && Popup::ConfirmAbort (`painless))
+	    {
+		ret = `abort;
+		break;
+	    }
+	    else if (ret == `select || ret == `deselect || ret == `toggle)
+	    {
+		integer current = (integer) UI::QueryWidget(`id(`table), `CurrentItem);
+		string selected = "";
+
+		if (ret == `toggle)
+		{
+		    // toggle the flag
+		    string current_value = (string)UI::QueryWidget(`id(`table), `Cell(current, 0));
+		    selected = (current_value == "") ? UI::Glyph(`CheckMark) : "";
+		}
+		else
+		{
+		    selected = (ret == `select) ? UI::Glyph(`CheckMark) : "";
+		}
+
+		UI::ChangeWidget(`id(`table), `Cell(current, 0), selected);
+	    }
+	    else
+	    {
+		y2error("Unknown user input: %1", ret);
+	    }
+	}
+
+	return ret;
+    }
+
+
+    symbol ret = DupSelectionDialog();
+
+    y2milestone ("Result: %1", ret);
+
+    return ret;
+}
