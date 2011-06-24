@@ -627,8 +627,8 @@ To do so, please, use zypper instead.
 	map <string, any> summary = $[
 	    "preformatted_proposal" : ret,
 	    "links" : [ download_mode_link ],
-	    // help text, TODO FIXME: replace the inner <p> by <b>
-	    "help" : _("<p>To change the update settings, go to <p>Packages Proposal</p> section.</p>"),
+	    // help text
+	    "help" : _("<p>To change the update settings, go to <b>Packages Proposal</b> section.</p>"),
 	];
 
 	// Product removal MUST be confirmed by user, otherwise migration will not continue.
