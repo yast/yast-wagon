@@ -186,7 +186,7 @@
 	);
 
 	// help text
-	string help_text = "<p>" + _("YaST checks whether the installed products are the installed products are registered.")
+	string help_text = "<p>" + _("YaST checks whether the installed products are registered.")
 	    + "</p><p>" + _("Migrating unregistered or partly registered system might result in broken system.") + "</p>";
 
 	Wizard::SetContents (heading_text, contents, help_text,

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jun 30 14:13:52 UTC 2011 - lslezak@suse.cz
+
+- fixed typos (bnc#702648), fixed help text for migration repo
+  selection dialog
+
+-------------------------------------------------------------------
 Wed Jun 22 14:40:00 UTC 2011 - lslezak@suse.cz
 
 - added a new client for selecting DUP repositories (fate#311994)

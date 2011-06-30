@@ -119,13 +119,13 @@ Are sure you want to abort the upgrade process?"),
 
     void ResetPackager () {
 	Wizard::SetContents (
-	    _("Reseting Package Manager"),
-	    `Label(_("Reseting package manager...")),
+	    _("Resetting Package Manager"),
+	    `Label(_("Resetting package manager...")),
 	    "",
 	    false, true
 	);
 
-	y2milestone ("Reseting Pkg");
+	y2milestone ("Resetting Pkg");
 	Pkg::PkgApplReset();
 	Pkg::PkgReset();
 

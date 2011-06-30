@@ -63,8 +63,8 @@
 	);
 
 	// help text
-	string help_text = "<p>" + _("YaST checks whether the installed products are the installed products are registered.")
-	    + "</p><p>" + _("Migrating unregistered or partly registered system might result in broken system.") + "</p>";
+	string help_text = "<p>" + _("Here select the repositories which will be used for migration.")
+	    + "</p><p>" + _("The installed packages will be switched to the versions available in the selected migration repositories.") + "</p>";
 
 	Wizard::SetContents (heading_text, contents, help_text,
 	    GetInstArgs::enable_back(), GetInstArgs::enable_next());

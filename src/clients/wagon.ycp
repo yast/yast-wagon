@@ -278,7 +278,7 @@ Remove package %2 manually"), remove_product["name"]:_("Unknown product"), packa
 	});
 
 	if (size (removed_packages) > 0) {
-	    y2milestone ("%1 products were removed, reseting packager", size (removed_packages));
+	    y2milestone ("%1 products were removed, resetting packager", size (removed_packages));
 	    ResetPackager();
 
 	    foreach (string one_package, removed_packages, {
