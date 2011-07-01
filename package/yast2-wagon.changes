@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jul  1 08:52:27 UTC 2011 - lslezak@suse.cz
+
+- .spec file - fixed file list
+- 2.21.2
+
+-------------------------------------------------------------------
 Thu Jun 30 14:13:52 UTC 2011 - lslezak@suse.cz
 
 - fixed typos (bnc#702648), fixed help text for migration repo

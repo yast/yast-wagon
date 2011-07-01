@@ -65,6 +65,9 @@ rm -rf %{buildroot}%%{_datadir}/YaST2/control/online_migration.xml
 @clientdir@/*.ycp
 @moduledir@/*.ycp
 @moduledir@/*.ybc
+@moduledir@/*.pm
+%dir @yncludedir@/wagon
+@yncludedir@/wagon/*.ycp
 @desktopdir@/*.desktop
 %doc @docdir@
 %exclude %{_datadir}/YaST2/control
