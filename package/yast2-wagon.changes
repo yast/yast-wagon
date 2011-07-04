@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jul  4 11:28:46 UTC 2011 - lslezak@suse.cz
+
+- if the system is managed by SUSE Manager display a message
+  and exit (fate#311994)
+
+-------------------------------------------------------------------
 Fri Jul  1 11:11:48 UTC 2011 - lslezak@suse.cz
 
 - fixed help text in migration repository selection dialog
