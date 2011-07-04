@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jul  4 11:28:46 UTC 2011 - lslezak@suse.cz
+
+- if the system is managed by SUSE Manager display a message
+  and exit (fate#311994)
+
+-------------------------------------------------------------------
 Fri Jul  1 08:52:27 UTC 2011 - lslezak@suse.cz
 
 - .spec file - fixed file list
