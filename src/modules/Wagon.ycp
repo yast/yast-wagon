@@ -123,6 +123,21 @@ Unknown migration method: %1"), m_method));
 	dup_repos = repos;
     }
 
+    // list of repositories (aliases) added by suse_register
+    list<string> new_registration_repos = [];
+
+    // returns list of repositories (aliases) added by suse_register
+    global list<string> RegistrationRepos()
+    {
+	return new_registration_repos;
+    }
+
+    // set list of repositories (aliases) added by suse_register
+    global void SetRegistrationRepos(list<string> repos)
+    {
+	y2milestone("Repositories added by registration: %1", new_registration_repos);
+	new_registration_repos = repos;
+    }
 
     void ResetWorkflowSteps () {
 	ProductControl::UnDisableAllModulesAndProposals (Mode::mode(), Stage::stage());

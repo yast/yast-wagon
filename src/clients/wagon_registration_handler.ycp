@@ -57,6 +57,16 @@
 	return sort (ret);
     }
 
+    list<string> AddedRepos(list<string> prev, list<string> curr)
+    {
+	list<string> ret = [];
+
+	// added repos = all current which were not in the previous state
+	ret = filter(string curr_repo, curr, {return !contains(prev, curr_repo);});
+
+	return ret;
+    }
+
     // all repository aliases
     list <string> all_repos = GetCurrentlyEnabledReposByAlias();
     y2milestone ("Currently registered repositories: %1", all_repos);
@@ -91,7 +101,13 @@
 	list <string> current_repos = GetCurrentlyEnabledReposByAlias();
 	if (all_repos != current_repos) {
 	    Wagon::repos_already_registered = true;
+
+	    // remember the added repositories
+	    list<string> added = AddedRepos(all_repos, current_repos);
+	    Wagon::SetRegistrationRepos(added);
+
 	    y2milestone ("List of repositories has changed: %1", current_repos);
+	    y2milestone("Added repositories: %1", added);
 	    break;
 	}
 
