@@ -150,8 +150,138 @@
 	return ret;
     }
 
+    void SetMigrationSelectionDialogContent()
+    {
+	// heading text
+	string heading_text = _("Migration Type");
 
-    symbol ret = DupSelectionDialog();
+	term contents = `VBox(
+	    // frame label
+	    `Frame(_("Migration type"),
+		`HSquash(
+		    `MarginBox(2, 0.5,
+			`RadioButtonGroup(`id(`migration_type),
+			    `VBox(
+				// radio button
+				`Left(`RadioButton(`id(`minimal), _("&Minimal migration (only the core packages)"), true)),
+				// radio button
+				`Left(`RadioButton(`id(`full), _("&Full migration (all packages)")))
+			    )
+			)
+		    )
+		)
+	    ),
+
+	    `VSpacing(2),
+
+	    // push button
+	    `PushButton(`id(`advanced), _("Advanced..."))
+	);
+
+	// help text
+	string help_text = "<p>" + _("Select the requested migration type.")
+	    // help text
+	    + "</p><p>" + _("Minimal migration migrates only minimal set of packages (the core packages providing basic system functionality), full migration migrates  all installed packages.") + "</p>";
+
+	Wizard::SetContents (heading_text, contents, help_text,
+	    GetInstArgs::enable_back(), GetInstArgs::enable_next());
+    }
+
+    symbol MigrationSelectionDialog()
+    {
+	SetMigrationSelectionDialogContent();
+
+	symbol ret = nil;
+
+	while (true) {
+	    ret = (symbol)UI::UserInput();
+
+	    if (ret == `next)
+	    {
+		// set the update repositories
+		symbol mtype = (symbol) UI::QueryWidget(`id(`migration_type), `CurrentButton);
+		y2milestone("Selected migration type: %1", mtype);
+
+		if (mtype == `full)
+		{
+		    // DUP: all repositories
+		    y2milestone("Selected full migration, using %1 repositories", size(Pkg::SourceGetCurrent(true)));
+		    Wagon::SetDupRepos(Pkg::SourceGetCurrent(true));
+		}
+		else if (mtype == `minimal)
+		{
+		    // DUP: only added repositories
+		    y2milestone("Selected minimal migration, using these repositories: %1", Wagon::RegistrationRepos());
+
+		    map<string, integer> alias_to_id = $[];
+		    foreach(integer repo, Pkg::SourceGetCurrent(true),
+			{
+			    alias_to_id[Pkg::SourceGeneralData(repo)["alias"]:""] = repo;
+			}
+		    );
+
+		    list<integer> added_repos = maplist(string alias, Wagon::RegistrationRepos(),
+			{
+			   return alias_to_id[alias]:-1;
+			}
+		    );
+
+		    y2milestone("Converted aliases to ids: %1", added_repos);
+
+		    Wagon::SetDupRepos(added_repos);
+		}
+		else
+		{
+		    // error popup message
+		    Popup::Error(sformat(_("Selected unknown migration type: %1"), mtype));
+		    y2error("Unknown migratinon type: %1", mtype);
+
+		    continue;
+		}
+
+		break;
+	    }
+	    else if (ret == `back)
+	    {
+		break;
+	    }
+	    else if (ret == `abort || ret == `close)
+	    {
+		break;
+	    }
+	    else if (ret == `advanced)
+	    {
+		// manually select DUP repositories
+		y2milestone("Manual DUP repository selection selected");
+		ret = DupSelectionDialog();
+
+		if (ret == `abort || ret == `close || ret == `next)
+		{
+		    break;
+		}
+		else if (ret == `back)
+		{
+		    // refresh the dialog
+		    SetMigrationSelectionDialogContent();
+		}
+		else
+		{
+		    y2error("Unexpected user input: %1", ret);
+		}
+	    }
+	    else
+	    {
+		y2error("Unexpected user input: %1", ret);
+	    }
+	}
+
+	return ret;
+    }
+
+    // for custom migration repo we cannot select full/core migration type,
+    // and also when there is no new registration repo we cannot detect full/core migrations
+    // => go directly to the repository selection (advanced option)
+    symbol ret = (Wagon::GetMigrationMethod() == "suse_register" && size(Wagon::RegistrationRepos()) > 0) ? MigrationSelectionDialog() : DupSelectionDialog();
 
     y2milestone ("Result: %1", ret);
 
