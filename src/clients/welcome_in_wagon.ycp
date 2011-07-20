@@ -21,6 +21,7 @@
     import "Popup";
     import "Wagon";
     import "Report";
+    import "FileUtils";
 
     textdomain "wagon";
 
@@ -40,6 +41,18 @@ Click 'Next' to start the update."))
     Wizard::SetContents (heading_text, contents, help_text,
 	GetInstArgs::enable_back(), GetInstArgs::enable_next());
     Wizard::EnableAbortButton ();
+
+    // file /etc/sysconfig/rhn/systemid means the system is managed by SUSE Manager
+    if (FileUtils::Exists("/etc/sysconfig/rhn/systemid"))
+    {
+	y2milestone("File /etc/sysconfig/rhn/systemid found, aborting wagon");
+
+	// warning message, system managed by SUSE Manager cannot be migrated by wagon
+	// display this message and exit
+	Popup::Message(_("This system is managed by SUSE Manager,\nYaST wagon module cannot migrate systems managed by SUSE Manager.\n\nPress OK to exit."));
+
+	return (any)`back;
+    }
 
     any ret = nil;
 

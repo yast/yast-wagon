@@ -1,8 +1,20 @@
 -------------------------------------------------------------------
+Wed Jul 20 11:45:47 UTC 2011 - lslezak@suse.cz
+
+- added new core/full migration selection dialog (fate#311994)
+- if the system is managed by SUSE Manager display a message
+  and exit (fate#311994)
+- added a new client for selecting DUP repositories (fate#311994)
+- added a new client for checking registration status before
+  starting migration (fate#309594)
+- implemented download in advance mode support (fate#308951)
+- do not allow to continue without package lock (BNC #616982)
+- 2.17.17.1
+
+-------------------------------------------------------------------
 Mon Jan  3 15:32:13 CET 2011 - locilka@suse.cz
 
 - Do not allow to continue without package lock (BNC #616982)
-- 2.17.18
 
 -------------------------------------------------------------------
 Mon Mar 15 13:28:41 CET 2010 - locilka@suse.cz

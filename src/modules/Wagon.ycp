@@ -31,6 +31,11 @@
     import "Update";
     import "FileUtils";
     import "String";
+    import "Packages";
+    import "PackageInstallation";
+    import "RegistrationStatus";
+
+    include "wagon/wagon_helpers.ycp";
 
     boolean running_by_applet = false;
 
@@ -75,6 +80,13 @@
 	return update_workflow_type;
     }
 
+    const string download_mode_link = "wagon-download_in_advance";
+
+    global define string GetDownloadModeLink()
+    {
+	return download_mode_link;
+    }
+
     string migration_method = nil;
 
     global string migration_method_file = sformat ("%1/wagon_migration_method", Directory::vardir);
@@ -96,6 +108,35 @@ Unknown migration method: %1"), m_method));
 
     global string GetMigrationMethod () {
 	return migration_method;
+    }
+
+    // do the distribution upgrade from selected repositories
+    list<integer> dup_repos = [];
+
+    global list<integer> DupRepos()
+    {
+	return dup_repos;
+    }
+
+    global void SetDupRepos(list<integer> repos)
+    {
+	dup_repos = repos;
+    }
+
+    // list of repositories (aliases) added by suse_register
+    list<string> new_registration_repos = [];
+
+    // returns list of repositories (aliases) added by suse_register
+    global list<string> RegistrationRepos()
+    {
+	return new_registration_repos;
+    }
+
+    // set list of repositories (aliases) added by suse_register
+    global void SetRegistrationRepos(list<string> repos)
+    {
+	y2milestone("Repositories added by registration: %1", new_registration_repos);
+	new_registration_repos = repos;
     }
 
     void ResetWorkflowSteps () {
@@ -369,14 +410,98 @@ To do so, please, use zypper instead.
 	    return true;
 	}
 
-	map <string, any> update_conf = GetUpdateConf();
+	// reset upgrade repo config
+	y2milestone("Resetting upgrade repos config");
+	list<integer> repos = Pkg::GetUpgradeRepos();
+	foreach(integer repo, repos, {Pkg::RemoveUpgradeRepo(repo);});
 
-	map <symbol, integer> update_sum = Pkg::PkgUpdateAll (update_conf);
-	y2milestone ("Update configuration: %1, update summary: %2", update_conf, update_sum);
+	// all repositories selected for upgrade?
+	if (sort(Pkg::SourceGetCurrent(true)) == sort(dup_repos))
+	{
+	    // reset solver flags (needed when switching from full DUP to partial DUP
+	    Pkg::SetSolverFlags($["reset" : true]);
+
+	    // do full distribution upgrade
+	    map <string, any> update_conf = GetUpdateConf();
+	    map <symbol, integer> update_sum = Pkg::PkgUpdateAll (update_conf);
+	    y2milestone ("Update configuration: %1, update summary: %2", update_conf, update_sum);
+	}
+	else
+	{
+	    // do partial DUP
+	    // add upgrade repositories
+	    y2milestone("Adding upgrade repos: %1", dup_repos);
+	    foreach(integer repo, dup_repos, {Pkg::AddUpgradeRepo(repo);});
+
+	    // be compatible with "zypper dup --from"
+	    Pkg::SetSolverFlags($["ignoreAlreadyRecommended" : true]);
+	}
+
+	Pkg::PkgSolve(true);
 
 	already_proposed = true;
 
 	return true;
+    }
+
+    map<string, any> CheckDownloadSpace()
+    {
+	// display a warning if estimated free size after migration is below 100MB
+	integer min_free_space = 100 << 20;
+
+	map<string, list> du = Pkg::TargetGetDU();
+	list<string> mounts = maplist(string dir, list info, du, {return dir;});
+
+	map<string,any> zconfig = Pkg::ZConfig();
+	string pkg_path = zconfig["repo_packages_path"]:"";
+
+	string packages_mount = FindMountPoint(pkg_path, mounts);
+	y2milestone("Packages will we downloaded to %1 (mountpoint %2)", pkg_path, packages_mount);
+
+	// download size in bytes
+	integer download_size = Packages::CountSizeToBeDownloaded();
+	y2milestone("Size of packages to download: %1MB", download_size >> 20);
+
+	// du contains maps: $[ "dir" : [ total, used, pkgusage, readonly ], .... ]
+	integer after_install = du[packages_mount, 2]:0;
+	integer total = du[packages_mount, 0]:0;
+	y2milestone("Size after installation: %1MB (of %2MB)", after_install >> 20, total >> 20);
+
+	symbol result = `ok;
+	string message = "";
+
+	if (after_install + download_size < total)
+	{
+	    result = `error;
+	    message = sformat(_("There is not enough free space to migrate the system using download in advance mode. Partition %1 needs at least %2MB more free disk space. (The needed size is estimated, it is recommended to add slightly more free space.) Add more disk space or disable download in advance mode."),
+		 packages_mount, (after_install + download_size - total) >> 20);
+	    y2error("Not enough free space for download in advance upgrade: "
+		+ "estimated size after installation: %1MB, download size: %2MB, "
+		+ "total size: %3MB, estimated free space: %4MB", after_install >> 20,
+		download_size >> 20, total >> 20, (total - after_install - download_size) >> 20);
+	}
+	else if (after_install + download_size + min_free_space < total)
+	{
+	    result = `warning;
+	    message = sformat(_("There might not be enough free space for download in advance mode migration. The estimated free space after migration is %2MB, it is recommended to increase the free space in case the estimation is inaccurate to avoid installation errors."),
+		(total - after_install - download_size) >> 20);
+	    y2warning("Low free space: estimated size after installation: %1MB, "
+		+ "download size: %2MB, total size: %3MB, estimated free space: %4MB",
+		after_install >> 20, download_size >> 20, total >> 20, (total - after_install - download_size) >> 20);
+	}
+
+	return $[ "result" : result, "message" : message ];
+    }
+
+    global void ProposeDownloadMode()
+    {
+	if (PackageInstallation::DownloadInAdvance() == nil)
+	{
+	    map<string, any> dwspace = CheckDownloadSpace();
+
+	    PackageInstallation::SetDownloadInAdvance(dwspace["result"]:nil == `ok);
+	    y2milestone("Proposed download in advance mode: %1", PackageInstallation::DownloadInAdvance());
+	}
     }
 
     global map <string,any> MinimizeProductMap (map <string,any> product) {
@@ -510,9 +635,14 @@ To do so, please, use zypper instead.
 
 	ret = "<ul>\n" + ret + "</ul>\n";
 
+	ret = ret + "<ul><li>\n" + _("Download all packages before upgrade: ") +
+	    sformat("<a href=\"%1\">%2</a>", download_mode_link, (PackageInstallation::DownloadInAdvance() ? _("Enabled") : _("Disabled")))
+	     + "</li></ul>\n";
+
 	map <string, any> summary = $[
 	    "preformatted_proposal" : ret,
-	    // help text
+	    "links" : [ download_mode_link ],
+	    // help text, TODO FIXME: replace the inner <p> by <b>
 	    "help" : _("<p>To change the update settings, go to <p>Packages Proposal</p> section.</p>"),
 	];
 
@@ -629,6 +759,132 @@ It it also safe to abort the migration now.</b></li>")
 	y2milestone ("Hook script returned: %1", cmd);
 
 	return true;
+    }
+
+    /*
+    * Read registration status and sort products according their status
+    * @param file Read this registration status file
+    * @return map<string,any> result: $[
+    *
+	    "registered_system" : (boolean) - true registration was run, false registration has never run or there is no product to register (e.g. openSUSE installation) or the registration completely failed
+	    "timestamp"		: (integer) - time when the status was saved (unix time), -1 in an unregistered system
+	    "registered"	: (list<string>) - registered products
+	    "provisional"	: (list<string>) - products with provisional subscription (registered, but no updates available)
+	    "rma"		: (list<string>) - refunded subscriptions, not active anymore
+	    "expired"		: (list<string>) - expired subscriptions
+	    "no_subscription"	: (list<string>) - products which do not need a subscription (e.g. SLES-SDK)
+	    "failed"		: (list<string>) - registration failed (e.g. invalid registration code)
+    * ]
+    */
+    global define map<string,any> RegistrationStatusFromFile(string file)
+    {
+	boolean registered_system = true;
+	integer timestamp = -1;
+
+	list<string> failed = [];
+	list<string> no_subscription = [];
+	list<string> expired = [];
+	list<string> rma = [];
+	list<string> provisional = [];
+	list<string> registered = [];
+
+	// 0 = empty file, -1 = missing
+	if (FileUtils::GetSize(file) <= 0)
+	{
+	    y2milestone("File %1 does not exist", file);
+	    registered_system = false;
+	}
+	else
+	{
+	    // read the registration status
+	    // see https://wiki.innerweb.novell.com/index.php/Registration#Add_Registration_Status_to_zmdconfig
+	    // for more datils about the file format
+	    map status = RegistrationStatus::ReadFile(file);
+
+	    timestamp = tointeger(status["generated"]:"-1");
+	    list<map> products = status["productstatus"]:[];
+
+	    // check each product
+	    foreach(map product, products,
+		{
+		    string product_name = product["product"]:"";
+
+		    // not registered (error present, but not "expired")
+		    if (product["result"]:"" == "error" && product["errorcode"]:"" != "ERR_SUB_EXP")
+		    {
+			failed = add(failed, product_name);
+		    }
+		    else
+		    {
+			// registered, but subscription is not needed (e.g. SLES-SDK)
+			if (product["subscription"]:$[] == $[])
+			{
+			    no_subscription = add(no_subscription, product_name);
+			}
+			else
+			{
+			    string status = product["subscription", "status"]:"";
+			    string expiration = product["subscription", "expiration"]:"";
+
+			    // expired subscription (status == EXPIRED or the timestamp is in the past)
+			    if (status == "EXPIRED" || (expiration != "" && tointeger(expiration) < time()))
+			    {
+				expired = add(expired, product_name);
+			    }
+			    else if (status == "RMA")
+			    {
+				rma = add(rma, product_name);
+			    }
+			    else
+			    {
+				string type = product["subscription", "type"]:"";
+
+				// provisional subscription
+				if (type == "PROVISIONAL")
+				{
+				    provisional = add(provisional, product_name);
+				}
+				else
+				{
+				    registered = add(registered, product_name);
+				}
+			    }
+			}
+		    }
+		}
+	    );
+	}
+
+	return $[
+	    "registered_system" : registered_system,
+	    "timestamp"		: timestamp,
+	    "registered"	: registered,
+	    "provisional"	: provisional,
+	    "rma"		: rma,
+	    "expired"		: expired,
+	    "no_subscription"	: no_subscription,
+	    "failed"		: failed
+	];
+
+    }
+
+    /*
+    * Read registration status from /var/lib/suseRegister/registration-status.xml and sort products according their status
+    * @return map<string,any> result: $[
+    *
+	    "registered_system" : (boolean) - true registration was run, false registration has never run or there is no product to register (e.g. openSUSE installation) or the registration completely failed
+	    "timestamp"		: (integer) - time when the status was saved (unix time), -1 in an unregistered system
+	    "registered"	: (list<string>) - registered products
+	    "provisional"	: (list<string>) - products with provisional subscription (registered, but no updates available)
+	    "rma"		: (list<string>) - refunded subscriptions, not active anymore
+	    "expired"		: (list<string>) - expired subscriptions
+	    "no_subscription"	: (list<string>) - products which do not need a subscription (e.g. SLES-SDK)
+	    "failed"		: (list<string>) - registration failed (e.g. invalid registration code)
+    * ]
+    */
+    global define map<string,any> RegistrationStatus()
+    {
+	return RegistrationStatusFromFile(RegistrationStatus::RegFile());
     }
 /* EOF */
 }
