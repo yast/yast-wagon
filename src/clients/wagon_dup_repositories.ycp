@@ -22,6 +22,7 @@
     import "Wizard";
     import "Popup";
 
+    include "wagon/common_func.ycp";
 
     define list TableContent()
     {
@@ -195,6 +196,9 @@
 
 	symbol ret = nil;
 
+	list<integer> prev_dup_repos =  Wagon::DupRepos();
+	boolean prev_manual_selection = Wagon::ManualRepoSelection();
+
 	while (true) {
 	    // go to advanced config it was used previously
 	    ret = (Wagon::ManualRepoSelection()) ? `advanced : (symbol)UI::UserInput();
@@ -284,6 +288,15 @@
 	    {
 		y2error("Unexpected user input: %1", ret);
 	    }
+	}
+
+	if (ret == `next && (prev_dup_repos != Wagon::DupRepos() || prev_manual_selection != Wagon::ManualRepoSelection()))
+	{
+	    y2milestone("DUP repository config has been changed, repropose package selection");
+	    Wagon::ResetDUPProposal();
+
+	    // reset current package selection
+	    ResetPackager();
 	}
 
 	return ret;
