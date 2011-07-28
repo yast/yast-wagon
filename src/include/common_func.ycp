@@ -126,24 +126,23 @@ Are sure you want to abort the upgrade process?"),
 	);
 
 	y2milestone ("Reseting Pkg");
-	Pkg::PkgApplReset();
-	Pkg::PkgReset();
 
-	symbol status = nil;
-	string name = nil;
+	list<integer> repos = Pkg::GetUpgradeRepos();
+	if (size(repos) > 0)
+	{
+	    y2milestone("Resetting upgrade repos config");
+	    foreach(integer repo, repos, {Pkg::RemoveUpgradeRepo(repo);});
+	}
 
-	y2milestone ("Neutralizing all resolvables");
-	foreach (symbol resolvable, [`pattern, `patch, `package, `product, `srcpackage], {
-	    Pkg::ResolvableNeutral ("" /* all */, resolvable, true /* force */);
-	});
-
-	y2milestone ("Running solver");
-	Pkg::PkgSolve (true);
+	// reset solver flags
+	Pkg::SetSolverFlags($["reset" : true]);
 
 	Pkg::TargetFinish();
 	Pkg::SourceFinishAll();
 
 	Wagon::InitPkg();
+
+	y2milestone ("Running solver");
 	Pkg::PkgSolve (true);
     }
 
