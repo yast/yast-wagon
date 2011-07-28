@@ -123,6 +123,20 @@ Unknown migration method: %1"), m_method));
 	dup_repos = repos;
     }
 
+    boolean manual_repo_selection = false;
+
+    // manual or automatic DUP repo selection?
+    global boolean ManualRepoSelection()
+    {
+	return manual_repo_selection;
+    }
+
+    global void SetManualRepoSelection(boolean manual)
+    {
+	y2milestone("Manual DUP repo selection: %1", manual);
+	manual_repo_selection = manual;
+    }
+
     // list of repositories (aliases) added by suse_register
     list<string> new_registration_repos = [];
 

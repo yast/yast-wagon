@@ -154,6 +154,8 @@
     {
 	// heading text
 	string heading_text = _("Migration Type");
+	// full migration?
+	boolean full = sort(Wagon::DupRepos()) == sort(Pkg::SourceGetCurrent(true));
 
 	term contents = `VBox(
 	    // frame label
@@ -163,9 +165,9 @@
 			`RadioButtonGroup(`id(`migration_type),
 			    `VBox(
 				// radio button
-				`Left(`RadioButton(`id(`minimal), _("&Minimal migration (only the core packages)"), true)),
+				`Left(`RadioButton(`id(`minimal), _("&Minimal migration (only the core packages)"), !full)),
 				// radio button
-				`Left(`RadioButton(`id(`full), _("&Full migration (all packages)")))
+				`Left(`RadioButton(`id(`full), _("&Full migration (all packages)"), full))
 			    )
 			)
 		    )
@@ -194,7 +196,8 @@
 	symbol ret = nil;
 
 	while (true) {
-	    ret = (symbol)UI::UserInput();
+	    // go to advanced config it was used previously
+	    ret = (Wagon::ManualRepoSelection()) ? `advanced : (symbol)UI::UserInput();
 
 	    if (ret == `next)
 	    {
@@ -207,6 +210,7 @@
 		    // DUP: all repositories
 		    y2milestone("Selected full migration, using %1 repositories", size(Pkg::SourceGetCurrent(true)));
 		    Wagon::SetDupRepos(Pkg::SourceGetCurrent(true));
+		    Wagon::SetManualRepoSelection(false);
 		}
 		else if (mtype == `minimal)
 		{
@@ -229,6 +233,7 @@
 		    y2milestone("Converted aliases to ids: %1", added_repos);
 
 		    Wagon::SetDupRepos(added_repos);
+		    Wagon::SetManualRepoSelection(false);
 		}
 		else
 		{
@@ -255,14 +260,20 @@
 		y2milestone("Manual DUP repository selection selected");
 		ret = DupSelectionDialog();
 
-		if (ret == `abort || ret == `close || ret == `next)
+		if (ret == `abort || ret == `close)
 		{
+		    break;
+		}
+		else if (ret == `next)
+		{
+		    Wagon::SetManualRepoSelection(true);
 		    break;
 		}
 		else if (ret == `back)
 		{
 		    // refresh the dialog
 		    SetMigrationSelectionDialogContent();
+		    Wagon::SetManualRepoSelection(false);
 		}
 		else
 		{
