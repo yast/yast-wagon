@@ -761,6 +761,50 @@ It it also safe to abort the migration now.</b></li>")
 	return true;
     }
 
+    /**
+     * Check whether NCC or SMT is used for registration
+     */
+    define boolean NCCUsed()
+    {
+	// check /etc/suseRegister.conf content
+	string conf = (string)SCR::Read(.target.string, "/etc/suseRegister.conf");
+
+	if (conf == nil)
+	{
+	    y2error("Cannot read /etc/suseRegister.conf");
+	    return nil;
+	}
+
+	list<string> lines = splitstring(conf, "\n");
+
+	boolean found_url = false;
+	boolean found_ncc = false;
+
+	foreach(string line, lines, {
+	    if (regexpmatch(line, "^[ \t]*url[ \t]*=[ \t]*"))
+	    {
+		found_url = true;
+		y2milestone("Found registration URL option: %1", line);
+
+		if (regexpmatch(line, "^[ \t]*url[ \t]*=[ \t]*https://secure-www.novell.com/center/regsvc/*[ \t]*(#*.*)*"))
+		{
+		    found_ncc = true;
+		    y2milestone("NCC URL found");
+		}
+	    }
+	});
+
+	if (!found_url)
+	{
+	    y2error("No url option found in /etc/suseRegister.conf");
+	    return nil;
+	}
+
+	y2milestone("Found NCC registration server: %1", found_ncc);
+
+	return found_ncc;
+    }
+
     /*
     * Read registration status and sort products according their status
     * @param file Read this registration status file
@@ -873,6 +917,7 @@ It it also safe to abort the migration now.</b></li>")
     * @return map<string,any> result: $[
     *
 	    "registered_system" : (boolean) - true registration was run, false registration has never run or there is no product to register (e.g. openSUSE installation) or the registration completely failed
+	    "ncc"		: (boolean) - true - NCC is used for registration, false - a SMT server is configured, nil - not configured or other error
 	    "timestamp"		: (integer) - time when the status was saved (unix time), -1 in an unregistered system
 	    "registered"	: (list<string>) - registered products
 	    "provisional"	: (list<string>) - products with provisional subscription (registered, but no updates available)
@@ -884,7 +929,10 @@ It it also safe to abort the migration now.</b></li>")
     */
     global define map<string,any> RegistrationStatus()
     {
-	return RegistrationStatusFromFile(RegistrationStatus::RegFile());
+	map<string,any> ret = RegistrationStatusFromFile(RegistrationStatus::RegFile());
+	ret["ncc"] = NCCUsed();
+
+	return ret;
     }
 /* EOF */
 }

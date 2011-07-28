@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jul 28 11:56:48 UTC 2011 - lslezak@suse.cz
+
+- fixed registration status check when registering against SMT
+  (bnc#708888)
+
+-------------------------------------------------------------------
 Mon Jul 18 12:48:20 UTC 2011 - lslezak@suse.cz
 
 - added new core/full migration selection dialog
