@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jul 29 07:12:14 UTC 2011 - lslezak@suse.cz
+
+- display solver error in the migration propsal, do not allow
+  starting migration when there is an unsolved problem (bnc#708676)
+
+-------------------------------------------------------------------
 Thu Jul 28 11:56:48 UTC 2011 - lslezak@suse.cz
 
 - fixed registration status check when registering against SMT

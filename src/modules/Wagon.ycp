@@ -451,7 +451,8 @@ To do so, please, use zypper instead.
 	    Pkg::SetSolverFlags($["ignoreAlreadyRecommended" : true]);
 	}
 
-	Pkg::PkgSolve(true);
+	// set the solve error flag for packages proposal
+	Update::solve_errors = Pkg::PkgSolve(true) ? 0 : Pkg::PkgSolveErrors();
 
 	already_proposed = true;
 
