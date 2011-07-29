@@ -166,9 +166,9 @@
 			`RadioButtonGroup(`id(`migration_type),
 			    `VBox(
 				// radio button
-				`Left(`RadioButton(`id(`minimal), _("&Minimal migration (only the core packages)"), !full)),
+				`Left(`RadioButton(`id(`minimal), _("&Minimal - upgrade from repositories added by registration"), !full)),
 				// radio button
-				`Left(`RadioButton(`id(`full), _("&Full migration (all packages)"), full))
+				`Left(`RadioButton(`id(`full), _("&Full - upgrade from all repositories"), full))
 			    )
 			)
 		    )
@@ -184,7 +184,9 @@
 	// help text
 	string help_text = "<p>" + _("Select the requested migration type.")
 	    // help text
-	    + "</p><p>" + _("Minimal migration migrates only minimal set of packages (the core packages providing basic system functionality), full migration migrates  all installed packages.") + "</p>";
+	    + "</p><p>" + _("Minimal migration only uses the repositories added by registration, full migration migrates all packages to the latest version available in any enabled repository. Full migration might use third party repositories.")
+	    // help text
+	     + "</p><p>" + _("Press <b>Advanced</b> button to manually select the repositories used for upgrading.") + "</p>";
 
 	Wizard::SetContents (heading_text, contents, help_text,
 	    GetInstArgs::enable_back(), GetInstArgs::enable_next());
