@@ -232,6 +232,14 @@
     // some other problem and user has to be informed about it
     define boolean Interactive(map<string,any> status)
     {
+	// SMT doesn't write /var/lib/suseRegister/registration-status.xml file
+	// so we cannot get any registration details, assume the system is fully registered
+	if (status["ncc"]:nil == false)
+	{
+	    y2milestone("SMT server is used, assuming fully registered system");
+	    return false;
+	}
+
 	// the system is not registered at all
 	if (status["registered_system"]:false)
 	{

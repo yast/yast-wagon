@@ -1,4 +1,27 @@
 -------------------------------------------------------------------
+Mon Aug  1 11:40:57 UTC 2011 - lslezak@suse.cz
+
+- 2.21.4
+
+-------------------------------------------------------------------
+Fri Jul 29 07:12:14 UTC 2011 - lslezak@suse.cz
+
+- display solver error in the migration propsal, do not allow
+  starting migration when there is an unsolved problem (bnc#708676)
+- do not disable current repositories, minimal migration uses
+  "DUP from" feature so they can stay enabled (bnc#708632)
+
+-------------------------------------------------------------------
+Thu Jul 28 11:56:48 UTC 2011 - lslezak@suse.cz
+
+- fixed registration status check when registering against SMT
+  (bnc#708888)
+- properly display selected migration type when going back in
+  the migration workflow (bnc#708667)
+- reset and repropose package selection when migration type is
+  changed (bnc#708641)
+
+-------------------------------------------------------------------
 Mon Jul 18 12:48:20 UTC 2011 - lslezak@suse.cz
 
 - added new core/full migration selection dialog

@@ -22,6 +22,7 @@
     import "Wizard";
     import "Popup";
 
+    include "wagon/common_func.ycp";
 
     define list TableContent()
     {
@@ -154,6 +155,8 @@
     {
 	// heading text
 	string heading_text = _("Migration Type");
+	// full migration?
+	boolean full = sort(Wagon::DupRepos()) == sort(Pkg::SourceGetCurrent(true));
 
 	term contents = `VBox(
 	    // frame label
@@ -163,9 +166,9 @@
 			`RadioButtonGroup(`id(`migration_type),
 			    `VBox(
 				// radio button
-				`Left(`RadioButton(`id(`minimal), _("&Minimal migration (only the core packages)"), true)),
+				`Left(`RadioButton(`id(`minimal), _("&Minimal - upgrade from repositories added by registration"), !full)),
 				// radio button
-				`Left(`RadioButton(`id(`full), _("&Full migration (all packages)")))
+				`Left(`RadioButton(`id(`full), _("&Full - upgrade from all repositories"), full))
 			    )
 			)
 		    )
@@ -181,7 +184,9 @@
 	// help text
 	string help_text = "<p>" + _("Select the requested migration type.")
 	    // help text
-	    + "</p><p>" + _("Minimal migration migrates only minimal set of packages (the core packages providing basic system functionality), full migration migrates  all installed packages.") + "</p>";
+	    + "</p><p>" + _("Minimal migration only uses the repositories added by registration, full migration migrates all packages to the latest version available in any enabled repository. Full migration might use third party repositories.")
+	    // help text
+	     + "</p><p>" + _("Press <b>Advanced</b> button to manually select the repositories used for upgrading.") + "</p>";
 
 	Wizard::SetContents (heading_text, contents, help_text,
 	    GetInstArgs::enable_back(), GetInstArgs::enable_next());
@@ -193,8 +198,12 @@
 
 	symbol ret = nil;
 
+	list<integer> prev_dup_repos =  Wagon::DupRepos();
+	boolean prev_manual_selection = Wagon::ManualRepoSelection();
+
 	while (true) {
-	    ret = (symbol)UI::UserInput();
+	    // go to advanced config it was used previously
+	    ret = (Wagon::ManualRepoSelection()) ? `advanced : (symbol)UI::UserInput();
 
 	    if (ret == `next)
 	    {
@@ -207,6 +216,7 @@
 		    // DUP: all repositories
 		    y2milestone("Selected full migration, using %1 repositories", size(Pkg::SourceGetCurrent(true)));
 		    Wagon::SetDupRepos(Pkg::SourceGetCurrent(true));
+		    Wagon::SetManualRepoSelection(false);
 		}
 		else if (mtype == `minimal)
 		{
@@ -229,6 +239,7 @@
 		    y2milestone("Converted aliases to ids: %1", added_repos);
 
 		    Wagon::SetDupRepos(added_repos);
+		    Wagon::SetManualRepoSelection(false);
 		}
 		else
 		{
@@ -255,14 +266,20 @@
 		y2milestone("Manual DUP repository selection selected");
 		ret = DupSelectionDialog();
 
-		if (ret == `abort || ret == `close || ret == `next)
+		if (ret == `abort || ret == `close)
 		{
+		    break;
+		}
+		else if (ret == `next)
+		{
+		    Wagon::SetManualRepoSelection(true);
 		    break;
 		}
 		else if (ret == `back)
 		{
 		    // refresh the dialog
 		    SetMigrationSelectionDialogContent();
+		    Wagon::SetManualRepoSelection(false);
 		}
 		else
 		{
@@ -273,6 +290,15 @@
 	    {
 		y2error("Unexpected user input: %1", ret);
 	    }
+	}
+
+	if (ret == `next && (prev_dup_repos != Wagon::DupRepos() || prev_manual_selection != Wagon::ManualRepoSelection()))
+	{
+	    y2milestone("DUP repository config has been changed, repropose package selection");
+	    Wagon::ResetDUPProposal();
+
+	    // reset current package selection
+	    ResetPackager();
 	}
 
 	return ret;
