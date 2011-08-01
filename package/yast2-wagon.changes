@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Aug  1 11:40:57 UTC 2011 - lslezak@suse.cz
+
+- 2.17.24
+
+-------------------------------------------------------------------
 Fri Jul 29 07:12:14 UTC 2011 - lslezak@suse.cz
 
 - display solver error in the migration propsal, do not allow
