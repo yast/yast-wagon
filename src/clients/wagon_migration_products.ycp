@@ -290,9 +290,6 @@ It cannot be disabled."),  p["short_name"]:p["display_name"]:"not-defined"));
 
     ResetPackager();
 
-    // Remembers all repositories that will be disabled later (after registration run)
-    FindOldRepositoriesToBeDisabled();
-
     y2milestone ("Returning: %1", ret);
 
     return ret;
