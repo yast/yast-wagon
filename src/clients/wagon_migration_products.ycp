@@ -74,7 +74,7 @@
 
     boolean FindAndSelectMigrationProducts () {
 	if (Wagon::InitPkg() != true) {
-	    Report::Error (_("Unable to initialize the package manager."));
+	    Report::Error (_("Unable to initialize the software manager."));
 	    return false;
 	}
 
@@ -144,7 +144,7 @@ Migration path is erroneous."),  p["display_name"]:p["short_name"]:_("Unknown"),
      */
     boolean FindOldRepositoriesToBeDisabled () {
 	if (Wagon::InitPkg() != true) {
-	    Report::Error (_("Unable to initialize the package manager."));
+	    Report::Error (_("Unable to initialize the software manager."));
 	    return false;
 	}
 

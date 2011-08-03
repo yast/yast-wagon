@@ -68,7 +68,7 @@ Click 'Next' to start the update."))
 	    if (Wagon::InitPkg() != true) {
 		// Report error but let user go further
 		// Might help us in the future
-		Report::Error (_("Cannot initialize package manager."));
+		Report::Error (_("Cannot initialize software manager."));
 	    }
 	    break;
 	} else {

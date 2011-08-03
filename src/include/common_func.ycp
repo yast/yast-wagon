@@ -119,8 +119,8 @@ Are sure you want to abort the upgrade process?"),
 
     void ResetPackager () {
 	Wizard::SetContents (
-	    _("Resetting Package Manager"),
-	    `Label(_("Resetting package manager...")),
+	    _("Resetting Software Manager"),
+	    `Label(_("Resetting software manager...")),
 	    "",
 	    false, true
 	);
