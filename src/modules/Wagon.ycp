@@ -470,7 +470,7 @@ To do so, please, use zypper instead.
 	map<string,any> zconfig = Pkg::ZConfig();
 	string pkg_path = zconfig["repo_packages_path"]:"";
 
-	string packages_mount = FindMountPoint(pkg_path, mounts);
+	string packages_mount = String::FindMountPoint(pkg_path, mounts);
 	y2milestone("Packages will we downloaded to %1 (mountpoint %2)", pkg_path, packages_mount);
 
 	// download size in bytes

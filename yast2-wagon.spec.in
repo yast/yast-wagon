@@ -1,13 +1,16 @@
 @HEADER-COMMENT@
 
 @HEADER@
-# PackagesUI::RunPackageSelector
-Requires:	yast2 >= 2.17.40
+# String::FindMountPoint()
+Requires:	yast2 >= 2.17.110
 Requires:	yast2-online-update-frontend >= 2.17.9
 # Pkg::AddUpgradeRepo()
 Requires:	yast2-pkg-bindings >= 2.17.48
 # Pkg::AddUpgradeRepo()
 BuildRequires:	yast2-pkg-bindings >= 2.17.48
+
+# String::FindMountPoint()
+BuildRequires:	yast2 >= 2.17.110
 
 BuildRequires:	perl-XML-Simple
 Requires:	perl-XML-Simple
