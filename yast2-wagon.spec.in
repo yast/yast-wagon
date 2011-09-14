@@ -96,7 +96,7 @@ Summary: YaST Wagon control file for openSUSE
 YaST Wagon control file for openSUSE
 
 %post control-openSUSE
-ln -sf online_migration-SLE.xml %{_datadir}/YaST2/control/online_migration.xml
+ln -sf online_migration-openSUSE.xml %{_datadir}/YaST2/control/online_migration.xml
 
 %files control-openSUSE
 %defattr(-,root,root)

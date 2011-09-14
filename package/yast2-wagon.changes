@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Sep 14 13:19:49 UTC 2011 - lslezak@suse.cz
+
+- yast2-wagon-control-openSUSE.rpm - fixed online_migration.xml
+  symlink to point to the openSUSE control file (bnc#714547)
+- 2.21.6
+
+-------------------------------------------------------------------
 Fri Aug  5 12:35:50 CEST 2011 - tgoettlicher@suse.de
 
 - fixed .desktop file (bnc #681249)
