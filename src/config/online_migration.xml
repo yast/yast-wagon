@@ -20,6 +20,9 @@ textdomain="online-migration"
 
 	<default_subworkflow>manual</default_subworkflow>
 
+	<!-- suse_register config -->
+	<display_register_forcereg config:type="boolean">true</display_register_forcereg>
+
 	<subworkflows config:type="list">
 	    <!--
 		Simple workflow: Used when WAGON is called from applet
