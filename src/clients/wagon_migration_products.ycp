@@ -106,7 +106,7 @@ Automatic reverting of the product state will be impossible."),  p["short_name"]
 		if (! haskey (supported_upgrade, "product") || supported_upgrade["product"]:"" == "") {
 		    y2error ("Erroneous product upgrades: %1 (%2)", p, supported_upgrade);
 		    Report::Error (sformat (_("Cannot upgrade product %1 (%2).
-Migration path is erroneous."),  p["display_name"]:p["short_name"]:_("Unknown"), p["name"]:_("not-defined")));
+Migration path is erroneous."),  p["display_name"]:p["short_name"]:_("Unknown"), p["name"]:_("undefined")));
 		    return;
 		}
 

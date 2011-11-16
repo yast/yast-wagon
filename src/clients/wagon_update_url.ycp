@@ -66,13 +66,15 @@
     string heading_text = _("Update Method");
 
     // help text 1
-    string help_text = _("<p>Here you can choose whether to use the <b>Customer Center</b>
-to handle the installation repositories during migration or use <b>Custom &URL</b>
-if you want to set them manually.</p>") +
+    string help_text = _("<p>Choose whether to use the <b>Customer Center</b>
+to handle the installation repositories during migration or use 
+<b>Custom &URL</b> to set them manually.</p>
+") +
     // help text 2
-    _("<p>Additionally, select <b>Check Automatic Repository Changes</b> to ensure
-that Customer Center has modified the repositories correctly. You can also modify
-them there too.</p>");
+    _("<p>Select <b>Check Automatic Repository Changes</b> to ensure
+that Customer Center has modified the repositories correctly. 
+You can also modify them there.</p>
+");
 
     Wizard::SetContents (heading_text, contents, help_text,
 	GetInstArgs::enable_back(), GetInstArgs::enable_next());

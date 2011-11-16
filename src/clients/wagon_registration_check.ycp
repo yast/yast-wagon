@@ -81,7 +81,7 @@
 
 	if (!status["registered_system"]:false)
 	{
-	    msg = msg + "<p>" + _("The system is not registered") + "</p>";
+	    msg = msg + "<p>" + _("The system is not registered.") + "</p>";
 	}
 	else
 	{
@@ -89,14 +89,14 @@
 
 	    foreach(string prod, (list<string>)status["registered"]:[],
 		{
-		    msg = msg + "<li>" + sformat(_("Product <b>%1</b> has a valid registration"),
+		    msg = msg + "<li>" + sformat(_("Product <b>%1</b> has a valid registration."),
 			InstalledProduct(prod)["display_name"]:prod) + "</li>";
 		}
 	    );
 
 	    foreach(string prod, (list<string>)status["no_subscription"]:[],
 		{
-		    msg = msg + "<li>" + sformat(_("Product <b>%1</b> does not need a subscription"),
+		    msg = msg + "<li>" + sformat(_("Product <b>%1</b> does not need a subscription."),
 		    InstalledProduct(prod)["display_name"]:prod) + "</li>";
 		}
 	    );
@@ -104,7 +104,7 @@
 	    foreach(map<string,any> prod, UnknownProducts(status),
 		{
 		    msg = msg + "<li>"
-			+ sformat(_("Registration status of product <b>%1</b> is unknown"), prod["display_name"]:"")
+			+ sformat(_("Registration status of product <b>%1</b> is unknown."), prod["display_name"]:"")
 			+ "</li>";
 		}
 	    );
@@ -112,7 +112,7 @@
 	    foreach(string prod, (list<string>)status["failed"]:[],
 		{
 		    msg = msg + "<li><font color=\"red\">"
-			+ sformat(_("Product <b>%1</b> is not registered, registration failed"),
+			+ sformat(_("Product <b>%1</b> is not registered, registration failed."),
 			    InstalledProduct(prod)["display_name"]:prod)
 			+ "</font></li>";
 		}
@@ -121,7 +121,7 @@
 	    foreach(string prod, (list<string>)status["rma"]:[],
 		{
 		    msg = msg + "<li><font color=\"red\">"
-			+ sformat(_("Registration for product <b>%1</b> has been refunded, the product is not registered"),
+			+ sformat(_("Registration for product <b>%1</b> has been refunded, the product is not registered."),
 			    InstalledProduct(prod)["display_name"]:prod)
 			+ "</font></li>";
 		}
@@ -130,7 +130,7 @@
 	    foreach(string prod, (list<string>)status["expired"]:[],
 		{
 		    msg = msg + "<li><font color=\"red\">"
-			+ sformat(_("Registration for product <b>%1</b> has expired, the registration is not valid anymore"),
+			+ sformat(_("Registration for product <b>%1</b> has expired, the registration is not valid anymore."),
 			    InstalledProduct(prod)["display_name"]:prod)
 			+ "</font></li>";
 		}
@@ -164,8 +164,8 @@
 	    || size(UnknownProducts(status)) > 0 || !status["registered_system"]:false)
 	{
 	    msg = msg + "<p><b>" + _("Warning:") + " </b>"
-		+ _("It is strongly recommended to register the unregistered or expired products before starting migration.")
-		+ "<br>" + _("Migrating unregistered or partly registered system might result in broken system.")
+		+ _("We strongly recommend to register unregistered or expired products before starting migration.")
+		+ "<br>" + _("Migrating an unregistered or partly registered system might result in a broken system.")
 		+ "</p>";
 	}
 
@@ -187,7 +187,7 @@
 
 	// help text
 	string help_text = "<p>" + _("YaST checks whether the installed products are registered.")
-	    + "</p><p>" + _("Migrating unregistered or partly registered system might result in broken system.") + "</p>";
+	    + "</p><p>" + _("Migrating an unregistered or partly registered system might result in a broken system.") + "</p>";
 
 	Wizard::SetContents (heading_text, contents, help_text,
 	    GetInstArgs::enable_back(), GetInstArgs::enable_next());

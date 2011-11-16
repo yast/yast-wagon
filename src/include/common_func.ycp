@@ -82,7 +82,8 @@
 			    _("Aborting the Upgrade"),
 			    // TRANSLATORS: pop-up question
 			    _("Cannot continue without installing the required patches.
-Are sure you want to abort the upgrade process?"),
+Are you sure you want to abort the upgrade process?
+"),
 			    _("Abort Upgrade"),
 			    Label::NoButton(),
 			    `yes_button
@@ -207,7 +208,7 @@ Are sure you want to abort the upgrade process?"),
         // undefined product file
         if (product_file == nil || product_file == "") {
             y2error ("Cannot remove product: %1, no product file defined", product);
-            Report::Error (sformat(_("Cannot remove product %1"), product["name"]:_("Unknown product")));
+            Report::Error (sformat(_("Cannot remove product %1."), product["name"]:_("Unknown product")));
             return "";
         }
 
@@ -229,7 +230,7 @@ Are sure you want to abort the upgrade process?"),
         // no package owns the file
         if (package_name == nil || package_name == "") {
             y2error ("Cannot find out file owner %1", product_file);
-            Report::Error (sformat(_("Cannot find out owner of product %1"), product["name"]:_("Unknown product")));
+            Report::Error (sformat(_("Cannot find out owner of product %1."), product["name"]:_("Unknown product")));
             return "";
         }
 

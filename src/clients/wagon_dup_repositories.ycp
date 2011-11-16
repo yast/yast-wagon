@@ -64,7 +64,7 @@
 	);
 
 	// help text
-	string help_text = "<p>" + _("Here select the repositories which will be used for migration.")
+	string help_text = "<p>" + _("Select the repositories which will be used for migration.")
 	    + "</p><p>" + _("The installed packages will be switched to the versions available in the selected migration repositories.") + "</p>";
 
 	Wizard::SetContents (heading_text, contents, help_text,
@@ -184,9 +184,9 @@
 	// help text
 	string help_text = "<p>" + _("Select the requested migration type.")
 	    // help text
-	    + "</p><p>" + _("Minimal migration only uses the repositories added by registration, full migration migrates all packages to the latest version available in any enabled repository. Full migration might use third party repositories.")
+	    + "</p><p>" + _("Minimal migration only uses the repositories added by registration, full migration migrates all packages to the latest versions available in any enabled repository. Full migration might use third party repositories.")
 	    // help text
-	     + "</p><p>" + _("Press <b>Advanced</b> button to manually select the repositories used for upgrading.") + "</p>";
+	     + "</p><p>" + _("Press <b>Advanced</b> to manually select the repositories used for upgrading.") + "</p>";
 
 	Wizard::SetContents (heading_text, contents, help_text,
 	    GetInstArgs::enable_back(), GetInstArgs::enable_next());
@@ -244,7 +244,7 @@
 		else
 		{
 		    // error popup message
-		    Popup::Error(sformat(_("Selected unknown migration type: %1"), mtype));
+		    Popup::Error(sformat(_("Selected unknown migration type: %1."), mtype));
 		    y2error("Unknown migratinon type: %1", mtype);
 
 		    continue;

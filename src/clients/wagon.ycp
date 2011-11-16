@@ -169,8 +169,9 @@
 	    y2warning ("Cannot revert the previous state of products, sorry. Installed products were: %1, Migration products were: %2",
 		Wagon::products_before_migration, Wagon::migration_products);
 
-	    Report::Warning (_("Cannot revert the previous state of installed products.
-You will have to revert them manually."));
+	    Report::Warning (_("Cannot revert to the previous state of installed products.
+You will have to revert manually.
+"));
 
 	    return false;
 	}
@@ -266,7 +267,8 @@ Repository was not found."), repo_alias));
 		if (Pkg::TargetRemove (package_name) != true) {
 		    y2error ("Cannot remove package %1", package_name);
 		    Report::Error (sformat(_("Cannot remove product %1.
-Remove package %2 manually"), remove_product["name"]:_("Unknown product"), package_name));
+Remove package %2 manually.
+"), remove_product["name"]:_("Unknown product"), package_name));
 		    return;
 		}
 

@@ -124,14 +124,14 @@
 	    // dialog caption
 	    _("Warning"),
 	    // pop-up question
-	    _("No changes were made to list of the registered repositories.
-This means that you might have skipped the registration or there might
-have been an error in configuration. Eventually, repositories might
-have been already added before.
+	    _("No changes were made to the list of registered repositories.
+This means that you either skipped the registration, there has been an 
+error in the configuration, or the repositories have been added before.
 
-Do you want to rerun the registration?"),
+Do you want to rerun the registration?
+"),
 	    _("&Yes"),
-	    _("&No, Skip It"),
+	    _("&No, Skip it"),
 	    `focus_yes
 	) == false) {
 	    y2warning ("User does not want to rerun the registration");

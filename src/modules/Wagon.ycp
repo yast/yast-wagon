@@ -99,7 +99,8 @@
 	} else {
 	    y2error ("Unknown migration method: %1", m_method);
 	    Report::Error (sformat(_("Error switching migration method.
-Unknown migration method: %1"), m_method));
+Unknown migration method: %1.
+"), m_method));
 	    return false;
 	}
 
@@ -331,7 +332,7 @@ Unknown migration method: %1"), m_method));
 	if (commands["command"]:"" == "help" || commands["command"]:"" == "longhelp") {
 	    CommandLine::Print(_("
 This module does not support command-line interface.
-To do so, please, use zypper instead.
+Use zypper instead.
 "));
 	} else if (commands["command"]:"" == "xmlhelp") {
 	    if (! haskey (commands["options"]:$[], "xmlfile")) {
@@ -555,7 +556,7 @@ To do so, please, use zypper instead.
 	list <string> products_to_be_installed = [];
 	foreach (map <string,any> product, products, {
 	    if (product["status"]:`unknown != `selected) return;
-	    name = product["name"]:_("No short name defined");
+	    name = product["name"]:_("No short name defined.");
 	    products_to_be_installed = add (products_to_be_installed, name);
 	});
 
@@ -569,8 +570,8 @@ To do so, please, use zypper instead.
 	    if (product["status"]:`unknown != `removed) return;
 
 	    product = MinimizeProductMap (product);
-	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined");
-	    name = product["name"]:_("No short name defined");
+	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined.");
+	    name = product["name"]:_("No short name defined.");
 	    transact_by = product["transact_by"]:`unknown;
 
 	    // Removing product and installing the same one (name) means -> upgrade
@@ -593,7 +594,7 @@ To do so, please, use zypper instead.
 	    } else if (transact_by == `user || transact_by == `app_high) {
 		y2warning ("Product will be removed: %1 (%2)", product, transact_by);
 		ret = ret + "<li>" + sformat (
-		    _("<font color='red'><b>Warning:</b> Product <b>%1</b> will be removed</font>"),
+		    _("<font color='red'><b>Warning:</b> Product <b>%1</b> will be removed.</font>"),
 		    GetDisplayName (display_name, name)
 		) + "</li>\n";
 	    // Not selected by user
@@ -601,7 +602,7 @@ To do so, please, use zypper instead.
 	    } else {
 		y2warning ("Product will be removed: %1 (%2)", product, transact_by);
 		ret = ret + "<li>" + sformat (
-		    _("<font color='red'><b>Error:</b> Product <b>%1</b> will be automatically removed</font>"),
+		    _("<font color='red'><b>Error:</b> Product <b>%1</b> will be automatically removed.</font>"),
 		    GetDisplayName (display_name, name)
 		) + "</li>\n";
 		products_removed_by_solver = products_removed_by_solver + 1;
@@ -613,8 +614,8 @@ To do so, please, use zypper instead.
 	    if (product["status"]:`unknown != `selected) return;
 
 	    product = MinimizeProductMap (product);
-	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined");
-	    name = product["name"]:_("No short name defined");
+	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined.");
+	    name = product["name"]:_("No short name defined.");
 
 	    // Product is going to be upgraded (removed + installed new version)
 	    if (contains (products_to_be_upgraded, name)) {
@@ -638,12 +639,12 @@ To do so, please, use zypper instead.
 	    if (product["status"]:`unknown != `installed) return;
 
 	    product = MinimizeProductMap (product);
-	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined");
-	    name = product["name"]:_("No short name defined");
+	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined.");
+	    name = product["name"]:_("No short name defined.");
 
 	    y2milestone ("Product will keep: %1", product);
 	    ret = ret + "<li>" + sformat (
-		_("Product <b>%1</b> will keep installed"),
+		_("Product <b>%1</b> will stay installed"),
 		GetDisplayName (display_name, name)
 	    ) + "</li>\n";
 	});
@@ -666,13 +667,15 @@ To do so, please, use zypper instead.
 	    summary["warning_level"] = `blocker;
 	    summary["warning"] = "<ul>" + (
 		products_removed_by_solver > 1 ?
-		sformat(_("<li><b>%1 products are going to be removed.
-Go to packages proposal and solve the issue manually.<br>
-It it also safe to abort the migration now.</b></li>"), products_removed_by_solver)
+		sformat(_("<li><b>%1 products will be removed.
+Go to the packages proposal and resolve the issue manually.<br>
+It is safe to abort the migration now.</b></li>
+"), products_removed_by_solver)
 		:
-		_("<li><b>One product is going to be removed.
-Go to packages proposal and solve the issue manually.<br>
-It it also safe to abort the migration now.</b></li>")
+		_("<li><b>One product will be removed.
+Go to the packages proposal and solve the issue manually.<br>
+It is safe to abort the migration now.</b></li>
+")
 	    ) + "</ul>";
 	}
 

@@ -37,12 +37,13 @@
 	y2warning ("Using fallback migration_congratulate text");
 	text =
 	    _("<p><b>Congratulations!</b><br>
-You have just successfully finished the on-line migration.</p>
+You have successfully finished the on-line migration.</p>
 <p>The whole system has been upgraded. It should be rebooted
-it as soon as possible.</p>
+as soon as possible.</p>
 <p>Please visit us at http://www.novell.com/linux/.</p>
 <p>Have a nice day!<br>
-Your SUSE Linux Team</p>");
+Your SUSE Linux Team</p>
+");
     }
 
     term contents = `VBox (
@@ -58,8 +59,9 @@ Your SUSE Linux Team</p>");
 	`VSpacing (2)
     );
 
-    string help = _("<p><b>Finish</b> will close the migration
-and you should restart the system as soon as possible.</b>");
+    string help = _("<p><b>Finish</b> will close the migration.
+Restart the system as soon as possible.</b>
+");
 
     Wizard::SetContents (caption, contents, help,
             GetInstArgs::enable_back(), GetInstArgs::enable_next());
