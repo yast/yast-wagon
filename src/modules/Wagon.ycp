@@ -864,7 +864,9 @@ It is safe to abort the migration now.</b></li>
 	    map status = RegistrationStatus::ReadFile(file);
 
 	    timestamp = tointeger(status["generated"]:"-1");
-	    list<map> products = status["productstatus"]:[];
+
+	    any read_products = status["productstatus"]:nil;
+	    list<map> products = is(read_products, map) ? [ (map)read_products ] : (list<map>)read_products;
 
 	    // check each product
 	    foreach(map product, products,
