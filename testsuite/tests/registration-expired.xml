@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<status generated="1280122800">
+  <productstatus product="SUSE_SLES" version="11.1" release="DVD" arch="x86_64" result="success" errorcode="OK">
+    <subscription status="ACTIVE" expiration="1577905200" type="FULL"/>
+    <message>No errors.</message>
+  </productstatus>
+  <productstatus product="sle-slms" version="1.1" release="cd" arch="x86_64" result="error" errorcode="ERR_SUB_EXP">
+    <subscription status="EXPIRED" expiration="1280302484" type="EVALUATION"/>
+    <message>The subscription for SUSE Lifecycle Management Server 1.0 is expired.</message>
+  </productstatus>
+</status>
