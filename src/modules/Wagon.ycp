@@ -436,6 +436,40 @@ Use zypper instead.
 	    // reset solver flags (needed when switching from full DUP to partial DUP
 	    Pkg::SetSolverFlags($["reset" : true]);
 
+	    y2milestone("Migration products: %1", migration_products);
+
+	    list<string> product_names = maplist(map prod, Pkg::ResolvableProperties ("", `product, ""), {return prod["name"]:"";});
+	    // remove duplicates
+	    product_names = toset(product_names);
+
+	    foreach(string prod_name, product_names,
+	    {
+		list<map> products_named = Pkg::ResolvableProperties(prod_name, `product, "");
+		y2milestone("Product: %1, resolvables: %2", prod_name, size(products_named));
+
+		if (size(products_named) > 1)
+		{
+		    boolean installed = find(map p, products_named, {return p["status"]:`unknown == `installed;}) != nil;
+		    boolean selected = find(map p, products_named, {return p["status"]:`unknown == `selected;}) != nil;
+		    boolean removed = find(map p, products_named, {return p["status"]:`unknown == `removed;}) != nil;
+		    boolean available = find(map p, products_named, {return p["status"]:`unknown == `available;}) != nil;
+
+		    y2milestone("Product: %1, installed: %2, selected: %3, removed: %4, available: %5", prod_name, installed, selected, removed, available);
+
+		    // force upgrade of installed non-migration products
+		    if (installed && !selected && !removed && available && !contains(migration_products, prod_name))
+		    {
+			y2milestone("Found installed product: %1, forcing product upgrade", prod_name);
+			Pkg::ResolvableInstall(prod_name, `product);
+		    }
+		}
+	    });
+
+	    foreach(string prod, migration_products, {
+		y2milestone("Removing migration product: %1", prod);
+		Pkg::ResolvableRemove(prod, `product);
+	    });
+
 	    // do full distribution upgrade
 	    map <string, any> update_conf = GetUpdateConf();
 	    map <symbol, integer> update_sum = Pkg::PkgUpdateAll (update_conf);
@@ -575,7 +609,9 @@ Use zypper instead.
 	    transact_by = product["transact_by"]:`unknown;
 
 	    // Removing product and installing the same one (name) means -> upgrade
-	    if (contains (products_to_be_installed, name)) {
+	    // Hack: SLES-for-VMware migration changes the product from "SUSE_SLES" to "SLES-for-VMware", check this upgrade
+	    if (contains(products_to_be_installed, name) ||
+		( name == "SUSE_SLES" && contains(products_to_be_installed, "SLES-for-VMware") && contains(migration_products, "SLES-for-VMware-SP2-migration"))) {
 		products_to_be_upgraded = add (products_to_be_upgraded, name);
 		y2milestone ("Product to be upgraded: %1 (this is the removed one)", product);
 		// Do not list this product as 'to removed', list it as 'to upgrade'
@@ -617,16 +653,37 @@ Use zypper instead.
 	    display_name = product["display_name"]:product["short_name"]:product["name"]:_("No name defined.");
 	    name = product["name"]:_("No short name defined.");
 
+	    // Hack: SLES-for-VMware migration changes the product from "SUSE_SLES" to "SLES-for-VMware", check this upgrade
+	    boolean sles_for_vmware_upgrade = (name == "SLES-for-VMware" && contains(products_to_be_upgraded, "SUSE_SLES") && contains(migration_products, "SLES-for-VMware-SP2-migration"));
+
 	    // Product is going to be upgraded (removed + installed new version)
-	    if (contains (products_to_be_upgraded, name)) {
-		y2milestone ("Product will be upgraded to: %1 (this is the installed one)", product);
-		ret = ret + "<li>" + sformat (
-		    _("Product <b>%1</b> will be upgraded"),
-		    GetDisplayName (display_name, name)
-		) + "</li>\n";
+	    if (contains (products_to_be_upgraded, name) || sles_for_vmware_upgrade) {
+		map <string,any> old_product = find(map<string,any> p, products, {return p["name"]:"" == (sles_for_vmware_upgrade ? "SUSE_SLES" : name) && p["status"]:`unknown == `removed;});
+		string old_product_name = old_product["name"]:_("No name defined");
+		string old_display_name = old_product["display_name"]:old_product["short_name"]:old_product["name"]:_("No name defined");
+
+		y2milestone ("Detected product upgrade from: '%1' to: '%2'", old_display_name, display_name);
+		y2milestone ("Product will be upgraded to: %1 (this is the new one)", product);
+
+		// FIXME: disabled to not break translations:
+		// if (old_display_name == display_name)
+		if (true)
+		{
+		    ret = ret + "<li>" + sformat (
+			_("Product <b>%1</b> will be upgraded"),
+			GetDisplayName(old_display_name, old_product_name)
+		    ) + "</li>\n";
+		}
+		else
+		{
+		    ret = ret + "<li>" + sformat (
+			_("Product <b>%1</b> will be upgraded to <b>%2</b>"),
+			GetDisplayName(old_display_name, old_product_name), GetDisplayName(display_name, name)
+		    ) + "</li>\n";
+		}
 	    // Newly installed product
 	    } else {
-		y2milestone ("Product will be upgraded: %1", product);
+		y2milestone ("New product will be installed: %1", product);
 		ret = ret + "<li>" + sformat (
 		    _("New product <b>%1</b> will be installed"),
 		    GetDisplayName (display_name, name)
