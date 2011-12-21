@@ -665,9 +665,7 @@ Use zypper instead.
 		y2milestone ("Detected product upgrade from: '%1' to: '%2'", old_display_name, display_name);
 		y2milestone ("Product will be upgraded to: %1 (this is the new one)", product);
 
-		// FIXME: disabled to not break translations:
-		// if (old_display_name == display_name)
-		if (true)
+		if (old_display_name == display_name)
 		{
 		    ret = ret + "<li>" + sformat (
 			_("Product <b>%1</b> will be upgraded"),
