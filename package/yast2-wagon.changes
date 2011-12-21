@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Dec 21 09:56:24 UTC 2011 - lslezak@suse.cz
+
+- force product upgrade in full migratinon mode, handle product
+  name change in SLES for VMware SP2 migration (bnc#735826)
+- 2.17.17.5
+
+-------------------------------------------------------------------
 Fri Nov 25 16:15:24 UTC 2011 - lslezak@suse.cz
 
 - fixed registration status check when there is only one product
