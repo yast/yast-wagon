@@ -473,6 +473,10 @@ To do so, please, use zypper instead.
 	    map <string, any> update_conf = GetUpdateConf();
 	    map <symbol, integer> update_sum = Pkg::PkgUpdateAll (update_conf);
 	    y2milestone ("Update configuration: %1, update summary: %2", update_conf, update_sum);
+
+	    // also preselect all applicable patches (except optional ones)
+	    integer patches = Pkg::ResolvablePreselectPatches(`all);
+	    y2milestone("Preselected patches: %1", patches);
 	}
 	else
 	{
