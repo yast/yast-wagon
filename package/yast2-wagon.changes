@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jan  2 13:11:06 UTC 2012 - lslezak@suse.cz
+
+- install also all applicable patches (except optional ones)
+  (part of fate#311994)
+
+-------------------------------------------------------------------
 Wed Dec 21 09:56:24 UTC 2011 - lslezak@suse.cz
 
 - force product upgrade in full migratinon mode, handle product
