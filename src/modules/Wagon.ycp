@@ -493,6 +493,13 @@ Use zypper instead.
 	// set the solve error flag for packages proposal
 	Update::solve_errors = Pkg::PkgSolve(true) ? 0 : Pkg::PkgSolveErrors();
 
+        if (!AcceptLicenses())
+        {
+            // rerun the solver after rejecting a package license
+            // (setting the package to taboo state)
+            Update::solve_errors = Pkg::PkgSolve(true) ? 0 : Pkg::PkgSolveErrors();
+	}
+
 	already_proposed = true;
 
 	return true;
