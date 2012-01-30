@@ -156,7 +156,7 @@
 	// heading text
 	string heading_text = _("Migration Type");
 	// full migration?
-	boolean full = sort(Wagon::DupRepos()) == sort(Pkg::SourceGetCurrent(true));
+	boolean full = Wagon::MigrationType() == `full;
 
 	term contents = `VBox(
 	    // frame label
@@ -168,7 +168,7 @@
 				// radio button
 				`Left(`RadioButton(`id(`minimal), _("&Minimal - upgrade from repositories added by registration"), !full)),
 				// radio button
-				`Left(`RadioButton(`id(`full), _("&Full - upgrade from all repositories"), full))
+				`Left(`RadioButton(`id(`full), _("&Full - install also available patches in addition to Minimal migration"), full))
 			    )
 			)
 		    )
@@ -200,6 +200,7 @@
 
 	list<integer> prev_dup_repos =  Wagon::DupRepos();
 	boolean prev_manual_selection = Wagon::ManualRepoSelection();
+	symbol prev_migration_type = Wagon::MigrationType();
 
 	while (true) {
 	    // go to advanced config it was used previously
@@ -211,17 +212,9 @@
 		symbol mtype = (symbol) UI::QueryWidget(`id(`migration_type), `CurrentButton);
 		y2milestone("Selected migration type: %1", mtype);
 
-		if (mtype == `full)
+		if (mtype == `full || mtype == `minimal)
 		{
-		    // DUP: all repositories
-		    y2milestone("Selected full migration, using %1 repositories", size(Pkg::SourceGetCurrent(true)));
-		    Wagon::SetDupRepos(Pkg::SourceGetCurrent(true));
-		    Wagon::SetManualRepoSelection(false);
-		}
-		else if (mtype == `minimal)
-		{
-		    // DUP: only added repositories
-		    y2milestone("Selected minimal migration, using these repositories: %1", Wagon::RegistrationRepos());
+		    y2milestone("Selected minimal or full migration, using these repositories: %1", Wagon::RegistrationRepos());
 
 		    map<string, integer> alias_to_id = $[];
 		    foreach(integer repo, Pkg::SourceGetCurrent(true),
@@ -240,6 +233,7 @@
 
 		    Wagon::SetDupRepos(added_repos);
 		    Wagon::SetManualRepoSelection(false);
+		    Wagon::SetMigrationType(mtype);
 		}
 		else
 		{
@@ -273,6 +267,7 @@
 		else if (ret == `next)
 		{
 		    Wagon::SetManualRepoSelection(true);
+		    Wagon::SetMigrationType(`custom);
 		    break;
 		}
 		else if (ret == `back)
@@ -292,7 +287,7 @@
 	    }
 	}
 
-	if (ret == `next && (prev_dup_repos != Wagon::DupRepos() || prev_manual_selection != Wagon::ManualRepoSelection()))
+	if (ret == `next && (prev_dup_repos != Wagon::DupRepos() || prev_manual_selection != Wagon::ManualRepoSelection() || prev_migration_type != Wagon::MigrationType()))
 	{
 	    y2milestone("DUP repository config has been changed, repropose package selection");
 	    Wagon::ResetDUPProposal();
