@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Feb 15 10:33:50 UTC 2012 - lslezak@suse.cz
+
+- Automatically save solver test case in the migration proposal
+  dialog for easy debugging (saved to /var/log/YaST2/wagon_test_case
+  directory) (bnc#746313)
+- 2.17.17.9
+
+-------------------------------------------------------------------
 Mon Jan 30 15:19:15 UTC 2012 - lslezak@suse.cz
 
 - do full migration only from SP2 repos (but also install patches
