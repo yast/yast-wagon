@@ -487,6 +487,8 @@ To do so, please, use zypper instead.
             Update::solve_errors = Pkg::PkgSolve(true) ? 0 : Pkg::PkgSolveErrors();
 	}
 
+	Pkg::CreateSolverTestCase("/var/log/YaST2/wagon_test_case");
+
 	already_proposed = true;
 
 	return true;
