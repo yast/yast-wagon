@@ -154,6 +154,34 @@ Unknown migration method: %1.
 	new_registration_repos = repos;
     }
 
+    // migration type, one of `minimal, `full, `custom
+    symbol migration_type = `minimal;
+
+    // get the current migration type
+    global symbol MigrationType()
+    {
+	return migration_type;
+    }
+
+    // set the migration type
+    // @param type Type of migration (`minimal, `full, `custom)
+    // @return boolean true on success
+    global boolean SetMigrationType(symbol type)
+    {
+	if (contains([`minimal, `full, `custom], type))
+	{
+	    migration_type = type;
+	    y2milestone("Setting migration type: %1", type);
+	    return true;
+	}
+	else
+	{
+	    y2error("Invalid migration type: %1", type);
+	    y2warning("Keeping the current type: %1", migration_type);
+	    return false;
+	}
+    }
+
     void ResetWorkflowSteps () {
 	ProductControl::UnDisableAllModulesAndProposals (Mode::mode(), Stage::stage());
     }
@@ -430,64 +458,24 @@ Use zypper instead.
 	list<integer> repos = Pkg::GetUpgradeRepos();
 	foreach(integer repo, repos, {Pkg::RemoveUpgradeRepo(repo);});
 
-	// all repositories selected for upgrade?
-	if (sort(Pkg::SourceGetCurrent(true)) == sort(dup_repos))
+	// reset solver flags
+	Pkg::SetSolverFlags($["reset" : true]);
+
+	// add upgrade repositories
+	y2milestone("Adding upgrade repos: %1", dup_repos);
+	foreach(integer repo, dup_repos, {Pkg::AddUpgradeRepo(repo);});
+
+	// be compatible with "zypper dup --from"
+	Pkg::SetSolverFlags($["ignoreAlreadyRecommended" : true]);
+
+	if (MigrationType() == `full)
 	{
-	    // reset solver flags (needed when switching from full DUP to partial DUP
-	    Pkg::SetSolverFlags($["reset" : true]);
+	    // run the solver to evaluate applicable patches
+	    Pkg::PkgSolve(false);
 
-	    y2milestone("Migration products: %1", migration_products);
-
-	    list<string> product_names = maplist(map prod, Pkg::ResolvableProperties ("", `product, ""), {return prod["name"]:"";});
-	    // remove duplicates
-	    product_names = toset(product_names);
-
-	    foreach(string prod_name, product_names,
-	    {
-		list<map> products_named = Pkg::ResolvableProperties(prod_name, `product, "");
-		y2milestone("Product: %1, resolvables: %2", prod_name, size(products_named));
-
-		if (size(products_named) > 1)
-		{
-		    boolean installed = find(map p, products_named, {return p["status"]:`unknown == `installed;}) != nil;
-		    boolean selected = find(map p, products_named, {return p["status"]:`unknown == `selected;}) != nil;
-		    boolean removed = find(map p, products_named, {return p["status"]:`unknown == `removed;}) != nil;
-		    boolean available = find(map p, products_named, {return p["status"]:`unknown == `available;}) != nil;
-
-		    y2milestone("Product: %1, installed: %2, selected: %3, removed: %4, available: %5", prod_name, installed, selected, removed, available);
-
-		    // force upgrade of installed non-migration products
-		    if (installed && !selected && !removed && available && !contains(migration_products, prod_name))
-		    {
-			y2milestone("Found installed product: %1, forcing product upgrade", prod_name);
-			Pkg::ResolvableInstall(prod_name, `product);
-		    }
-		}
-	    });
-
-	    foreach(string prod, migration_products, {
-		y2milestone("Removing migration product: %1", prod);
-		Pkg::ResolvableRemove(prod, `product);
-	    });
-
-	    // do full distribution upgrade
-	    map <string, any> update_conf = GetUpdateConf();
-	    map <symbol, integer> update_sum = Pkg::PkgUpdateAll (update_conf);
-	    y2milestone ("Update configuration: %1, update summary: %2", update_conf, update_sum);
-
-	    // also preselect all applicable patches (except optional ones)
+	    // preselect all applicable patches (except optional ones)
 	    integer patches = Pkg::ResolvablePreselectPatches(`all);
 	    y2milestone("Preselected patches: %1", patches);
-	}
-	else
-	{
-	    // do partial DUP
-	    // add upgrade repositories
-	    y2milestone("Adding upgrade repos: %1", dup_repos);
-	    foreach(integer repo, dup_repos, {Pkg::AddUpgradeRepo(repo);});
-
-	    // be compatible with "zypper dup --from"
-	    Pkg::SetSolverFlags($["ignoreAlreadyRecommended" : true]);
 	}
 
 	// set the solve error flag for packages proposal
