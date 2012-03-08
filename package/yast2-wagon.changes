@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Mar  8 12:11:52 UTC 2012 - lslezak@suse.cz
+
+- do not downgrade release packages, avoid migrating again
+  (bnc#751147)
+- 2.17.17.11
+
+-------------------------------------------------------------------
 Wed Mar  7 08:14:29 UTC 2012 - lslezak@suse.cz
 
 - ensure that the migration products are removed (bnc#750746)

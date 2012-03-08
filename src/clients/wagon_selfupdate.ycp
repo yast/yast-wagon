@@ -50,87 +50,18 @@
 
 	integer pkgs_affected = 0;
 
-	map <string, list <string> > installed_versions = $[];
-
-	boolean some_packages_selected = false;
-
 	foreach (string one_package, packages, {
-	    // All packages of the given name
-	    list <map <string, any> > respros = Pkg::ResolvableProperties (one_package, `package, "");
+	    y2milestone ("Updating package %1", one_package);
 
-	    // All installed packages of the given name
-	    list <map <string, any> > installed = filter (map <string, any> one_respro, respros, {
-		return (one_respro["status"]:`unknown == `installed);
-	    });
-
-	    // All available packages of the given name
-	    list <map <string, any> > available = filter (map <string, any> one_respro, respros, {
-		return (one_respro["status"]:`unknown == `available);
-	    });
-
-	    // Such package is not installed
-	    if (size (installed) < 1) {
-		y2milestone ("Package %1 is not installed", one_package);
-		return;
-	    }
-
-	    // Er, installed but not available
-	    if (size (available) < 1) {
-		y2warning ("Package %1 is installed but not available", one_package);
-		return;
-	    }
-
-	    // Remember the installed version(s)
-	    installed_versions[one_package] = maplist (map <string,any> one_installed, installed, {
-		return one_installed["version"]:"unknown";
-	    });
-
-	    // Force upgrade/install
-	    y2milestone ("Selecting package %1 for installation", one_package);
-	    if (Pkg::ResolvableInstall (one_package, `package) == true) {
-		some_packages_selected = true;
-	    } else {
-		y2error ("Cannot install package %1", one_package);
+	    if (Pkg::ResolvableUpdate(one_package, `package)) {
+		pkgs_affected = pkgs_affected + 1;
 	    }
 	});
 
-	if (some_packages_selected != true) {
-	    y2milestone ("No packages have been selected for upgrade");
-	    return pkgs_affected;
+	if (pkgs_affected > 0) {
+	    // run the solver to check dependencies
+	    SolverRunWithFeedback();
 	}
-
-	// Calling solver to select the best version
-	SolverRunWithFeedback();
-
-	y2milestone ("Some packages have been selected, checking...");
-
-	// Check whether the selected version is different to the already installed one
-	foreach (string one_package, list <string> previously_installed_versions, installed_versions, {
-	    list <map <string, any> > respros = Pkg::ResolvableProperties (one_package, `package, "");
-
-	    // All selected packages of the given name
-	    list <map <string, any> > selected = filter (map <string, any> one_respro, respros, {
-		return (one_respro["status"]:`unknown == `selected);
-	    });
-
-	    // The package of a given name is selected
-	    if (size (selected) > 0) {
-		boolean selection_differs = false;
-
-		foreach (map <string, any> one_selected, selected, {
-		    if (! contains (previously_installed_versions, one_selected["version"]:"some-version")) {
-			pkgs_affected = pkgs_affected + 1;
-			selection_differs = true;
-			break;
-		    }
-		});
-
-		if (selection_differs != true) {
-		    y2milestone ("Selection of packages doesn't differ, neutralizing package: %1", one_package);
-		    Pkg::ResolvableNeutral (one_package, `package, false);
-		}
-	    }
-	});
 
 	return pkgs_affected;
     }

@@ -57,16 +57,12 @@
 		return;
 	    }
 
-	    // Product version is the same but release can be different
-	    // product map doesn't contain the release string. To be sure, product will be reinstalled
 	    y2milestone ("Upgrading product %1 version %2", product_name, product_version);
-	    // The version is the same, release can be different
-	    if (Pkg::ResolvableInstall (product_name, `product) != true) {
-		Report::Error (sformat(_("Cannot update installed product %1."), product_name));
-		return;
-	    }
 
-	    affected_products = affected_products + 1;
+	    if (Pkg::ResolvableUpdate(product_name, `product))
+	    {
+		affected_products = affected_products + 1;
+	    }
 	});
 
 	return affected_products;
