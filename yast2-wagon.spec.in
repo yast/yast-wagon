@@ -4,10 +4,10 @@
 # String::FindMountPoint()
 Requires:	yast2 >= 2.17.110
 Requires:	yast2-online-update-frontend >= 2.17.9
-# Pkg::AddUpgradeRepo()
-Requires:	yast2-pkg-bindings >= 2.17.48
-# Pkg::AddUpgradeRepo()
-BuildRequires:	yast2-pkg-bindings >= 2.17.48
+# Pkg::ResolvableUpdate()
+Requires:	yast2-pkg-bindings >= 2.17.58
+# Pkg::ResolvableUpdate()
+BuildRequires:	yast2-pkg-bindings >= 2.17.58
 
 # String::FindMountPoint()
 BuildRequires:	yast2 >= 2.17.110
