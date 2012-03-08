@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar  7 08:14:29 UTC 2012 - lslezak@suse.cz
+
+- ensure that the migration products are removed (bnc#750746)
+
+-------------------------------------------------------------------
 Wed Feb 15 10:33:50 UTC 2012 - lslezak@suse.cz
 
 - Automatically save solver test case in the migration proposal

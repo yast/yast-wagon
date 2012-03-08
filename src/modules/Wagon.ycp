@@ -468,6 +468,14 @@ Use zypper instead.
 	// be compatible with "zypper dup --from"
 	Pkg::SetSolverFlags($["ignoreAlreadyRecommended" : true]);
 
+	// ensure the migration products are removed
+	foreach(string migration_product, migration_products,
+	    {
+		y2milestone("Removing migration product: %1", migration_product);
+		Pkg::ResolvableRemove(migration_product, `product);
+	    }
+	);
+
 	if (MigrationType() == `full)
 	{
 	    // run the solver to evaluate applicable patches
