@@ -668,8 +668,8 @@ Use zypper instead.
 	    // Product is going to be upgraded (removed + installed new version)
 	    if (contains (products_to_be_upgraded, name) || sles_for_vmware_upgrade) {
 		map <string,any> old_product = find(map<string,any> p, products, {return p["name"]:"" == (sles_for_vmware_upgrade ? "SUSE_SLES" : name) && p["status"]:`unknown == `removed;});
-		string old_product_name = old_product["name"]:_("No name defined");
-		string old_display_name = old_product["display_name"]:old_product["short_name"]:old_product["name"]:_("No name defined");
+		string old_product_name = old_product["name"]:_("No name defined.");
+		string old_display_name = old_product["display_name"]:old_product["short_name"]:old_product["name"]:_("No name defined.");
 
 		y2milestone ("Detected product upgrade from: '%1' to: '%2'", old_display_name, display_name);
 		y2milestone ("Product will be upgraded to: %1 (this is the new one)", product);
