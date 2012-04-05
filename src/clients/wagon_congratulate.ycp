@@ -35,15 +35,15 @@
 
     if (text == nil || text == "") {
 	y2warning ("Using fallback migration_congratulate text");
-	text =
-	    _("<p><b>Congratulations!</b><br>
+	// translators: %1 is a URL, e.g. http://www.suse.com
+	text = sformat(_("<p><b>Congratulations!</b><br>
 You have successfully finished the on-line migration.</p>
 <p>The whole system has been upgraded. It should be rebooted
 as soon as possible.</p>
-<p>Please visit us at http://www.novell.com/linux/.</p>
+<p>Please visit us at %1.</p>
 <p>Have a nice day!<br>
 Your SUSE Linux Team</p>
-");
+"), "http://www.suse.com");
     }
 
     term contents = `VBox (
@@ -60,7 +60,7 @@ Your SUSE Linux Team</p>
     );
 
     string help = _("<p><b>Finish</b> will close the migration.
-Restart the system as soon as possible.</b>
+Restart the system as soon as possible.</p>
 ");
 
     Wizard::SetContents (caption, contents, help,
