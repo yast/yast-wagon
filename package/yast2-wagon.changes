@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Nov 19 17:28:36 UTC 2012 - jdsn@suse.de
+
+- move generic perl module to yast2 package (fate#312712)
+- 2.17.33
+
+-------------------------------------------------------------------
 Thu Mar  8 12:11:52 UTC 2012 - lslezak@suse.cz
 
 - do not downgrade release packages, avoid migrating again
