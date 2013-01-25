@@ -875,15 +875,46 @@ It is safe to abort the migration now.</b></li>
             return regexpmatch(script, "$");
         });
 
+        // sort the scripts to ensure the order
+        scripts = sort(scripts);
+        y2milestone("Found scripts: %1", scripts);
+
         // run the scripts
         foreach(string script, scripts, {
             y2milestone("Starting hook script: %1", script);
 
-            integer ret = (integer)SCR::Execute(.target.bash, script);
+            boolean run_again = false;
 
-            if (ret != 0)
-            {
-            }
+            do {
+                run_again = false;
+                y2milestone("Executing script: %1", script);
+                integer ret = (integer)SCR::Execute(.target.bash, script);
+                y2milestone("Script returned: %1", ret);
+
+                if (ret != 0)
+                {
+                    symbol ret = Popup::AnyQuestion3(Label::ErrorMsg(),
+                        // TRANSLATORS: Error message displayed in a popup dialog with [Continue], [Cancel] and [Retry] buttons
+                        // Continue = ignore the failure and run the other scripts for this step (if present)
+                        // Cancel = quit, don't run anything
+                        // Retry = run it again, retry it
+                        sformat(_("Script %1 failed\nContinue with other scripts or try it again?"), script),
+                            _("Continue"), _("Cancel"), _("Retry"), `focus_yes
+                    );
+
+                    y2milestone("User input: %1", ret);
+
+                    if (ret == `retry) {
+                        y2milestone("Retrying the script");
+                        run_again = true;
+                    }
+                    else if (ret == `no)
+                    {
+                        y2milestone("Canceling the hook scripts");
+                        return false;
+                    }
+                }
+            } while (run_again);
         });
 
         return true;
