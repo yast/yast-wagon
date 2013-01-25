@@ -845,19 +845,27 @@ It is safe to abort the migration now.</b></li>
 	return true;
     }
 
-    // <seq>_<prefix>_<name>_<stage>_<step>
-    // sequence number 00 -> 99 (it's important to keep the beginning zeros for correct sorting!)
+    // Run a hook script for the current step/stage
+    // The scripts are loaded from /var/lib/YaST2/wagon/hooks/ directory.
+    //
+    // The expected script name is:  <seq>_<prefix>_<name>_<stage>_<step>
+    //
+    // seq - sequence number 00..99 (it's important to keep the beginning zeros for correct sorting!)
     // prefix - should be unique to avoid conflicts, use package name (if it is part of a package)
-    //      or your vendor name, internet domain name, etc... basicaly anything which can be considered
+    //      or your (vendor) name, internet domain name, etc... basicaly anything which can be considered
     //      enough unique
     // name - any name (just to differ the scripts), some descriptive name is recommended
-    // stage - can be 'before', 'after'
-    // step is the YCP client name, or 'abort' which is called when aborting migration
-    //  (it can be used for cleaning up after previously called scripts)
+    // stage - can be 'before' or 'after'
+    // step - migration step name, the YCP client name, or 'abort' which is called when aborting migration (in 'after' stage)
+    //      it can be used for cleaning up after previously called scripts
     //
-    // the script should return exit value 0, if it fails (non-zero exit value) it displays an error
-    // 000_my_script_test_after_selfupdate
-
+    // the script should return exit value 0, if it fails (non-zero exit value) an error message is displayed
+    // and is possible to start the script again
+    //
+    // Example script name (with full path): /var/lib/YaST2/wagon/hooks/000_postgresql_backup_before_migration_products
+    //
+    // Returns false on error when (scripts are canceled), otherwise true
+    //
     global boolean RunHooks(string step, string stage) {
         y2milestone("Running '%1' hooks for step: %2", stage, step);
 
@@ -905,7 +913,6 @@ It is safe to abort the migration now.</b></li>
                     y2milestone("User input: %1", ret);
 
                     if (ret == `retry) {
-                        y2milestone("Retrying the script");
                         run_again = true;
                     }
                     else if (ret == `no)
