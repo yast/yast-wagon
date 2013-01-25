@@ -69,6 +69,8 @@
 
     string check_repos_module = "wagon_check_repositories";
 
+    const string hook_dir = "/var/lib/YaST2/wagon/hooks/";
+
     global void SetUpdateWorkflow (string new_update_workflow_type) {
 	// FIXME: check
 
@@ -841,6 +843,50 @@ It is safe to abort the migration now.</b></li>
 	y2milestone ("Hook script returned: %1", cmd);
 
 	return true;
+    }
+
+    // <seq>_<prefix>_<name>_<stage>_<step>
+    // sequence number 00 -> 99 (it's important to keep the beginning zeros for correct sorting!)
+    // prefix - should be unique to avoid conflicts, use package name (if it is part of a package)
+    //      or your vendor name, internet domain name, etc... basicaly anything which can be considered
+    //      enough unique
+    // name - any name (just to differ the scripts), some descriptive name is recommended
+    // stage - can be 'before', 'after'
+    // step is the YCP client name, or 'abort' which is called when aborting migration
+    //  (it can be used for cleaning up after previously called scripts)
+    //
+    // the script should return exit value 0, if it fails (non-zero exit value) it displays an error
+    // 000_my_script_test_after_selfupdate
+
+    global boolean RunHooks(string step, string stage) {
+        y2milestone("Running '%1' hooks for step: %2", stage, step);
+
+        // get all hooks
+        list<string> all_scripts = (list<string>)SCR::Read(.target.dir, hook_dir);
+
+        if (scripts == nil || scripts == [])
+        {
+            y2milestone("No hook scripts found");
+            return true;
+        }
+
+        // get the list of scripts for this step/stage
+        list<string> scripts = filter(string script, all_scripts, {
+            return regexpmatch(script, "$");
+        });
+
+        // run the scripts
+        foreach(string script, scripts, {
+            y2milestone("Starting hook script: %1", script);
+
+            integer ret = (integer)SCR::Execute(.target.bash, script);
+
+            if (ret != 0)
+            {
+            }
+        });
+
+        return true;
     }
 
     /**
