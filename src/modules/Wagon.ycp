@@ -863,7 +863,7 @@ It it also safe to abort the migration now.</b></li>")
         // get all hooks
         list<string> all_scripts = (list<string>)SCR::Read(.target.dir, hook_dir);
 
-        if (scripts == nil || scripts == [])
+        if (all_scripts == nil || all_scripts == [])
         {
             y2milestone("No hook scripts found");
             return true;
