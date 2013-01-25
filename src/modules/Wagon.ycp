@@ -844,6 +844,29 @@ It it also safe to abort the migration now.</b></li>")
 	return true;
     }
 
+    // find hook script for the stage and step
+    list<string> HookScripts(string stage, string step) {
+        // get all hooks
+        list<string> all_scripts = (list<string>)SCR::Read(.target.dir, hook_dir);
+
+        if (all_scripts == nil || all_scripts == [])
+        {
+            y2milestone("No hook scripts found");
+            return [];
+        }
+
+        // get the list of scripts for this step/stage
+        list<string> scripts = filter(string script, all_scripts, {
+            return regexpmatch(script, "$");
+        });
+
+        // sort the scripts to ensure the order
+        scripts = sort(scripts);
+        y2milestone("Found scripts: %1", scripts);
+
+        return scripts;
+    }
+
     // Run a hook script for the current step/stage
     // The scripts are loaded from /var/lib/YaST2/wagon/hooks/ directory.
     //
@@ -865,26 +888,10 @@ It it also safe to abort the migration now.</b></li>")
     //
     // Returns false on error when (scripts are canceled), otherwise true
     //
-    global boolean RunHooks(string step, string stage) {
+    global boolean RunHooks(string stage, string step) {
         y2milestone("Running '%1' hooks for step: %2", stage, step);
 
-        // get all hooks
-        list<string> all_scripts = (list<string>)SCR::Read(.target.dir, hook_dir);
-
-        if (all_scripts == nil || all_scripts == [])
-        {
-            y2milestone("No hook scripts found");
-            return true;
-        }
-
-        // get the list of scripts for this step/stage
-        list<string> scripts = filter(string script, all_scripts, {
-            return regexpmatch(script, "$");
-        });
-
-        // sort the scripts to ensure the order
-        scripts = sort(scripts);
-        y2milestone("Found scripts: %1", scripts);
+        list<string> scripts = HookScripts(stage, step);
 
         // run the scripts
         foreach(string script, scripts, {
