@@ -882,8 +882,12 @@ It is safe to abort the migration now.</b></li>
     // step - migration step name, the YCP client name, or 'abort' which is called when aborting migration (in 'after' stage)
     //      it can be used for cleaning up after previously called scripts
     //
-    // the script should return exit value 0, if it fails (non-zero exit value) an error message is displayed
-    // and is possible to start the script again
+    // The script should return exit value 0, if it fails (non-zero exit value) an error message is displayed
+    // and is possible to start the script again.
+    //
+    // The scripts can be potentionally run more times (when going back and forth in the wagon dialogs),
+    // the scripts have to cope with that fact (they can check whether they need to do something or they for example
+    // can create a simple temporary stamp file).
     //
     // Example script name (with full path): /var/lib/YaST2/wagon/hooks/000_postgresql_backup_before_migration_products
     //
