@@ -890,6 +890,8 @@ It is safe to abort the migration now.</b></li>
     //
     // Example script name (with full path): /var/lib/YaST2/wagon/hooks/000_postgresql_backup_before_migration_products
     //
+    // See https://github.com/yast/yast-wagon/wiki/Migration-Hooks for details (list of the supported hooks)
+    //
     // Returns false on error when (scripts are canceled), otherwise true
     //
     global boolean RunHooks(string step) {
