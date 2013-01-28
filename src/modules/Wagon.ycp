@@ -844,8 +844,9 @@ It it also safe to abort the migration now.</b></li>")
 	return true;
     }
 
-    // find hook script for the stage and step
-    list<string> HookScripts(string stage, string step) {
+    // find hook scripts for the step
+    // the result is sorted in the execution order
+    list<string> HookScripts(string step) {
         // get all hooks
         list<string> all_scripts = (list<string>)SCR::Read(.target.dir, hook_dir);
 
@@ -857,7 +858,7 @@ It it also safe to abort the migration now.</b></li>")
 
         // get the list of scripts for this step/stage
         list<string> scripts = filter(string script, all_scripts, {
-            return regexpmatch(script, "$");
+            return regexpmatch(script, step + "$");
         });
 
         // sort the scripts to ensure the order
@@ -867,19 +868,17 @@ It it also safe to abort the migration now.</b></li>")
         return scripts;
     }
 
-    // Run a hook script for the current step/stage
+    // Run a hook script for the current step
     // The scripts are loaded from /var/lib/YaST2/wagon/hooks/ directory.
     //
-    // The expected script name is:  <seq>_<prefix>_<name>_<stage>_<step>
+    // The expected script name is:  <seq>_<prefix>_<name>_<step>
     //
     // seq - sequence number 00..99 (it's important to keep the beginning zeros for correct sorting!)
     // prefix - should be unique to avoid conflicts, use package name (if it is part of a package)
     //      or your (vendor) name, internet domain name, etc... basicaly anything which can be considered
     //      enough unique
     // name - any name (just to differ the scripts), some descriptive name is recommended
-    // stage - can be 'before' or 'after'
-    // step - migration step name, the YCP client name, or 'abort' which is called when aborting migration (in 'after' stage)
-    //      it can be used for cleaning up after previously called scripts
+    // step - migration step name, e.g. before_package_migration
     //
     // The script should return exit value 0, if it fails (non-zero exit value) an error message is displayed
     // and is possible to start the script again.
@@ -892,10 +891,10 @@ It it also safe to abort the migration now.</b></li>")
     //
     // Returns false on error when (scripts are canceled), otherwise true
     //
-    global boolean RunHooks(string stage, string step) {
-        y2milestone("Running '%1' hooks for step: %2", stage, step);
+    global boolean RunHooks(string step) {
+        y2milestone("Running hooks for step: %1", step);
 
-        list<string> scripts = HookScripts(stage, step);
+        list<string> scripts = HookScripts(step);
 
         // run the scripts
         foreach(string script, scripts, {
