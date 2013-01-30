@@ -858,7 +858,7 @@ It it also safe to abort the migration now.</b></li>")
 
         // get the list of scripts for this step/stage
         list<string> scripts = filter(string script, all_scripts, {
-            return regexpmatch(script, step + "$");
+            return regexpmatch(script, "^[0-9]+_" + step "_");
         });
 
         // sort the scripts to ensure the order
@@ -871,14 +871,14 @@ It it also safe to abort the migration now.</b></li>")
     // Run a hook script for the current step
     // The scripts are loaded from /var/lib/YaST2/wagon/hooks/ directory.
     //
-    // The expected script name is:  <seq>_<prefix>_<name>_<step>
+    // The expected script name is:  <seq>_<step>_<prefix>_<name>
     //
     // seq - sequence number 00..99 (it's important to keep the beginning zeros for correct sorting!)
+    // step - migration step name, e.g. before_package_migration
     // prefix - should be unique to avoid conflicts, use package name (if it is part of a package)
     //      or your (vendor) name, internet domain name, etc... basicaly anything which can be considered
     //      enough unique
     // name - any name (just to differ the scripts), some descriptive name is recommended
-    // step - migration step name, e.g. before_package_migration
     //
     // The script should return exit value 0, if it fails (non-zero exit value) an error message is displayed
     // and is possible to start the script again.
