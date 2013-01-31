@@ -1,3 +1,6 @@
+<!-- The latest version of this file converted into HTML format can be displayed
+online at https://github.com/yast/yast-wagon/blob/Code-11-SP3/doc/Migration_Hooks.md -->
+
 # Migration Hooks
 
 Migration hooks allow to run a custom external script at some point during the
