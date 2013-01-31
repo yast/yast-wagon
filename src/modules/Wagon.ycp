@@ -859,7 +859,7 @@ It is safe to abort the migration now.</b></li>
 
         // get the list of scripts for this step/stage
         list<string> scripts = filter(string script, all_scripts, {
-            return regexpmatch(script, "^[0-9]+_" + step + "_");
+            return regexpmatch(script, "^" + step +"_");
         });
 
         // sort the scripts to ensure the order
@@ -872,10 +872,10 @@ It is safe to abort the migration now.</b></li>
     // Run a hook script for the current step
     // The scripts are loaded from /var/lib/YaST2/wagon/hooks/ directory.
     //
-    // The expected script name is:  <seq>_<step>_<prefix>_<name>
+    // The expected script name is:  <step>_<seq>_<prefix>_<name>
     //
-    // seq - sequence number 00..99 (it's important to keep the beginning zeros for correct sorting!)
     // step - migration step name, e.g. before_package_migration
+    // seq - sequence number 00..99 (it's important to keep the beginning zeros for correct sorting!)
     // prefix - should be unique to avoid conflicts, use package name (if it is part of a package)
     //      or your (vendor) name, internet domain name, etc... basicaly anything which can be considered
     //      enough unique
@@ -888,7 +888,7 @@ It is safe to abort the migration now.</b></li>
     // the scripts have to cope with that fact (they can check whether they need to do something or they for example
     // can create a simple temporary stamp file).
     //
-    // Example script name (with full path): /var/lib/YaST2/wagon/hooks/000_postgresql_backup_before_migration_products
+    // Example script name (with full path): /var/lib/YaST2/wagon/hooks/before_package_migration_000_postgresql_backup
     //
     // See https://github.com/yast/yast-wagon/wiki/Migration-Hooks for details (list of the supported hooks)
     //
