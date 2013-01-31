@@ -907,7 +907,12 @@ It it also safe to abort the migration now.</b></li>")
             do {
                 run_again = false;
                 y2milestone("Executing script: %1", script);
+
+                // %1 is a file name
+                UI::OpenDialog(`Label(sformat(_("Executing script %1 ..."), script)));
                 integer ret = (integer)SCR::Execute(.target.bash, script);
+                UI::CloseDialog();
+
                 y2milestone("Script returned: %1", ret);
 
                 if (ret != 0)
