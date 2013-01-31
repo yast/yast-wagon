@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jan 31 13:07:49 UTC 2013 - lslezak@suse.cz
+
+- added support for hook scripts, see doc/Migration_Hooks.md file
+  for details (fate#314132)
+
+-------------------------------------------------------------------
 Tue Nov 20 15:51:51 UTC 2012 - jdsn@suse.de
 
 - move generic perl module to yast2 package (fate#312712)
