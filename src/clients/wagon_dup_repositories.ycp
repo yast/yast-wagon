@@ -24,6 +24,8 @@
 
     include "wagon/common_func.ycp";
 
+    Wagon::RunHooks("before_set_migration_repo");
+
     define list TableContent()
     {
 	// current enabled repositories
@@ -305,6 +307,11 @@
     symbol ret = (Wagon::GetMigrationMethod() == "suse_register" && size(Wagon::RegistrationRepos()) > 0) ? MigrationSelectionDialog() : DupSelectionDialog();
 
     y2milestone ("Result: %1", ret);
+
+    if (ret == `next)
+    {
+        Wagon::RunHooks("after_set_migration_repo");
+    }
 
     return ret;
 }
