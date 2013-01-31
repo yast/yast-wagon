@@ -135,7 +135,7 @@ These hooks are called whenever Wagon restarts itself.
 - **after_restart** - Wagon is restarted, runs the next step in the migration
   workflow
 
-### Recommended hooks
+### Usually Used Hooks
 
 The list of hooks is pretty large, but many of them make sense only in special
 cases. In usual use cases these should be preferred:
