@@ -49,6 +49,7 @@ through command line tools.
 @PREP@
 
 @BUILD@
+mkdir -p "$RPM_BUILD_ROOT"/var/lib/YaST2/wagon/hooks/
 
 @INSTALL@
 xmllint --noout --relaxng %{_datadir}/YaST2/control/control.rng %{buildroot}%{_datadir}/YaST2/control/*.xml
@@ -68,6 +69,8 @@ rm -rf %{buildroot}%%{_datadir}/YaST2/control/online_migration.xml
 @yncludedir@/wagon/*.ycp
 @desktopdir@/*.desktop
 %doc @docdir@
+%dir /var/lib/YaST2/wagon/
+%dir /var/lib/YaST2/wagon/hooks/
 %exclude %{_datadir}/YaST2/control
 %exclude %{_datadir}/YaST2/control/*.xml
 
