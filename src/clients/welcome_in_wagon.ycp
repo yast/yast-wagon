@@ -25,6 +25,8 @@
 
     textdomain "wagon";
 
+    Wagon::RunHooks("before_welcome");
+
     // heading text
     string heading_text = _("Welcome");
 
@@ -78,6 +80,11 @@ Click 'Next' to start the update."))
 
     // Clear the dialog
     Wizard::SetContents ("", `Empty(), "", true, true);
+
+    if (ret == `next)
+    {
+        Wagon::RunHooks("after_welcome");
+    }
 
     return ret;
 }

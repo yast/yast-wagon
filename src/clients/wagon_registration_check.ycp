@@ -22,6 +22,8 @@
     import "Wizard";
     import "Popup";
 
+    Wagon::RunHooks("before_registration_check");
+
     // max age for the registration status (in days)
     integer max_age_days = 90;
     // max age for the registration status (in seconds)
@@ -288,6 +290,7 @@
 	}
 	else
 	{
+            Wagon::RunHooks("after_registration_check");
 	    return `next;
 	}
     }
@@ -295,6 +298,11 @@
     symbol ret = RegistrationSummaryDialog(reg_status);
 
     y2milestone ("Result: %1", ret);
+
+    if (ret == `next)
+    {
+        Wagon::RunHooks("after_registration_check");
+    }
 
     return ret;
 }
