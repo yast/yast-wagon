@@ -895,9 +895,8 @@ It it also safe to abort the migration now.</b></li>")
     //
     // See doc/Migration_Hooks.md file for details (list of the supported hooks)
     //
-    // Returns false on error when (scripts are canceled), otherwise true
     //
-    global boolean RunHooks(string step) {
+    global void RunHooks(string step) {
         y2milestone("Running hooks for step: %1", step);
 
         list<string> scripts = HookScripts(step);
@@ -954,8 +953,6 @@ It it also safe to abort the migration now.</b></li>")
                 break;
             }
         });
-
-        return !canceled;
     }
 
     /**
