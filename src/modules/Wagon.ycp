@@ -901,6 +901,7 @@ It it also safe to abort the migration now.</b></li>")
         y2milestone("Running hooks for step: %1", step);
 
         list<string> scripts = HookScripts(step);
+        boolean canceled = false;
 
         // run the scripts
         foreach(string script, scripts, {
@@ -925,7 +926,7 @@ It it also safe to abort the migration now.</b></li>")
 
                 if (ret != 0)
                 {
-                    symbol ret = Popup::AnyQuestion3(Label::ErrorMsg(),
+                    symbol ui = Popup::AnyQuestion3(Label::ErrorMsg(),
                         // TRANSLATORS: Error message displayed in a popup dialog with [Continue], [Cancel] and [Retry] buttons
                         // Continue = ignore the failure and run the other scripts for this step (if present)
                         // Cancel = quit, don't run anything
@@ -934,21 +935,27 @@ It it also safe to abort the migration now.</b></li>")
                             _("Continue"), _("Cancel"), _("Retry"), `focus_yes
                     );
 
-                    y2milestone("User input: %1", ret);
+                    y2milestone("User input: %1", ui);
 
-                    if (ret == `retry) {
+                    if (ui == `retry) {
                         run_again = true;
                     }
-                    else if (ret == `no)
+                    else if (ui == `no)
                     {
                         y2milestone("Canceling the hook scripts");
-                        return false;
+                        canceled = true;
+                        break;
                     }
                 }
             } while (run_again);
+
+            if (canceled)
+            {
+                break;
+            }
         });
 
-        return true;
+        return !canceled;
     }
 
     /**
