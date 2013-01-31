@@ -911,7 +911,13 @@ It it also safe to abort the migration now.</b></li>")
                 y2milestone("Executing hook script: %1", script);
 
                 // %1 is a file name
-                UI::OpenDialog(`Label(sformat(_("Executing script %1 ..."), script)));
+                string display_script = regexpsub(script, "^" + step + "_[0-9]+_(.*)", "\\1");
+                if (display_script == nil)
+                {
+                    display_script = script;
+                }
+
+                UI::OpenDialog(`Label(sformat(_("Executing script %1 ..."), display_script)));
                 integer ret = (integer)SCR::Execute(.target.bash, hook_dir + "/" + script);
                 UI::CloseDialog();
 
