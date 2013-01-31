@@ -37,6 +37,8 @@
 	return `back;
     }
 
+    Wagon::RunHooks("before_self_update");
+
     /**
      * Tries to upgrade packages got as parameter.
      *
@@ -163,6 +165,9 @@
     y2milestone ("Selected resolvables: %1", selected);
     if (selected < 1) {
 	y2milestone ("Neither patches nor packages for self-update have been selected");
+
+        Wagon::RunHooks("after_self_update");
+
 	return ret;
     }
 
@@ -180,6 +185,8 @@
 	    y2milestone ("Nothing to install/remove");
 	    ret = `auto;
 	}
+
+        Wagon::RunHooks("after_self_update");
     }
 
     y2milestone ("Returning: %1", ret);

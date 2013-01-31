@@ -36,6 +36,8 @@
 	return `back;
     }
 
+    Wagon::RunHooks("before_installing_migration_products");
+
     integer UpdateInstalledProducts () {
 	integer affected_products = 0;
 
@@ -269,6 +271,7 @@ It cannot be disabled."),  p["short_name"]:p["display_name"]:"not-defined"));
     }
 
     if (FindAndSelectMigrationProducts() != true) {
+        Wagon::RunHooks("after_installing_migration_products");
 	return `auto;
     }
 
@@ -289,6 +292,11 @@ It cannot be disabled."),  p["short_name"]:p["display_name"]:"not-defined"));
     }
 
     ResetPackager();
+
+    if (ret == `auto)
+    {
+        Wagon::RunHooks("after_installing_migration_products");
+    }
 
     y2milestone ("Returning: %1", ret);
 

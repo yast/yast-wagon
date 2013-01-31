@@ -21,8 +21,11 @@
     import "Popup";
     import "GetInstArgs";
     import "Label";
+    import "Wagon";
 
     textdomain "wagon";
+
+    Wagon::RunHooks("before_congratulate");
 
     symbol ret = `auto;
 
@@ -88,6 +91,8 @@ Restart the system as soon as possible.</p>
 
 	Pkg::SourceSaveAll();
 	Pkg::TargetFinish();
+
+        Wagon::RunHooks("after_congratulate");
     }
 
     return ret;

@@ -29,6 +29,8 @@
 	return `back;
     }
 
+    Wagon::RunHooks("before_custom_url");
+
     Wagon::InitPkg();
     Pkg::SourceReleaseAll();
 
@@ -68,6 +70,11 @@
     symbol ret = Sequencer::Run (aliases, sequence);
 
     y2milestone ("Ret: %1", ret);
+
+    if (ret == `next)
+    {
+        Wagon::RunHooks("after_custom_url");
+    }
 
     return ret;
 }

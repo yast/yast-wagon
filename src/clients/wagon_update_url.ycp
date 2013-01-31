@@ -24,6 +24,8 @@
 
     textdomain "wagon";
 
+    Wagon::RunHooks("before_selecting_migration_source");
+
     string frame_label = _("Select from Where to Get the Update URL");
     integer frame_width = (UI::TextMode() ? 2 * size (frame_label) : 2.2 * size (frame_label));
 
@@ -118,6 +120,11 @@ You can also modify them there.</p>
 		break;
 	    }
 	}
+    }
+
+    if (ret == `next)
+    {
+        Wagon::RunHooks("after_selecting_migration_source");
     }
 
     return ret;

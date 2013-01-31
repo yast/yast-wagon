@@ -39,5 +39,7 @@
     y2milestone ("Resetting repos_already_registered flag");
     Wagon::repos_already_registered = false;
 
+    Wagon::RunHooks("before_package_migration");
+
     return `auto;
 }

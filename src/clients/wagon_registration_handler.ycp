@@ -30,6 +30,8 @@
 
     include "wagon/common_func.ycp";
 
+    Wagon::RunHooks("before_registration");
+
     void AdjustRegistrationHandlerScreen () {
 	Wizard::SetContents (
 	    _("Novell Customer Center Configuration"),
@@ -137,6 +139,11 @@ Do you want to rerun the registration?
 	    y2warning ("User does not want to rerun the registration");
 	    break;
 	}
+    }
+
+    if (ret == `next)
+    {
+        Wagon::RunHooks("after_registration");
     }
 
     return ret;
