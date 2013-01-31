@@ -861,9 +861,13 @@ It it also safe to abort the migration now.</b></li>")
             return regexpmatch(script, "^" + step +"_");
         });
 
-        // sort the scripts to ensure the order
-        scripts = sort(scripts);
-        y2milestone("Found scripts: %1", scripts);
+        if (size(scripts) > 0)
+        {
+            // sort the scripts to ensure the order
+            scripts = sort(scripts);
+
+            y2milestone("Found scripts for this step: %1", scripts);
+        }
 
         return scripts;
     }
@@ -900,17 +904,15 @@ It it also safe to abort the migration now.</b></li>")
 
         // run the scripts
         foreach(string script, scripts, {
-            y2milestone("Starting hook script: %1", script);
-
             boolean run_again = false;
 
             do {
                 run_again = false;
-                y2milestone("Executing script: %1", script);
+                y2milestone("Executing hook script: %1", script);
 
                 // %1 is a file name
                 UI::OpenDialog(`Label(sformat(_("Executing script %1 ..."), script)));
-                integer ret = (integer)SCR::Execute(.target.bash, script);
+                integer ret = (integer)SCR::Execute(.target.bash, hook_dir + "/" + script);
                 UI::CloseDialog();
 
                 y2milestone("Script returned: %1", ret);
