@@ -44,7 +44,7 @@ The expected script name is in format *step_seq_prefix_name*, where
 ### Example
 
 Example script name (with full path):
-`/var/lib/YaST2/wagon/hooks/00_before_package_migration_postgresql_backup`
+`/var/lib/YaST2/wagon/hooks/before_package_migration_00_postgresql_backup`
 
 ## Hook Script Exit Value
 
