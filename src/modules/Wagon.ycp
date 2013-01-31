@@ -888,9 +888,9 @@ It is safe to abort the migration now.</b></li>
     // the scripts have to cope with that fact (they can check whether they need to do something or they for example
     // can create a simple temporary stamp file).
     //
-    // Example script name (with full path): /var/lib/YaST2/wagon/hooks/before_package_migration_000_postgresql_backup
+    // Example script name (with full path): /var/lib/YaST2/wagon/hooks/before_package_migration_00_postgresql_backup
     //
-    // See https://github.com/yast/yast-wagon/wiki/Migration-Hooks for details (list of the supported hooks)
+    // See doc/Migration_Hooks.md file for details (list of the supported hooks)
     //
     // Returns false on error when (scripts are canceled), otherwise true
     //
