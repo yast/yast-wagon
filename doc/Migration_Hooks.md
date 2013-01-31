@@ -16,6 +16,8 @@ The scripts must not be interactive, the stdin and stdout are redirected to
 pipes when running in YaST. The X session should not be used as it might not be
 available in all cases (e.g. when running in text mode).
 
+Do not forget to set the executable permission for the hook scripts.
+
 ## Requirements
 
 Migration hooks are supported in yast2-wagon package version 2.17.34 or higher
