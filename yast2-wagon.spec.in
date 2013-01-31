@@ -44,6 +44,7 @@ Summary: YaST2 - Migration Tool for Service Packs
 @PREP@
 
 @BUILD@
+mkdir -p "$RPM_BUILD_ROOT"/var/lib/YaST2/wagon/hooks/
 
 @INSTALL@
 
@@ -61,3 +62,5 @@ Summary: YaST2 - Migration Tool for Service Packs
 @desktopdir@/*.desktop
 /usr/share/YaST2/control/*.xml
 %doc @docdir@
+%dir /var/lib/YaST2/wagon/
+%dir /var/lib/YaST2/wagon/hooks/
