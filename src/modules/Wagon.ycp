@@ -867,7 +867,7 @@ It is safe to abort the migration now.</b></li>
             // sort the scripts to ensure the order
             scripts = sort(scripts);
 
-            y2milestone("Found scripts for this step: %1", scripts);
+            y2milestone("Found scripts for step '%1': %2", step, scripts);
         }
 
         return scripts;
