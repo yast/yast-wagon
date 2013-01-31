@@ -859,7 +859,7 @@ It is safe to abort the migration now.</b></li>
 
         // get the list of scripts for this step/stage
         list<string> scripts = filter(string script, all_scripts, {
-            return regexpmatch(script, "^[0-9]+_" + step "_");
+            return regexpmatch(script, "^[0-9]+_" + step + "_");
         });
 
         // sort the scripts to ensure the order
