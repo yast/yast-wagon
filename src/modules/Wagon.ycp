@@ -930,7 +930,7 @@ It it also safe to abort the migration now.</b></li>")
                         // Continue = ignore the failure and run the other scripts for this step (if present)
                         // Cancel = quit, don't run anything
                         // Retry = run it again, retry it
-                        sformat(_("Script %1 failed\nContinue with other scripts, cancel scripts or try it again?"), display_script),
+                        sformat(_("Hook script '%1' failed\n\nContinue with other scripts, cancel scripts or try it again?"), display_script),
                             _("Continue"), _("Cancel"), _("Retry"), `focus_yes
                     );
 
