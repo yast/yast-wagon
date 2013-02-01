@@ -943,7 +943,6 @@ It it also safe to abort the migration now.</b></li>")
                     {
                         y2milestone("Canceling the hook scripts");
                         canceled = true;
-                        break;
                     }
                 }
             } while (run_again);
