@@ -69,6 +69,8 @@
 
     string check_repos_module = "wagon_check_repositories";
 
+    const string hook_dir = "/var/lib/YaST2/wagon/hooks/";
+
     global void SetUpdateWorkflow (string new_update_workflow_type) {
 	// FIXME: check
 
@@ -840,6 +842,116 @@ It it also safe to abort the migration now.</b></li>")
 	y2milestone ("Hook script returned: %1", cmd);
 
 	return true;
+    }
+
+    // find hook scripts for the step
+    // the result is sorted in the execution order
+    list<string> HookScripts(string step) {
+        // get all hooks
+        list<string> all_scripts = (list<string>)SCR::Read(.target.dir, hook_dir);
+
+        if (all_scripts == nil || all_scripts == [])
+        {
+            y2milestone("No hook scripts found");
+            return [];
+        }
+
+        // get the list of scripts for this step/stage
+        list<string> scripts = filter(string script, all_scripts, {
+            return regexpmatch(script, "^" + step +"_");
+        });
+
+        if (size(scripts) > 0)
+        {
+            // sort the scripts to ensure the order
+            scripts = sort(scripts);
+
+            y2milestone("Found scripts for step '%1': %2", step, scripts);
+        }
+
+        return scripts;
+    }
+
+    // Run a hook script for the current step
+    // The scripts are loaded from /var/lib/YaST2/wagon/hooks/ directory.
+    //
+    // The expected script name is:  <step>_<seq>_<prefix>_<name>
+    //
+    // step - migration step name, e.g. before_package_migration
+    // seq - sequence number 00..99 (it's important to keep the beginning zeros for correct sorting!)
+    // prefix - should be unique to avoid conflicts, use package name (if it is part of a package)
+    //      or your (vendor) name, internet domain name, etc... basicaly anything which can be considered
+    //      enough unique
+    // name - any name (just to differ the scripts), some descriptive name is recommended
+    //
+    // The script should return exit value 0, if it fails (non-zero exit value) an error message is displayed
+    // and is possible to start the script again.
+    //
+    // The scripts can be potentionally run more times (when going back and forth in the wagon dialogs),
+    // the scripts have to cope with that fact (they can check whether they need to do something or they for example
+    // can create a simple temporary stamp file).
+    //
+    // Example script name (with full path): /var/lib/YaST2/wagon/hooks/before_package_migration_00_postgresql_backup
+    //
+    // See doc/Migration_Hooks.md file for details (list of the supported hooks)
+    //
+    //
+    global void RunHooks(string step) {
+        y2milestone("Running hooks for step: %1", step);
+
+        list<string> scripts = HookScripts(step);
+        boolean canceled = false;
+
+        // run the scripts
+        foreach(string script, scripts, {
+            boolean run_again = false;
+
+            do {
+                run_again = false;
+                y2milestone("Executing hook script: %1", script);
+
+                // %1 is a file name
+                string display_script = regexpsub(script, "^" + step + "_[0-9]+_(.*)", "\\1");
+                if (display_script == nil)
+                {
+                    display_script = script;
+                }
+
+                UI::OpenDialog(`Label(sformat(_("Executing script %1 ..."), display_script)));
+                integer ret = (integer)SCR::Execute(.target.bash, hook_dir + "/" + script);
+                UI::CloseDialog();
+
+                y2milestone("Script returned: %1", ret);
+
+                if (ret != 0)
+                {
+                    symbol ui = Popup::AnyQuestion3(Label::ErrorMsg(),
+                        // TRANSLATORS: Error message displayed in a popup dialog with [Continue], [Cancel] and [Retry] buttons
+                        // Continue = ignore the failure and run the other scripts for this step (if present)
+                        // Cancel = quit, don't run anything
+                        // Retry = run it again, retry it
+                        sformat(_("Hook script '%1' failed\n\nContinue with other scripts, cancel scripts or try it again?"), display_script),
+                            _("Continue"), _("Cancel"), _("Retry"), `focus_yes
+                    );
+
+                    y2milestone("User input: %1", ui);
+
+                    if (ui == `retry) {
+                        run_again = true;
+                    }
+                    else if (ui == `no)
+                    {
+                        y2milestone("Canceling the hook scripts");
+                        canceled = true;
+                    }
+                }
+            } while (run_again);
+
+            if (canceled)
+            {
+                break;
+            }
+        });
     }
 
     /**

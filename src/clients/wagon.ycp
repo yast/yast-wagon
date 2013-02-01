@@ -114,6 +114,11 @@
 	    y2milestone ("Storing all the current sources...");
 	    Pkg::SourceSaveAll();
 	}
+
+	if (ret == `restart_same_step || ret == `restart_yast || ret == `reboot)
+        {
+            Wagon::RunHooks("before_restart");
+        }
     }
 
     // Checks whether YaST has been restarted
@@ -161,6 +166,8 @@
 		    Wagon::SetMigrationMethod (migration_method);
 		}
 	    }
+
+            Wagon::RunHooks("after_restart");
 	}
     }
 
@@ -174,6 +181,7 @@ You will have to revert them manually."));
 
 	    return false;
 	}
+
 
 	Wizard::SetContents (
 	    _("Reverting Migration"),
@@ -214,6 +222,8 @@ you will have to do them manually.</p>"),
 	    y2warning ("User decided not to rollback");
 	    return false;
 	}
+
+        Wagon::RunHooks("before_abort_rollback");
 
 	ResetPackager();
 
@@ -292,12 +302,16 @@ Remove package %2 manually"), remove_product["name"]:_("Unknown product"), packa
 	    return false;
 	}
 
+        Wagon::RunHooks("after_abort_rollback");
+
 	return true;
     }
 
     // Hooks for testing and manual changes
     // --> /usr/lib/YaST2/bin/wagon_hook_init
     Wagon::RunHook ("init");
+
+    Wagon::RunHooks("before_init");
 
     // main()
     HandleInit();
@@ -317,6 +331,7 @@ Remove package %2 manually"), remove_product["name"]:_("Unknown product"), packa
     // Wagon has been aborted, revert to the previous products
     // if possible
     if (ret == `abort || ret == `cancel) {
+        Wagon::RunHooks("before_abort");
 	RevertToOldProducts();
     }
 
@@ -327,6 +342,8 @@ Remove package %2 manually"), remove_product["name"]:_("Unknown product"), packa
     // Hooks for testing and manual changes
     // --> /usr/lib/YaST2/bin/wagon_hook_finish
     Wagon::RunHook ("finish");
+
+    Wagon::RunHooks("before_exit");
 
     return ret;
 }
