@@ -3,6 +3,7 @@ Thu Jan 31 13:07:49 UTC 2013 - lslezak@suse.cz
 
 - added support for hook scripts, see doc/Migration_Hooks.md file
   for details (fate#314132)
+- 2.17.32.1
 
 -------------------------------------------------------------------
 Thu Mar  8 12:11:52 UTC 2012 - lslezak@suse.cz
