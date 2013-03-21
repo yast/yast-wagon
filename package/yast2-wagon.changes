@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Mar 21 21:11:08 UTC 2013 - lslezak@suse.cz
+
+- removed the minimal/full migration dialog (in SP3 there is no
+  difference) (bnc#810512)
+
+-------------------------------------------------------------------
 Thu Jan 31 13:07:49 UTC 2013 - lslezak@suse.cz
 
 - added support for hook scripts, see doc/Migration_Hooks.md file
