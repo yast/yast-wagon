@@ -37,10 +37,12 @@ Provides:	yast2-online-update-frontend:/usr/share/applications/YaST2/cd_update.d
 
 BuildArchitectures:	noarch
 
-Summary: YaST2 - Migration Tool for Service Packs
+Summary:        YaST2 - Migration Tool for Service Packs
 
 %description
--
+Wagon is a convenience tool to guide the user through the migration. It
+does not contain any extra functionality beyond what's available
+through command line tools.
 
 @PREP@
 
