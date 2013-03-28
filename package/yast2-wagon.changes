@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Mar 21 21:11:08 UTC 2013 - lslezak@suse.cz
+
+- removed the minimal/full migration dialog (in SP3 there is no
+  difference) (bnc#810512)
+
+-------------------------------------------------------------------
 Mon Feb  4 12:08:23 UTC 2013 - lslezak@suse.cz
 
 - renaming WebYaST product is OK, handle product removal properly
