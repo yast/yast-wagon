@@ -914,13 +914,7 @@ It it also safe to abort the migration now.</b></li>")
                 y2milestone("Executing hook script: %1", script);
 
                 // %1 is a file name
-                string display_script = regexpsub(script, "^" + step + "_[0-9]+_(.*)", "\\1");
-                if (display_script == nil)
-                {
-                    display_script = script;
-                }
-
-                UI::OpenDialog(`Label(sformat(_("Executing script %1 ..."), display_script)));
+                UI::OpenDialog(`Label(sformat(_("Executing script %1 ..."), script)));
                 integer ret = (integer)SCR::Execute(.target.bash, hook_dir + "/" + script);
                 UI::CloseDialog();
 
@@ -933,7 +927,7 @@ It it also safe to abort the migration now.</b></li>")
                         // Continue = ignore the failure and run the other scripts for this step (if present)
                         // Cancel = quit, don't run anything
                         // Retry = run it again, retry it
-                        sformat(_("Hook script '%1' failed\n\nContinue with other scripts, cancel scripts or try it again?"), display_script),
+                        sformat(_("Hook script '%1' failed\n\nContinue with other scripts, cancel scripts or try it again?"), script),
                             _("Continue"), _("Cancel"), _("Retry"), `focus_yes
                     );
 
