@@ -3,6 +3,14 @@ Fri Apr  5 14:25:52 UTC 2013 - lslezak@suse.cz
 
 - fixed regexp for searching hook scripts (do not match scripts for
   different steps) (bnc#813235)
+- 2.17.37
+
+-------------------------------------------------------------------
+Fri Apr  5 11:17:18 UTC 2013 - lslezak@suse.cz
+
+- be less strict in product renames (do not check the migration
+  product as it can have different name in SP2 and SP3, more over
+  it might not be present when using custom migration) (bnc#800515)
 
 -------------------------------------------------------------------
 Thu Apr  4 08:28:26 UTC 2013 - lslezak@suse.cz
