@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Apr  5 14:25:52 UTC 2013 - lslezak@suse.cz
+
+- fixed regexp for searching hook scripts (do not match scripts for
+  different steps) (bnc#813235)
+
+-------------------------------------------------------------------
 Fri Apr  5 11:17:18 UTC 2013 - lslezak@suse.cz
 
 - be less strict in product renames (do not check the migration
