@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Apr  5 14:25:52 UTC 2013 - lslezak@suse.cz
+
+- fixed regexp for searching hook scripts (do not match scripts for
+  different steps) (bnc#813235)
+
+-------------------------------------------------------------------
 Thu Apr  4 08:28:26 UTC 2013 - lslezak@suse.cz
 
 - always display full hook name in the popup (bnc#813235)
