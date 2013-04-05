@@ -4,6 +4,7 @@ Fri Apr  5 11:17:18 UTC 2013 - lslezak@suse.cz
 - be less strict in product renames (do not check the migration
   product as it can have different name in SP2 and SP3, more over
   it might not be present when using custom migration) (bnc#800515)
+- 2.17.37
 
 -------------------------------------------------------------------
 Thu Apr  4 08:28:26 UTC 2013 - lslezak@suse.cz
