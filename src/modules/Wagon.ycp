@@ -861,7 +861,7 @@ It it also safe to abort the migration now.</b></li>")
 
         // get the list of scripts for this step/stage
         list<string> scripts = filter(string script, all_scripts, {
-            return regexpmatch(script, "^" + step +"_");
+            return regexpmatch(script, "^" + step + "_[0-9]+_");
         });
 
         if (size(scripts) > 0)
