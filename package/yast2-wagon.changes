@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Apr 22 12:11:08 UTC 2013 - lslezak@suse.cz
+
+- documentation update: fixed wagon version number (SP2 update
+  version) (bnc#813235)
+- 2.17.38
+
+-------------------------------------------------------------------
 Fri Apr  5 14:25:52 UTC 2013 - lslezak@suse.cz
 
 - fixed regexp for searching hook scripts (do not match scripts for

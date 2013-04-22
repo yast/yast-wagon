@@ -20,8 +20,8 @@ Do not forget to set the executable permission for the hook scripts.
 
 ## Requirements
 
-Migration hooks are supported in yast2-wagon package version 2.17.32.1 (provided
-as an update for SLES11-SP2) or 2.17.34 (included in SLES11-SP3) or higher versions.
+Migration hooks are supported since yast2-wagon version 2.17.34 (SLES11-SP3)
+and 2.17.32.5 (SLES11-SP2 maintenance update).
 
 # Hook Script Location and Name Conventions
 
