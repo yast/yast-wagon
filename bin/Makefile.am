@@ -4,10 +4,6 @@
 
 sbin_SCRIPTS = wagon
 
-client_DATA = $(wildcard *.ycp)
-
-YCPCFLAGS = -M ../modules
-
-EXTRA_DIST = $(sbin_SCRIPTS) $(client_DATA)
+EXTRA_DIST = $(sbin_SCRIPTS)
 
 include $(top_srcdir)/Makefile.am.common

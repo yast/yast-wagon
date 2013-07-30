@@ -39,6 +39,8 @@ Requires:	wagon-control-file
 
 BuildArchitectures:	noarch
 
+Requires:       yast2-ruby-bindings >= 1.0.0
+
 Summary: YaST2 - Migration Tool for Service Packs
 
 %description
@@ -62,11 +64,10 @@ rm -rf %{buildroot}%%{_datadir}/YaST2/control/online_migration.xml
 %files
 %defattr(-,root,root)
 %{_prefix}/sbin/wagon
-@clientdir@/*.ycp
-@moduledir@/*.ycp
-@moduledir@/*.ybc
+@clientdir@/*.rb
+@moduledir@/*.rb
 %dir @yncludedir@/wagon
-@yncludedir@/wagon/*.ycp
+@yncludedir@/wagon/*.rb
 @desktopdir@/*.desktop
 %doc @docdir@
 %dir /var/lib/YaST2/wagon/
