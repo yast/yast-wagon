@@ -9,6 +9,7 @@ Read	.target.size "/etc/sysconfig/language" 1
 Read	.sysconfig.language.ROOT_USES_LANG "ctype"
 Read	.sysconfig.language.RC_LANG "en_US.UTF-8"
 Read	.sysconfig.language.INSTALLED_LANGUAGES ""
+Read	.target.size "tests/registration-1product.xml" 1
 Return	$["expired":[], "failed":[], "no_subscription":[], "provisional":[], "registered":["SUSE_SLES"], "registered_system":true, "rma":[], "timestamp":1280122800]
 Read	.target.size "tests/registration-2products.xml" 1
 Return	$["expired":[], "failed":[], "no_subscription":[], "provisional":[], "registered":["SUSE_SLES", "sle-slms"], "registered_system":true, "rma":[], "timestamp":1280122800]
