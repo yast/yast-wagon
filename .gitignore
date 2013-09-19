@@ -17,7 +17,6 @@ testsuite/*.test
 .deps
 .libs
 package/*.bz2
-package/*.spec
 stamp-h*
 autom4te.cache
 config.cache
@@ -28,7 +27,7 @@ config.log
 config.status
 config.sub
 configure
-configure.in
+configure.ac
 COPYING
 COPYRIGHT.english
 depcomp

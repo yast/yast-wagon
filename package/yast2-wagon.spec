@@ -1,8 +1,30 @@
-@HEADER-COMMENT@
+#
+# spec file for package yast2-wagon
+#
+# Copyright (c) 2013 SUSE LINUX Products GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
 
-@HEADER@
-Group:	System/YaST
-License: GPL-2.0+
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
+
+
+Name:           yast2-wagon
+Version:        3.1.0
+Release:        0
+
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+Source0:        %{name}-%{version}.tar.bz2
+
+Group:	        System/YaST
+License:        GPL-2.0+
 # PackagesUI::RunPackageSelector yast2 >= 2.17.40
 # RegistrationStatus: yast2 >= 2.23.13
 Requires:	yast2 >= 2.23.13
@@ -48,38 +70,40 @@ Wagon is a convenience tool to guide the user through the migration. It
 does not contain any extra functionality beyond what's available
 through command line tools.
 
-@PREP@
+%prep
+%setup -n %{name}-%{version}
 
-@BUILD@
+%build
+%yast_build
 mkdir -p "$RPM_BUILD_ROOT"/var/lib/YaST2/wagon/hooks/
 
-@INSTALL@
+%install
+%yast_install
+
 xmllint --noout --relaxng %{_datadir}/YaST2/control/control.rng %{buildroot}%{_datadir}/YaST2/control/*.xml
 # ghost file
 touch %{buildroot}%{_datadir}/YaST2/control/online_migration.xml
 
-@CLEAN@
+%clean
 rm -rf %{buildroot}%%{_datadir}/YaST2/control/online_migration.xml
 
 %files
 %defattr(-,root,root)
 %{_prefix}/sbin/wagon
-@clientdir@/*.rb
-@moduledir@/*.rb
-%dir @yncludedir@/wagon
-@yncludedir@/wagon/*.rb
-@desktopdir@/*.desktop
-%doc @docdir@
+%{yast_clientdir}/*.rb
+%{yast_moduledir}/*.rb
+%dir %{yast_yncludedir}/wagon
+%{yast_yncludedir}/wagon/*.rb
+%{yast_desktopdir}/*.desktop
+%doc %{yast_docdir}
 %dir /var/lib/YaST2/wagon/
 %dir /var/lib/YaST2/wagon/hooks/
 %exclude %{_datadir}/YaST2/control
 %exclude %{_datadir}/YaST2/control/*.xml
 
-###
 #
 # yast2-wagon-control-openSUSE
 #
-###
 
 %package control-openSUSE
 
@@ -106,11 +130,9 @@ ln -sf online_migration-openSUSE.xml %{_datadir}/YaST2/control/online_migration.
 %{_datadir}/YaST2/control/online_migration-openSUSE.xml
 %ghost %{_datadir}/YaST2/control/online_migration.xml
 
-###
 #
 # yast2-wagon-control-SLE
 #
-###
 
 %package control-SLE
 
