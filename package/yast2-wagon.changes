@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Wed Dec 18 14:34:14 UTC 2013 - lslezak@suse.cz
+
+- use FindMountPoint() from Yast::String, removed the duplicated
+  code from wagon_helpers.rb and it's testsuite
+- removed openSUSE migration control file and the subpackage
+  (wagon has been dropped in openSUSE)
+- use yast2-installation-control for control file validation
+- use %yast_controldir RPM macro
+- 3.1.1
+
+-------------------------------------------------------------------
 Thu Sep 19 17:48:59 UTC 2013 - lslezak@suse.cz
 
 - do not use *.spec.in template, use *.spec file with RPM macros
