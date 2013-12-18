@@ -22,8 +22,7 @@ client_DATA = \
 
 yncludedir = @yncludedir@/wagon
 ynclude_DATA = \
-  include/wagon/common_func.rb \
-  include/wagon/wagon_helpers.rb
+  include/wagon/common_func.rb
 
 desktop_DATA = \
   desktop/cd_update.desktop

@@ -39,8 +39,6 @@ module Yast
       Yast.import "PackageInstallation"
       Yast.import "RegistrationStatus"
 
-      Yast.include self, "wagon/wagon_helpers.rb"
-
       @running_by_applet = false
 
       @update_workflow_type = "manual"
@@ -559,7 +557,7 @@ module Yast
       zconfig = Pkg.ZConfig
       pkg_path = Ops.get_string(zconfig, "repo_packages_path", "")
 
-      packages_mount = FindMountPoint(pkg_path, mounts)
+      packages_mount = String.FindMountPoint(pkg_path, mounts)
       Builtins.y2milestone(
         "Packages will we downloaded to %1 (mountpoint %2)",
         pkg_path,
