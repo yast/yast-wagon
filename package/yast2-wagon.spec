@@ -17,7 +17,7 @@
 
 
 Name:           yast2-wagon
-Version:        3.1.0
+Version:        3.1.1
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -31,8 +31,6 @@ Requires:	yast2 >= 2.23.13
 Requires:	yast2-online-update-frontend >= 2.17.9
 # Pkg::AddUpgradeRepo()
 Requires:	yast2-pkg-bindings >= 2.21.2
-# Pkg::AddUpgradeRepo()
-BuildRequires:	yast2-pkg-bindings >= 2.21.2
 
 # Called in proposal and in code
 Requires:	yast2-packager >= 2.21.2
@@ -45,10 +43,10 @@ BuildRequires:	perl-XML-Writer update-desktop-files yast2-devtools yast2-testsui
 BuildRequires:	yast2 >= 2.23.13
 
 # xmllint
-BuildRequires:	libxml2
+BuildRequires:	libxml2-tools
 
 # control.rng
-BuildRequires:	yast2-installation >= 2.17.44
+BuildRequires:	yast2-installation-control
 
 Provides:	yast2-online-update-frontend:%{_datadir}/applications/YaST2/cd_update.desktop
 
@@ -80,12 +78,10 @@ mkdir -p "$RPM_BUILD_ROOT"/var/lib/YaST2/wagon/hooks/
 %install
 %yast_install
 
-xmllint --noout --relaxng %{_datadir}/YaST2/control/control.rng %{buildroot}%{_datadir}/YaST2/control/*.xml
+xmllint --noout --relaxng %{yast_controldir}/control.rng %{buildroot}%{yast_controldir}/*.xml
 # ghost file
-touch %{buildroot}%{_datadir}/YaST2/control/online_migration.xml
+touch %{buildroot}%{yast_controldir}/online_migration.xml
 
-%clean
-rm -rf %{buildroot}%%{_datadir}/YaST2/control/online_migration.xml
 
 %files
 %defattr(-,root,root)
@@ -98,37 +94,8 @@ rm -rf %{buildroot}%%{_datadir}/YaST2/control/online_migration.xml
 %doc %{yast_docdir}
 %dir /var/lib/YaST2/wagon/
 %dir /var/lib/YaST2/wagon/hooks/
-%exclude %{_datadir}/YaST2/control
-%exclude %{_datadir}/YaST2/control/*.xml
-
-#
-# yast2-wagon-control-openSUSE
-#
-
-%package control-openSUSE
-
-# Generic 'provides'
-Provides: wagon-control-file
-
-Group:	System/YaST
-License: GPL-2.0+
-
-Conflicts:	otherproviders(wagon-control-file)
-Supplements: packageand(yast2-wagon:branding-openSUSE)
-
-Summary: YaST Wagon control file for openSUSE
-
-%description control-openSUSE
-YaST Wagon control file for openSUSE
-
-%post control-openSUSE
-ln -sf online_migration-openSUSE.xml %{_datadir}/YaST2/control/online_migration.xml
-
-%files control-openSUSE
-%defattr(-,root,root)
-%dir %{_datadir}/YaST2/control
-%{_datadir}/YaST2/control/online_migration-openSUSE.xml
-%ghost %{_datadir}/YaST2/control/online_migration.xml
+%exclude %{yast_controldir}
+%exclude %{yast_controldir}/*.xml
 
 #
 # yast2-wagon-control-SLE
@@ -154,10 +121,10 @@ Summary: YaST Wagon control file for SLE
 YaST Wagon control file for SLE
 
 %post control-SLE
-ln -sf online_migration-SLE.xml %{_datadir}/YaST2/control/online_migration.xml
+ln -sf online_migration-SLE.xml %{yast_controldir}/online_migration.xml
 
 %files control-SLE
 %defattr(-,root,root)
-%dir %{_datadir}/YaST2/control
-%{_datadir}/YaST2/control/online_migration-SLE.xml
-%ghost %{_datadir}/YaST2/control/online_migration.xml
+%dir %{yast_controldir}
+%{yast_controldir}/online_migration-SLE.xml
+%ghost %{yast_controldir}/online_migration.xml
