@@ -1,14 +1,3 @@
-Read	.target.tmpdir "/tmp"
-Read	.target.stat "/y2update/control.xml" $["isreg":true]
-Read	.target.size "/y2update/control.xml" 1
-Read	.xml "/y2update/control.xml" $[]
-Read	.sysconfig.console.CONSOLE_ENCODING "UTF-8"
-Execute	.target.bash_output "locale -k charmap" $["exit":0, "stdout":"charmap=\"UTF-8\"\n"]
-Read	.sysconfig.language.RC_LANG "en_US.UTF-8"
-Read	.target.size "/etc/sysconfig/language" 1
-Read	.sysconfig.language.ROOT_USES_LANG "ctype"
-Read	.sysconfig.language.RC_LANG "en_US.UTF-8"
-Read	.sysconfig.language.INSTALLED_LANGUAGES ""
 Read	.target.size "tests/registration-1product.xml" 1
 Return	$["expired":[], "failed":[], "no_subscription":[], "provisional":[], "registered":["SUSE_SLES"], "registered_system":true, "rma":[], "timestamp":1280122800]
 Read	.target.size "tests/registration-2products.xml" 1

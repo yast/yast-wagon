@@ -39,7 +39,7 @@ Requires:	yast2-add-on
 # Counting packages directly in packages proposal (BNC #573482)
 Requires:	yast2-update >= 2.18.7
 
-BuildRequires:	perl-XML-Writer update-desktop-files yast2-devtools yast2-testsuite yast2-update
+BuildRequires:	perl-XML-Writer update-desktop-files yast2-devtools yast2-testsuite yast2
 BuildRequires:	yast2 >= 2.23.13
 
 # xmllint
