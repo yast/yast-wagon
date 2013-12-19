@@ -1,10 +1,13 @@
 # encoding: utf-8
 
-# Testsuite for Wagon.ycp module
+# Testsuite for Wagon module
 #
 module Yast
   class WagonTestClient < Client
     def main
+      Yast.import "FileUtils"
+      Yast.import "RegistrationStatus"
+
       Yast.include self, "testsuite.rb"
 
       # huh, we need to mock too much paths because of some module constructor... :-(
@@ -37,13 +40,13 @@ module Yast
 
       TESTSUITE_INIT([@READ, {}, @EXEC], nil)
 
-      Yast.import "Wagon"
+      Yast.include self, "wagon/wagon_helpers.rb"
 
       # check parsing registration status file
 
       # one registered product
       TEST(lambda do
-        Wagon.RegistrationStatusFromFile("tests/registration-1product.xml")
+        RegistrationStatusFromFile("tests/registration-1product.xml")
       end, [
         [@READ],
         [],
@@ -52,7 +55,7 @@ module Yast
 
       # two registered products
       TEST(lambda do
-        Wagon.RegistrationStatusFromFile("tests/registration-2products.xml")
+        RegistrationStatusFromFile("tests/registration-2products.xml")
       end, [
         [@READ],
         [],
@@ -61,7 +64,7 @@ module Yast
 
       # one expired product
       TEST(lambda do
-        Wagon.RegistrationStatusFromFile("tests/registration-expired.xml")
+        RegistrationStatusFromFile("tests/registration-expired.xml")
       end, [
         [@READ],
         [],
@@ -70,7 +73,7 @@ module Yast
 
       # failed registration
       TEST(lambda do
-        Wagon.RegistrationStatusFromFile("tests/registration-error.xml")
+        RegistrationStatusFromFile("tests/registration-error.xml")
       end, [
         [@READ],
         [],

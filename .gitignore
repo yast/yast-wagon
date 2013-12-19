@@ -11,7 +11,6 @@ testsuite/*.test
 *.la
 *.lo
 *.m4
-*.ybc
 *.pot
 .dep
 .deps
@@ -28,7 +27,6 @@ config.status
 config.sub
 configure
 configure.ac
-COPYRIGHT.english
 depcomp
 install-sh
 libtool
@@ -40,9 +38,3 @@ Makefile.am.common
 Makefile.in
 missing
 mkinstalldirs
-OUTPUT
-OUTPUT2
-DONE
-POTFILES
-src/config/online_migration.glade
-src/modules/wagon
