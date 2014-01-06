@@ -25,9 +25,6 @@ ynclude_DATA = \
   include/wagon/common_func.rb \
   include/wagon/wagon_helpers.rb
 
-desktop_DATA = \
-  desktop/cd_update.desktop
-
-EXTRA_DIST = $(module_DATA) $(client_DATA) $(ynclude_DATA) $(desktop_DATA)
+EXTRA_DIST = $(module_DATA) $(client_DATA) $(ynclude_DATA)
 
 include $(top_srcdir)/Makefile.am.common

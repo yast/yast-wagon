@@ -17,7 +17,7 @@
 
 
 Name:           yast2-wagon
-Version:        3.1.1
+Version:        3.1.2
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -47,8 +47,6 @@ BuildRequires:	libxml2-tools
 
 # control.rng
 BuildRequires:	yast2-installation-control
-
-Provides:	yast2-online-update-frontend:%{_datadir}/applications/YaST2/cd_update.desktop
 
 # See BNC #613820, Comment #22
 Conflicts:	yast2-perl-bindings < 2.19.0
@@ -90,7 +88,6 @@ touch %{buildroot}%{yast_controldir}/online_migration.xml
 %{yast_moduledir}/*.rb
 %dir %{yast_yncludedir}/wagon
 %{yast_yncludedir}/wagon/*.rb
-%{yast_desktopdir}/*.desktop
 %doc %{yast_docdir}
 %dir /var/lib/YaST2/wagon/
 %dir /var/lib/YaST2/wagon/hooks/
