@@ -83,31 +83,6 @@ textdomain="online-migration"
 		</proposals>
 	    </subworkflow>
 
-	    <!--
-		PatchCD workflow: 'Custom URL' used directly
-	    -->
-	    <subworkflow>
-		<name>PatchCD</name>
-		<modules config:type="list">
-		    <module>welcome</module>
-		    <module>registration_check</module>
-		    <module>wagon_custom_url</module>
-		    <module>wagon_selfupdate_from_url</module>
-		    <module>wagon_dup_repositories</module>
-
-		    <module>prepare_progress</module>
-		    <module>point_of_no_return</module>
-		    <module>wagon_kickoff</module>
-		    <module>wagon_rpmcopy</module>
-		    <module>suseconfig_after_update</module>
-		    <module>restart_yast_before_registration</module>
-		    <module>suse_register_after_update</module>
-		    <module>finished</module>
-		</modules>
-		<proposals config:type="list">
-		    <proposal>wagon_proposal</proposal>
-		</proposals>
-	    </subworkflow>
 	</subworkflows>
     </globals>
 
@@ -222,24 +197,6 @@ textdomain="online-migration"
 		    <label>Migration Configuration</label>
 		    <name>wagon_manual_url_repositories</name>
 		    <execute>wagon_repositories_handler</execute>
-		</module>
-
-		<!--
-		    Used by PatchCD
-		-->
-		<module>
-		    <label>Migration Configuration</label>
-		    <name>wagon_selfupdate_from_url</name>
-		    <execute>wagon_selfupdate</execute>
-		</module>
-
-		<!--
-		    Used by PatchCD
-		-->
-		<module>
-		    <label>Migration Configuration</label>
-		    <name>wagon_custom_url</name>
-		    <execute>wagon_custom_url</execute>
 		</module>
 
 		<module>

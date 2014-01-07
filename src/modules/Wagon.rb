@@ -286,7 +286,7 @@ module Yast
         else
           Builtins.y2milestone("Disabling module %1", @check_repos_module)
           ProductControl.DisableModule(@check_repos_module)
-        end 
+        end
         # User has chosen to enter all migration repositories manually
       elsif @migration_method == "custom"
         ProductControl.DisableModule("wagon_check_repositories")
@@ -328,11 +328,6 @@ module Yast
     def Init(commands)
       commands = deep_copy(commands)
       if Builtins.haskey(commands, "command")
-        if Ops.get_string(commands, "command", "") == "cd_update"
-          # Backward compatibility
-          Ops.set(commands, "command", "PatchCD")
-        end
-
         Builtins.y2milestone(
           "Starting workflow defined: %1",
           Ops.get_string(commands, "command", "")
@@ -521,7 +516,7 @@ module Yast
           migration_product
         )
         Pkg.ResolvableRemove(migration_product, :product)
-      end 
+      end
 
 
       if MigrationType() == :full
@@ -761,7 +756,7 @@ module Yast
               )
             ),
             "</li>\n"
-          ) 
+          )
           # Removing another product might be an issue
           # (nevertheless selected by user or directly by YaST)
         elsif transact_by == :user || transact_by == :app_high
@@ -781,7 +776,7 @@ module Yast
               )
             ),
             "</li>\n"
-          ) 
+          )
           # Not selected by user
           # @see BNC #575117
         else
@@ -882,7 +877,7 @@ module Yast
               ),
               "</li>\n"
             )
-          end 
+          end
           # Newly installed product
         else
           Builtins.y2milestone("New product will be installed: %1", product)

@@ -80,8 +80,6 @@ Here is the list of supported hooks (step names) in execution order:
   the registration status (if registration of some products expired the
   migration might fail), if everything is OK no dialog is displayed and Wagon
   automatically continues with the next step
-- *(optional, in Patch CD mode only)* - **before_custom_url**,
-  **after_custom_url** - repository manager is started
 - **before_self_update**, **after_self_update** - called before/after Wagon
   updates itself (to ensure the latest version is used for migration)
 - <em>(optional restart - see **Restart Hooks**, Wagon is restarted to run the
