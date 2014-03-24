@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<status generated="1279715826">
-  <productstatus product="SUSE_SLES" version="11.1" release="DVD" arch="x86_64" result="error" errorcode="ERR_NO_CODE">
-    <message>No registration key for SUSE Linux Enterprise Server 11 SP1 was provided.</message>
-  </productstatus>
-  <productstatus product="sle-slms" version="1.1" release="cd" arch="x86_64" result="error" errorcode="ERR_NO_CODE">
-    <message>No registration key for SUSE Lifecycle Management Server 1.0 was provided.</message>
-  </productstatus>
-</status>
